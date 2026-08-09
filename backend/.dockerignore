@@ -1,0 +1,12 @@
+# Keeps the build context small and, more importantly, stops local state from
+# leaking into the image. target/ holds a JAR built against this machine's JDK,
+# and data/ holds the local H2 file, which could carry test data into production.
+target/
+data/
+*.log
+.mvn/
+mvnw
+mvnw.cmd
+.git/
+.gitignore
+.gitattributes

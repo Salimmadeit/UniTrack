@@ -1,0 +1,65 @@
+# Netlify configuration.
+#
+# Lives at the repository root (not in frontend/) so Netlify finds it without
+# needing a "base directory" set in the dashboard.
+
+[build]
+  # The frontend is vanilla HTML/CSS/JS by design, so there is nothing to
+  # compile. Netlify just uploads this directory as-is.
+  publish = "frontend"
+
+# -----------------------------------------------------------------------------
+# API proxy — the important part.
+#
+# The browser calls /api/v1/... on the Netlify origin, and Netlify forwards it
+# to the backend server-side. This is deliberately chosen over pointing the
+# frontend straight at the backend URL, because it means:
+#
+#   1. No CORS. The browser only ever talks to one origin, so preflight and
+#      allowed-origins configuration stop being a concern entirely.
+#   2. No backend URL compiled into the JavaScript. Moving or rebuilding the
+#      backend is a one-line change here, not an edit-and-redeploy of the JS.
+#   3. No mixed-content risk, since both halves are HTTPS on one hostname.
+#
+# status = 200 makes this a proxy rewrite rather than a 301/302 redirect. With
+# a real redirect the browser would be bounced to the backend origin and CORS
+# would apply again, defeating the point.
+#
+# >>> REPLACE the hostname below with your own backend URL after deploying it.
+# -----------------------------------------------------------------------------
+[[redirects]]
+  from = "/api/*"
+  to = "https://unitrack-api.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Defence-in-depth headers. None of these are load-bearing for the app to
+    # work; they narrow what an injected script could do if one ever got in.
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Geolocation is required: the student page asks for the user's position to
+    # compute an ETA, and the driver page broadcasts from it.
+    Permissions-Policy = "geolocation=(self), camera=(), microphone=()"
+
+# The map tiles and the Leaflet bundle come from third-party origins, so the
+# connect/img/script sources below have to allow them or the map goes blank.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com; connect-src 'self'; font-src 'self'"
+
+# Static assets are content-addressed by neither name nor hash here, so a long
+# cache would serve stale CSS after a redeploy. Short cache, revalidated.
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="UniTrack driver console: broadcast this shuttle's live location to students on campus.">
+    <meta name="theme-color" content="#f7f6f4">
+    <title>UniTrack — Driver Console</title>
+
+    <!-- Theme applied before first paint to prevent a light flash in dark mode -->
+    <script src="js/theme.js"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-nav">
+        <div class="nav-inner">
+            <a class="brand" href="index.html">
+                <span class="brand-logo" aria-hidden="true">U</span>
+                <span>
+                    <span class="brand-name">UniTrack</span>
+                    <span class="brand-sub">Driver Console</span>
+                </span>
+            </a>
+
+            <div class="nav-actions">
+                <nav aria-label="Views">
+                    <ul class="nav-links" id="nav-menu">
+                        <li><a href="index.html">Student</a></li>
+                        <li><a href="driver.html" aria-current="page">Driver</a></li>
+                        <li><a href="dispatcher.html">Dispatcher</a></li>
+                    </ul>
+                </nav>
+
+                <button type="button" class="theme-toggle" data-theme-toggle
+                        aria-pressed="false" aria-label="Switch to dark theme">
+                    <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+                    </svg>
+                </button>
+
+                <button type="button" class="nav-toggle" data-nav-toggle
+                        aria-expanded="false" aria-controls="nav-menu"
+                        aria-label="Open navigation menu">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                         aria-hidden="true">
+                        <path d="M3 6h18M3 12h18M3 18h18"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-card" id="main">
+        <section class="panel" aria-labelledby="broadcast-heading">
+            <div class="panel-head">
+                <h1 class="panel-title" id="broadcast-heading">Broadcast</h1>
+                <span class="status-chip" id="driver-state" role="status">Ready</span>
+            </div>
+
+            <!-- One giant primary action: the driver operates this at a bus stop -->
+            <button type="button" class="btn btn-primary btn-lg btn-block" id="broadcast-toggle"
+                    aria-describedby="driver-message">
+                Start Broadcasting
+            </button>
+
+            <p class="helper-text" id="driver-message" role="status">
+                Tap to share this shuttle's location with students. Keep this screen open while driving —
+                the browser stops sending updates if the tab is closed.
+            </p>
+
+            <p class="notice error-banner hidden" id="driver-error" role="alert">
+                <span class="notice-icon" aria-hidden="true">⚠️</span>
+                <span id="driver-error-message">Location Access Required. Please enable GPS.</span>
+            </p>
+        </section>
+
+        <section class="info-grid" aria-label="Broadcast diagnostics">
+            <article class="info-card">
+                <h2>GPS status</h2>
+                <p id="gps-status">Waiting for permission</p>
+            </article>
+            <article class="info-card">
+                <h2>Last position</h2>
+                <p id="last-signal">No updates yet</p>
+            </article>
+            <article class="info-card">
+                <h2>Updates sent</h2>
+                <p id="broadcast-counter">0</p>
+            </article>
+            <article class="info-card">
+                <h2>Last sent</h2>
+                <p id="last-sent">—</p>
+            </article>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="shell">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a class="brand" href="index.html">
+                        <span class="brand-logo" aria-hidden="true">U</span>
+                        <span>
+                            <span class="brand-name">UniTrack</span>
+                            <span class="brand-sub">UNILAG Shuttle</span>
+                        </span>
+                    </a>
+                    <p class="footer-tagline">
+                        Real-time shuttle tracking for the University of Lagos. Built as a
+                        COS202 project, designed for the people actually standing at the stop.
+                    </p>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Views</h3>
+                    <ul>
+                        <li><a href="index.html">Student</a></li>
+                        <li><a href="driver.html">Driver</a></li>
+                        <li><a href="dispatcher.html">Dispatcher</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Learn</h3>
+                    <ul>
+                        <li><a href="index.html#how-it-works">How it works</a></li>
+                        <li><a href="index.html#stops-heading">Route stops</a></li>
+                        <li><a href="index.html">Live map</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Project</h3>
+                    <ul>
+                        <li><a href="https://github.com/Salimmadeit/UniTrack" rel="noopener">Source code</a></li>
+                        <li><a href="https://github.com/Salimmadeit/UniTrack/issues" rel="noopener">Report an issue</a></li>
+                        <li><a href="https://www.unilag.edu.ng" rel="noopener">University of Lagos</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="footer-note">© 2026 UniTrack · University of Lagos shuttle tracking</p>
+                <span class="footer-status">Live tracking active</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/driver.js"></script>
+</body>
+</html>

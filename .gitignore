@@ -1,0 +1,35 @@
+# Build output
+target/
+build/
+dist/
+
+# Local database. The H2 file holds whatever was posted while testing, which
+# should never travel with the source.
+backend/data/
+*.db
+*.mv.db
+*.trace.db
+
+# Dependencies
+node_modules/
+
+# Logs, including the transient ones written while smoke-testing a packaged jar
+*.log
+app.pid
+smoke.pid
+
+# Environment files. Committing one of these is the usual way a credential
+# ends up in a public repository.
+.env
+.env.*
+!.env.example
+
+# Netlify CLI
+.netlify/
+
+# Editor and OS noise
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
