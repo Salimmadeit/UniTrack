@@ -29,7 +29,7 @@
 # -----------------------------------------------------------------------------
 [[redirects]]
   from = "/api/*"
-  to = "https://unitrack-api.onrender.com/api/:splat"
+  to = "https://unitrack-api-7unb.onrender.com/api/:splat"
   status = 200
   force = true
 
