@@ -173,6 +173,63 @@ redeploy.
 
 ## Troubleshooting
 
+### "The health route keeps failing, but /routes works"
+
+This exact symptom came up on the live deployment, and both causes are benign.
+
+**Cause 1 — cold start.** On the free tier the service sleeps after ~15 minutes
+idle. While the container is booting, Render's edge answers with a plain-text
+`404 Not Found` and an `x-render-routing: no-server` header. It looks identical
+to a missing endpoint, but the request never reached Spring at all. Whichever
+route you happen to try first absorbs the cold start and appears broken; by the
+time you try the next one the app is up and it works. That is why `/health`
+looked dead while `/routes` returned 200 seconds later.
+
+The tell is the response body. Render's edge returns bare text:
+
+```
+Not Found
+```
+
+The application always returns JSON:
+
+```json
+{"error":"Not found","details":["No endpoint matches this path"]}
+```
+
+If you see bare text, wait and retry with a longer timeout:
+
+```bash
+curl --max-time 90 https://YOUR-SERVICE.onrender.com/api/v1/health
+# {"timestamp":"...","status":"UP"}
+```
+
+**Cause 2 — the root URL has no route.** Every endpoint is versioned under
+`/api/v1`, so opening the bare hostname in a browser used to 404 even on a
+perfectly healthy service. `GET /` now returns a service index listing the
+available endpoints, so the base URL is a useful liveness check.
+
+### A note on `curl` in PowerShell
+
+In PowerShell, `curl` is an alias for `Invoke-WebRequest`, not real curl. It
+**throws a terminating error on any non-2xx response** instead of printing the
+body, so a 404 looks like a crashed command rather than a served response. It
+also does not understand curl flags like `-s` or `--max-time`.
+
+Use `curl.exe` to get real curl:
+
+```powershell
+curl.exe -s -w "`nHTTP %{http_code}`n" --max-time 90 https://YOUR-SERVICE.onrender.com/api/v1/health
+```
+
+Also quote URLs containing `&`, or PowerShell treats it as a command separator:
+
+```powershell
+curl.exe "https://YOUR-SERVICE.onrender.com/api/v1/eta?lat=6.5167&lng=3.3850"
+```
+
+### Other issues
+
 **Frontend loads, but every panel says "Disconnected".**
 Open DevTools → Network and look at an `/api/v1/eta` call.
 - Response is HTML, not JSON → the proxy rule is not matching. Check
@@ -196,9 +253,21 @@ driver to `pom.xml`, and set `DATABASE_URL`, `DATABASE_DRIVER`, `DATABASE_USER`,
 environment overrides.
 
 **First load after idle is slow.**
-Free-tier cold start. Options: accept it for a demo, ping
-`/api/v1/health` every 10 minutes from a free uptime monitor, or upgrade to a
-paid instance that does not sleep.
+Free-tier cold start, as above. Three options:
+
+1. Accept it for a demo, and wake the service a minute before you present by
+   opening the backend URL in a browser tab.
+2. Keep it awake with a free uptime monitor (UptimeRobot, cron-job.org) polling
+   `https://YOUR-SERVICE.onrender.com/api/v1/health` every 10 minutes. Set
+   Render's **Health Check Path** to `/api/v1/health` in the dashboard too, so
+   Render restarts the service if it stops responding.
+3. Upgrade to a paid instance, which does not sleep.
+
+Worth knowing: the frontend aborts requests after 8 seconds
+(`REQUEST_TIMEOUT_MS` in `frontend/js/config.js`), which is far shorter than a
+~50s cold start. So the pages will show "Disconnected" during a wake-up even
+though the backend is fine. Keeping the service warm is what fixes this for a
+live demo.
 
 ---
 

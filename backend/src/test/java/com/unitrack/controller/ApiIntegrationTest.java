@@ -221,6 +221,21 @@ class ApiIntegrationTest {
     }
 
     /**
+     * The bare hostname is the first thing anyone opens to check a deployment
+     * is alive. It used to 404 because every route is under /api/v1, which
+     * looks like a broken deploy on a perfectly healthy service.
+     */
+    @Test
+    @DisplayName("GET / returns a service index rather than 404")
+    void rootReturnsServiceIndex() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.endpoints.health").exists())
+                .andExpect(jsonPath("$.endpoints.eta").exists());
+    }
+
+    /**
      * Regression: the catch-all {@code @ExceptionHandler(Exception.class)} used
      * to claim Spring's NoResourceFoundException and answer 500, so a typo in a
      * URL looked exactly like a server crash. Anyone debugging a deployment
