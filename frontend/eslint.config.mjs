@@ -45,7 +45,8 @@ export default [
         MapManager: 'readonly',
         UIManager: 'readonly',
         EtaController: 'readonly',
-        ThemeManager: 'readonly'
+        ThemeManager: 'readonly',
+        QueueModule: 'readonly'
       }
     },
 
@@ -60,7 +61,7 @@ export default [
           // consumed from another, which ESLint cannot see in script mode, so
           // without this every module reports a false positive.
           varsIgnorePattern:
-            '^(CONFIG|Utils|ApiService|UIManager|MapManager|EtaController|ThemeManager)$',
+            '^(CONFIG|Utils|ApiService|UIManager|MapManager|EtaController|ThemeManager|QueueModule)$',
           // `catch (error) {}` with a deliberately ignored error is a valid
           // pattern here: several failures are genuinely non-fatal.
           caughtErrors: 'none'

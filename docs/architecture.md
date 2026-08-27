@@ -44,7 +44,7 @@ graph TB
     SV --> RP
     RP --> DB
 
-    style DB fill:#7B0000,color:#fff
+    style DB fill:#0B6BCB,color:#fff
     style CT fill:#1A73E8,color:#fff
     style SV fill:#1A73E8,color:#fff
     style RP fill:#1A73E8,color:#fff
@@ -186,7 +186,7 @@ graph TD
     UI -->|"formatTimeAgo(), debounce()"| UTL
     ETA -->|WALKING_SPEED_KMH| CFG
 
-    style UI fill:#7B0000,color:#fff
+    style UI fill:#0B6BCB,color:#fff
     style API fill:#1A73E8,color:#fff
     style MAP fill:#0F9D58,color:#fff
 ```
@@ -213,7 +213,7 @@ graph LR
 
     style FE fill:#0F9D58,color:#fff
     style BE fill:#1A73E8,color:#fff
-    style H2 fill:#7B0000,color:#fff
+    style H2 fill:#0B6BCB,color:#fff
 ```
 
 ### Deployment decisions:

@@ -7,9 +7,20 @@
  *   STALE        31-60   "Delayed", show the age of the reading
  *   DISCONNECTED   60+   "Offline", fade the marker to 50%
  *
- * Why derive state on the client from updatedAt rather than trusting a server
- * flag: the age that matters to the student includes the network delay in
- * getting the reading to their phone, and it keeps ticking between polls.
+ * Where the age comes from: the backend reports `ageSeconds` alongside every
+ * reading, and that is what drives the state machine. This used to be computed
+ * here as (Date.now() - updatedAt), which was wrong in two ways at once. The
+ * backend serialised a LocalDateTime with no timezone offset, and a browser
+ * parses an offset-less datetime as *local* time - so with the server in UTC and
+ * phones on campus in UTC+1, every fresh reading looked exactly one hour old and
+ * the view latched to DISCONNECTED while the marker was visibly moving. Even
+ * with that fixed, subtracting a server timestamp from a client clock trusts the
+ * client clock, and a laptop with a wrong clock would reproduce the same bug.
+ * The server measures the age against its own clock, where both timestamps agree
+ * by construction.
+ *
+ * The client still ticks that age forward between polls, so the badge decays
+ * naturally rather than freezing until the next response.
  *
  * Polling uses setTimeout chaining, not setInterval. setInterval queues a new
  * request even when the previous one is still in flight, which on a slow
@@ -27,28 +38,83 @@ function EtaController(mapManager, uiManager) {
   this.inFlight = false;
   this.consecutiveFailures = 0;
   this.hasFittedBounds = false;
+  this.tickerId = null;
+
+  // Age of the newest reading, and the local time we received it. Together
+  // these let us age the reading forward between polls without ever comparing a
+  // server timestamp against the client clock.
+  this.lastAgeSeconds = null;
+  this.lastAgeReceivedAt = null;
 }
 
 EtaController.prototype.init = function () {
   var self = this;
 
   // Routes first: static context makes the map readable before any live data.
+  // The same payload feeds the map and the stop strip, so the two cannot
+  // disagree about which stops exist.
   ApiService.fetchRoutes().then(function (routes) {
     self.mapManager.drawRoutes(routes);
+    self.uiManager.renderStopChips(routes);
   });
 
   this.locateStudent();
   this.startPolling();
+  this.startAgeTicker();
 
   // Stop polling while the tab is hidden. This is the single biggest battery
   // and mobile-data saving in the app for a phone left in a pocket.
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) {
       self.stopPolling();
+      self.stopAgeTicker();
     } else {
       self.startPolling();
+      self.startAgeTicker();
     }
   });
+};
+
+/**
+ * Ages the current reading forward once a second, independently of polling.
+ *
+ * Without this the badge freezes whenever polling stops producing data. A failed
+ * poll deliberately keeps the last good reading on screen (a stale number beats a
+ * blank card at a bus stop), but it returns before touching the badge - so if the
+ * backend went down while the shuttle was live, the card would keep claiming
+ * "Live" indefinitely. Ticking locally means the state decays NORMAL -> WARNING
+ * -> STALE -> DISCONNECTED on its own, which is what "the state machine must be
+ * automatic" requires.
+ *
+ * One timer for the whole page, and it only writes to the DOM when a value
+ * actually changed (UIManager compares before writing), so the cost is
+ * negligible.
+ */
+EtaController.prototype.startAgeTicker = function () {
+  var self = this;
+  if (this.tickerId) return;
+
+  this.tickerId = setInterval(function () {
+    if (self.lastAgeSeconds === null || self.lastAgeReceivedAt === null) return;
+
+    var elapsed = (Date.now() - self.lastAgeReceivedAt) / 1000;
+    var age = self.lastAgeSeconds + elapsed;
+    var state = self.resolveState(age);
+
+    self.uiManager.updateBadge(state, age);
+
+    // Keep the marker's opacity honest about the state too.
+    if (state === 'DISCONNECTED') {
+      self.mapManager.setShuttleStale(true);
+    }
+  }, 1000);
+};
+
+EtaController.prototype.stopAgeTicker = function () {
+  if (this.tickerId) {
+    clearInterval(this.tickerId);
+    this.tickerId = null;
+  }
 };
 
 /**
@@ -179,13 +245,15 @@ EtaController.prototype.poll = function () {
 EtaController.prototype.render = function (driverLoc, etaData, queueData) {
   // No driver record at all -> explain the empty map, do not just leave it blank.
   if (!driverLoc || !Utils.isValidCoordinate(driverLoc.latitude, driverLoc.longitude)) {
+    this.lastAgeSeconds = null;
+    this.lastAgeReceivedAt = null;
     this.uiManager.showOfflineState();
     this.mapManager.removeShuttle();
     return;
   }
 
-  var updatedAt = Utils.parseDate(driverLoc.updatedAt);
-  var state = this.resolveState(updatedAt);
+  var ageSeconds = this.resolveAgeSeconds(driverLoc);
+  var state = this.resolveState(ageSeconds);
   var isDisconnected = state === 'DISCONNECTED';
 
   this.mapManager.updateShuttleLocation(
@@ -196,13 +264,13 @@ EtaController.prototype.render = function (driverLoc, etaData, queueData) {
 
   if (isDisconnected) {
     this.uiManager.showOfflineState();
-    this.uiManager.updateBadge(state, updatedAt);
+    this.uiManager.updateBadge(state, ageSeconds);
     return;
   }
 
   this.uiManager.updateEtaDisplay(etaData);
   this.uiManager.updateQueueDisplay(queueData, etaData);
-  this.uiManager.updateBadge(state, updatedAt);
+  this.uiManager.updateBadge(state, ageSeconds);
 
   // Frame both markers once, on the first live reading only, so the map never
   // yanks itself away from a student who has panned it deliberately.
@@ -213,14 +281,38 @@ EtaController.prototype.render = function (driverLoc, etaData, queueData) {
 };
 
 /**
- * Maps data age to a network state.
- * A missing timestamp is treated as DISCONNECTED: we cannot vouch for the age
- * of the reading, so we must not present it as live.
+ * Determines how old a reading is, in seconds.
+ *
+ * Prefers the server-computed `ageSeconds`, which is immune to timezone and
+ * clock-skew problems because the server measured it against a single clock.
+ * Falls back to the timestamp difference only if an older backend omits the
+ * field, so the page still works against a server that has not been redeployed.
+ *
+ * @returns {number|null} age in seconds, or null when it cannot be determined.
  */
-EtaController.prototype.resolveState = function (updatedAt) {
-  if (!updatedAt) return 'DISCONNECTED';
+EtaController.prototype.resolveAgeSeconds = function (driverLoc) {
+  if (driverLoc && typeof driverLoc.ageSeconds === 'number' && isFinite(driverLoc.ageSeconds)) {
+    this.lastAgeSeconds = Math.max(0, driverLoc.ageSeconds);
+    this.lastAgeReceivedAt = Date.now();
+    return this.lastAgeSeconds;
+  }
 
-  var ageSeconds = (Date.now() - updatedAt.getTime()) / 1000;
+  var updatedAt = Utils.parseDate(driverLoc && driverLoc.updatedAt);
+  if (!updatedAt) return null;
+
+  var age = Math.max(0, (Date.now() - updatedAt.getTime()) / 1000);
+  this.lastAgeSeconds = age;
+  this.lastAgeReceivedAt = Date.now();
+  return age;
+};
+
+/**
+ * Maps data age to a network state.
+ * A missing age is treated as DISCONNECTED: we cannot vouch for how old the
+ * reading is, so we must not present it as live.
+ */
+EtaController.prototype.resolveState = function (ageSeconds) {
+  if (typeof ageSeconds !== 'number' || isNaN(ageSeconds)) return 'DISCONNECTED';
 
   if (ageSeconds > CONFIG.STATUS_DISCONNECTED_THRESHOLD) return 'DISCONNECTED';
   if (ageSeconds > CONFIG.STATUS_STALE_THRESHOLD) return 'STALE';

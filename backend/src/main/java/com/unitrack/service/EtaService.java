@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -74,8 +74,12 @@ public class EtaService {
         
         boolean walkingFaster = (etaMinutes + queueWaitMinutes) > walkingMinutes;
 
-        // Confidence based on data freshness
-        long secondsSinceUpdate = Duration.between(location.getUpdatedAt(), LocalDateTime.now()).getSeconds();
+        // Confidence based on data freshness. Both operands are Instants read
+        // from this machine's clock, so no timezone conversion is involved and
+        // the age cannot be thrown off by where the caller happens to be.
+        long secondsSinceUpdate = location.getUpdatedAt() == null
+                ? Long.MAX_VALUE
+                : Math.max(0, Duration.between(location.getUpdatedAt(), Instant.now()).getSeconds());
         String confidence = getConfidence(secondsSinceUpdate);
 
         return EtaResponse.builder()

@@ -64,12 +64,13 @@ POST /api/v1/location
 **Response `200 OK`:**
 ```json
 {
-  "id": 1,
   "latitude": 6.5190,
   "longitude": 3.3905,
   "speed": 22.5,
   "heading": 180.0,
-  "updatedAt": "2026-08-09T14:30:05"
+  "updatedAt": "2026-08-09T13:30:05.412Z",
+  "serverTime": "2026-08-09T13:30:07.918Z",
+  "ageSeconds": 2
 }
 ```
 
@@ -94,14 +95,36 @@ GET /api/v1/location
 **Response `200 OK`:**
 ```json
 {
-  "id": 1,
   "latitude": 6.5190,
   "longitude": 3.3905,
   "speed": 22.5,
   "heading": 180.0,
-  "updatedAt": "2026-08-09T14:30:05"
+  "updatedAt": "2026-08-09T13:30:05.412Z",
+  "serverTime": "2026-08-09T13:30:07.918Z",
+  "ageSeconds": 2
 }
 ```
+
+| Field | Type | Notes |
+|---|---|---|
+| `updatedAt` | ISO-8601 instant | Always UTC with a trailing `Z`. |
+| `serverTime` | ISO-8601 instant | The server's clock when the response was built. Lets a client detect its own skew. |
+| `ageSeconds` | integer | How old the reading is, **measured on the server**. Clients should use this. |
+
+> **Why `ageSeconds` exists, and why clients must prefer it.**
+> The network state machine keys entirely off how old a reading is. Deriving that
+> on the client means subtracting a server timestamp from a client clock, and the
+> two disagree in practice. This originally shipped as a `LocalDateTime`
+> serialised without an offset (`2026-08-09T14:30:05`); the container runs in UTC,
+> phones on campus run at UTC+1, and a browser parses an offset-less datetime as
+> *local* time — so a reading one second old measured as one hour old and the
+> student view showed "offline" while the shuttle marker was visibly moving.
+> Two changes make that unreachable: the timestamp is now an absolute instant, and
+> the age is computed server-side where both clocks are the same clock. A wrong
+> clock on the student's own device no longer breaks the state machine either.
+>
+> The `id` field is deliberately no longer returned: it was a database detail, not
+> part of the contract.
 
 **Response `404 Not Found`** (no location data yet):
 ```json
@@ -169,24 +192,31 @@ GET /api/v1/eta?lat={latitude}&lng={longitude}
 POST /api/v1/queue
 ```
 
-**Purpose:** Dispatcher sets the current queue crowd level.
+**Purpose:** Report the current crowd level at the stop. Both **dispatchers** and
+**students** may report — students are standing at the stop and can see the queue,
+which often makes them the more current source.
 
 **Request body:**
 ```json
 {
-  "level": "MODERATE"
+  "level": "MODERATE",
+  "source": "STUDENT"
 }
 ```
 
 | Field | Type | Required | Validation |
 |---|---|---|---|
 | `level` | string | ✅ | Must be one of: `LOW`, `MODERATE`, `PACKED` (case-insensitive) |
+| `source` | string | ❌ | `STUDENT` or `DISPATCHER` (case-insensitive). Defaults to `DISPATCHER` |
 
 **Response `200 OK`:**
 ```json
 {
   "level": "MODERATE",
-  "updatedAt": "2026-08-09T14:32:10"
+  "source": "STUDENT",
+  "updatedAt": "2026-08-09T13:32:10.204Z",
+  "serverTime": "2026-08-09T13:32:10.221Z",
+  "ageSeconds": 0
 }
 ```
 
@@ -197,6 +227,34 @@ POST /api/v1/queue
   "details": ["level must be one of: LOW, MODERATE, PACKED"]
 }
 ```
+
+**Response `429 Too Many Requests`** (debounced):
+```json
+{
+  "level": "MODERATE",
+  "source": "STUDENT",
+  "updatedAt": "2026-08-09T13:32:10.204Z",
+  "serverTime": "2026-08-09T13:32:13.900Z",
+  "ageSeconds": 3
+}
+```
+Accompanied by a `Retry-After` header, in seconds.
+
+> **Debounce semantics.** The spec's 10-second anti-spam rule is enforced here as
+> well as in the browser, because this endpoint is public and unauthenticated — a
+> guard that lives in the page can simply be bypassed.
+>
+> The window is keyed on **(level, source)**, not applied globally. A flat "one
+> report per 10 seconds" lock sounds stricter but behaves badly: the queue is a
+> single shared row and there is no per-user identity to rate-limit against, so
+> ten students each tapping once would have nine honest reports silently dropped.
+> What needs suppressing is an accidental double-tap — a repeat of the same value.
+> A genuine change of state ("it was Moderate, now it's Packed") is exactly the
+> report that must get through, so it is never debounced.
+>
+> `429` rather than `400`: the payload was valid, the caller was merely early. The
+> body still carries the live queue state, so a rejected client does not need a
+> second request to refresh its display.
 
 ---
 
@@ -212,9 +270,17 @@ GET /api/v1/queue
 ```json
 {
   "level": "MODERATE",
-  "updatedAt": "2026-08-09T14:32:10"
+  "source": "STUDENT",
+  "updatedAt": "2026-08-09T13:32:10.204Z",
+  "serverTime": "2026-08-09T13:32:14.010Z",
+  "ageSeconds": 4
 }
 ```
+
+`source` tells the UI where the number came from; `ageSeconds` matters because a
+"Packed" reading from forty minutes ago should not be presented as the current
+state of the stop. See the note under `GET /location` for why the age is computed
+server-side.
 
 ---
 

@@ -5,7 +5,7 @@
     <!-- viewport-fit=cover supports notched devices; zoom is NOT disabled (a11y) -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="description" content="Track UNILAG campus shuttles in real time: live location, arrival estimate, queue level and whether walking is faster.">
-    <meta name="theme-color" content="#f7f6f4">
+    <meta name="theme-color" content="#f6f8fb">
     <title>UniTrack — Where is my shuttle?</title>
 
     <!-- Theme applied before first paint to prevent a light flash in dark mode -->
@@ -141,7 +141,8 @@
                     </aside>
 
                     <button type="button" class="fab" id="report-queue-btn"
-                            aria-label="Report how busy the queue is">
+                            aria-label="Report how busy the queue is"
+                            aria-haspopup="dialog" aria-controls="report-sheet">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -150,6 +151,59 @@
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
                     </button>
+                </div>
+            </div>
+
+            <!--
+                Student crowd reporting. Students are at the stop and can see the
+                queue, so they are a better real-time source than a dispatcher who
+                may be elsewhere on campus. Same one-tap, no-typing interaction as
+                the dispatcher console, and the same 10-second debounce - enforced
+                on the server too, since this endpoint is public.
+            -->
+            <div class="report-sheet hidden" id="report-sheet" role="dialog" aria-modal="true"
+                 aria-labelledby="report-heading">
+                <div class="report-panel glass-panel">
+                    <div class="report-head">
+                        <h2 class="panel-title" id="report-heading">How busy is your stop?</h2>
+                        <button type="button" class="report-close" id="report-close"
+                                aria-label="Close crowd report">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                <path d="M18 6L6 18M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <p class="helper-text" id="report-feedback" role="status">
+                        Tap the level that matches what you can see.
+                    </p>
+
+                    <div class="report-options" role="group" aria-labelledby="report-heading">
+                        <button type="button" class="report-option low" data-level="LOW">
+                            <span class="queue-dot" aria-hidden="true"></span>
+                            <span class="queue-label">
+                                <b>Low</b>
+                                <span>0–5 people waiting</span>
+                            </span>
+                        </button>
+
+                        <button type="button" class="report-option moderate" data-level="MODERATE">
+                            <span class="queue-dot" aria-hidden="true"></span>
+                            <span class="queue-label">
+                                <b>Moderate</b>
+                                <span>15–30 people waiting</span>
+                            </span>
+                        </button>
+
+                        <button type="button" class="report-option packed" data-level="PACKED">
+                            <span class="queue-dot" aria-hidden="true"></span>
+                            <span class="queue-label">
+                                <b>Packed</b>
+                                <span>50+ people waiting</span>
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -216,13 +270,15 @@
                     </p>
                 </div>
 
-                <div class="stops-strip">
-                    <span class="stop-chip">Main Gate</span>
-                    <span class="stop-chip">Senate Building</span>
-                    <span class="stop-chip">Faculty of Science</span>
-                    <span class="stop-chip">Faculty of Engineering</span>
-                    <span class="stop-chip">New Hall</span>
-                    <span class="stop-chip">Sports Centre</span>
+                <!--
+                    Populated from GET /api/v1/routes by UIManager.renderStopChips.
+                    Previously this list was hardcoded and had drifted out of sync
+                    with the backend, advertising stops (New Hall, Faculty of
+                    Engineering) that no route actually served. Rendering it from
+                    the same data the map uses means it cannot drift again.
+                -->
+                <div class="stops-strip" id="stops-strip">
+                    <span class="stop-chip" id="stops-placeholder">Loading stops…</span>
                 </div>
             </div>
         </section>
@@ -239,15 +295,15 @@
 
                 <div class="stat-grid">
                     <div class="stat">
-                        <span class="stat-value">~3s</span>
+                        <span class="stat-value">~6s</span>
                         <span class="stat-label">Update interval</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-value">2</span>
+                        <span class="stat-value" id="stat-routes">—</span>
                         <span class="stat-label">Active routes</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-value">6</span>
+                        <span class="stat-value" id="stat-stops">—</span>
                         <span class="stat-label">Campus stops</span>
                     </div>
                     <div class="stat">
@@ -324,6 +380,7 @@
     <script src="js/map.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/eta.js"></script>
+    <script src="js/queue.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
