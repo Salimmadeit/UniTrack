@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="UniTrack dispatcher console: publish the current shuttle queue level so students see how busy the stop is.">
+    <meta name="theme-color" content="#f6f8fb">
+    <title>UniTrack — Dispatcher Console</title>
+
+    <!-- Theme applied before first paint to prevent a light flash in dark mode -->
+    <script src="js/theme.js"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-nav">
+        <div class="nav-inner">
+            <a class="brand" href="index.html">
+                <span class="brand-logo" aria-hidden="true">U</span>
+                <span>
+                    <span class="brand-name">UniTrack</span>
+                    <span class="brand-sub">Dispatcher Console</span>
+                </span>
+            </a>
+
+            <div class="nav-actions">
+                <nav aria-label="Views">
+                    <ul class="nav-links" id="nav-menu">
+                        <li><a href="index.html">Student</a></li>
+                        <li><a href="driver.html">Driver</a></li>
+                        <li><a href="dispatcher.html" aria-current="page">Dispatcher</a></li>
+                    </ul>
+                </nav>
+
+                <button type="button" class="theme-toggle" data-theme-toggle
+                        aria-pressed="false" aria-label="Switch to dark theme">
+                    <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+                    </svg>
+                </button>
+
+                <button type="button" class="nav-toggle" data-nav-toggle
+                        aria-expanded="false" aria-controls="nav-menu"
+                        aria-label="Open navigation menu">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                         aria-hidden="true">
+                        <path d="M3 6h18M3 12h18M3 18h18"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-card" id="main">
+        <section class="panel" aria-labelledby="queue-heading">
+            <div class="panel-head">
+                <h1 class="panel-title" id="queue-heading">How busy is the queue?</h1>
+                <span class="status-chip" id="queue-state" role="status">Not set</span>
+            </div>
+
+            <p class="helper-text">One tap. No typing. Students see the change within seconds.</p>
+
+            <!-- aria-pressed communicates the current selection to screen readers -->
+            <div class="queue-actions" role="group" aria-labelledby="queue-heading">
+                <button type="button" class="queue-button low" data-level="LOW" aria-pressed="false">
+                    <span class="queue-dot" aria-hidden="true"></span>
+                    <span class="queue-label">
+                        <b>Low</b>
+                        <span>0–5 people waiting</span>
+                    </span>
+                    <span class="queue-check" aria-hidden="true">✓</span>
+                </button>
+
+                <button type="button" class="queue-button moderate" data-level="MODERATE" aria-pressed="false">
+                    <span class="queue-dot" aria-hidden="true"></span>
+                    <span class="queue-label">
+                        <b>Moderate</b>
+                        <span>15–30 people waiting</span>
+                    </span>
+                    <span class="queue-check" aria-hidden="true">✓</span>
+                </button>
+
+                <button type="button" class="queue-button packed" data-level="PACKED" aria-pressed="false">
+                    <span class="queue-dot" aria-hidden="true"></span>
+                    <span class="queue-label">
+                        <b>Packed</b>
+                        <span>50+ people waiting</span>
+                    </span>
+                    <span class="queue-check" aria-hidden="true">✓</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="panel compact" aria-label="Update status">
+            <p class="helper-text" id="queue-feedback" role="status">
+                Select a queue level above to publish it.
+            </p>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="shell">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a class="brand" href="index.html">
+                        <span class="brand-logo" aria-hidden="true">U</span>
+                        <span>
+                            <span class="brand-name">UniTrack</span>
+                            <span class="brand-sub">UNILAG Shuttle</span>
+                        </span>
+                    </a>
+                    <p class="footer-tagline">
+                        Real-time shuttle tracking for the University of Lagos. Built as a
+                        COS202 project, designed for the people actually standing at the stop.
+                    </p>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Views</h3>
+                    <ul>
+                        <li><a href="index.html">Student</a></li>
+                        <li><a href="driver.html">Driver</a></li>
+                        <li><a href="dispatcher.html">Dispatcher</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Learn</h3>
+                    <ul>
+                        <li><a href="index.html#how-it-works">How it works</a></li>
+                        <li><a href="index.html#stops-heading">Route stops</a></li>
+                        <li><a href="index.html">Live map</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Project</h3>
+                    <ul>
+                        <li><a href="https://github.com/Salimmadeit/UniTrack" rel="noopener">Source code</a></li>
+                        <li><a href="https://github.com/Salimmadeit/UniTrack/issues" rel="noopener">Report an issue</a></li>
+                        <li><a href="https://www.unilag.edu.ng" rel="noopener">University of Lagos</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="footer-note">© 2026 UniTrack · University of Lagos shuttle tracking</p>
+                <span class="footer-status">Live tracking active</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/queue.js"></script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- viewport-fit=cover supports notched devices; zoom is NOT disabled (a11y) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Track UNILAG campus shuttles in real time: live location, arrival estimate, queue level and whether walking is faster.">
+    <meta name="theme-color" content="#f6f8fb">
+    <title>UniTrack — Where is my shuttle?</title>
+
+    <!-- Theme applied before first paint to prevent a light flash in dark mode -->
+    <script src="js/theme.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ======================================================================
+         NAVBAR — sticky glass
+         ====================================================================== -->
+    <header class="site-nav">
+        <div class="nav-inner">
+            <a class="brand" href="index.html">
+                <span class="brand-logo" aria-hidden="true">U</span>
+                <span>
+                    <span class="brand-name">UniTrack</span>
+                    <span class="brand-sub">UNILAG Shuttle</span>
+                </span>
+            </a>
+
+            <div class="nav-actions">
+                <nav aria-label="Views">
+                    <ul class="nav-links" id="nav-menu">
+                        <li><a href="index.html" aria-current="page">Student</a></li>
+                        <li><a href="driver.html">Driver</a></li>
+                        <li><a href="dispatcher.html">Dispatcher</a></li>
+                        <li><a href="#how-it-works">How it works</a></li>
+                    </ul>
+                </nav>
+
+                <button type="button" class="theme-toggle" data-theme-toggle
+                        aria-pressed="false" aria-label="Switch to dark theme">
+                    <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+                    </svg>
+                </button>
+
+                <button type="button" class="nav-toggle" data-nav-toggle
+                        aria-expanded="false" aria-controls="nav-menu"
+                        aria-label="Open navigation menu">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                         aria-hidden="true">
+                        <path d="M3 6h18M3 12h18M3 18h18"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="main">
+        <!-- ==================================================================
+             HERO — the map is the backdrop, glass panels float on top.
+             ANSWER-FIRST: the decision the student needs is the largest thing
+             on screen, before any supporting detail.
+             ================================================================== -->
+        <section class="map-hero" aria-labelledby="answer-heading">
+            <div id="map" role="application"
+                 aria-label="Map of UNILAG campus showing shuttle location, routes and stops"></div>
+
+            <!-- Gradient scrim: keeps panel text legible over bright map tiles -->
+            <div class="map-scrim" aria-hidden="true"></div>
+
+            <div class="hero-overlay">
+                <div class="hero-top">
+                    <div class="glass-panel answer-panel">
+                        <h1 id="answer-heading" class="visually-hidden">Nearest shuttle arrival</h1>
+
+                        <div>
+                            <span class="kicker">Next shuttle arrives in</span>
+                            <!-- aria-live: announce updates without moving focus -->
+                            <p class="eta-value" id="eta-time" aria-live="polite" aria-atomic="true">-- min</p>
+                            <p class="eta-caption" id="eta-caption">Waiting for live shuttle data…</p>
+                        </div>
+
+                        <div class="details">
+                            <span class="detail-pill">Stop
+                                <strong class="detail-value" id="nearest-stop">Locating…</strong>
+                            </span>
+                            <span class="detail-pill">Queue
+                                <strong class="detail-value queue-low" id="queue-status">—</strong>
+                            </span>
+                            <span class="detail-pill">Distance
+                                <strong class="detail-value" id="distance-value">—</strong>
+                            </span>
+                        </div>
+
+                        <p class="notice walking-banner hidden" id="walking-suggestion" role="status">
+                            <span class="notice-icon" aria-hidden="true">🚶</span>
+                            <span>Walking is faster — about <strong id="walk-time">--</strong> min on foot.</span>
+                        </p>
+
+                        <p class="notice offline-banner hidden" id="offline-banner" role="status">
+                            <span class="notice-icon" aria-hidden="true">🚌</span>
+                            <span>No active shuttle right now. We'll update automatically when one starts moving.</span>
+                        </p>
+
+                        <p class="notice error-banner hidden" id="error-banner" role="alert">
+                            <span class="notice-icon" aria-hidden="true">⚠️</span>
+                            <span id="error-message">We can't reach the server. Retrying…</span>
+                        </p>
+                    </div>
+
+                    <span class="badge" id="freshness-badge" role="status">Connecting</span>
+                </div>
+
+                <div class="hero-bottom">
+                    <aside class="glass-panel status-panel" aria-label="Live status and controls">
+                        <div class="status-row">
+                            <span class="status-title">Live status</span>
+                            <span class="status-meta" id="freshness-time">—</span>
+                        </div>
+                        <p class="helper-text" id="confidence-text">
+                            ETA updates automatically every few seconds.
+                        </p>
+                        <div class="status-actions">
+                            <button type="button" class="btn btn-primary" id="refresh-btn">Refresh</button>
+                            <button type="button" class="btn btn-secondary" id="locate-btn">My location</button>
+                        </div>
+                    </aside>
+
+                    <button type="button" class="fab" id="report-queue-btn"
+                            aria-label="Report how busy the queue is"
+                            aria-haspopup="dialog" aria-controls="report-sheet">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!--
+                Student crowd reporting. Students are at the stop and can see the
+                queue, so they are a better real-time source than a dispatcher who
+                may be elsewhere on campus. Same one-tap, no-typing interaction as
+                the dispatcher console, and the same 10-second debounce - enforced
+                on the server too, since this endpoint is public.
+            -->
+            <div class="report-sheet hidden" id="report-sheet" role="dialog" aria-modal="true"
+                 aria-labelledby="report-heading">
+                <div class="report-panel glass-panel">
+                    <div class="report-head">
+                        <h2 class="panel-title" id="report-heading">How busy is your stop?</h2>
+                        <button type="button" class="report-close" id="report-close"
+                                aria-label="Close crowd report">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                <path d="M18 6L6 18M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <p class="helper-text" id="report-feedback" role="status">
+                        Tap the level that matches what you can see.
+                    </p>
+
+                    <div class="report-options" role="group" aria-labelledby="report-heading">
+                        <button type="button" class="report-option low" data-level="LOW">
+                            <span class="queue-dot" aria-hidden="true"></span>
+                            <span class="queue-label">
+                                <b>Low</b>
+                                <span>0–5 people waiting</span>
+                            </span>
+                        </button>
+
+                        <button type="button" class="report-option moderate" data-level="MODERATE">
+                            <span class="queue-dot" aria-hidden="true"></span>
+                            <span class="queue-label">
+                                <b>Moderate</b>
+                                <span>15–30 people waiting</span>
+                            </span>
+                        </button>
+
+                        <button type="button" class="report-option packed" data-level="PACKED">
+                            <span class="queue-dot" aria-hidden="true"></span>
+                            <span class="queue-label">
+                                <b>Packed</b>
+                                <span>50+ people waiting</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             HOW IT WORKS
+             ================================================================== -->
+        <section class="section section-ambient" id="how-it-works" aria-labelledby="how-heading">
+            <div class="shell">
+                <div class="section-head">
+                    <span class="eyebrow">How it works</span>
+                    <h2 class="section-title" id="how-heading">Three seconds to a decision</h2>
+                    <p class="section-lede">
+                        UniTrack answers one question: leave now, or wait? Drivers broadcast their
+                        position, dispatchers report the queue, and you get a single number.
+                    </p>
+                </div>
+
+                <div class="steps-grid">
+                    <article class="step-card">
+                        <span class="step-number" aria-hidden="true">1</span>
+                        <h3>Track live</h3>
+                        <p>
+                            Every shuttle on duty shares its GPS position. The map updates
+                            continuously, so you see where the bus actually is — not where a
+                            printed timetable claims it should be.
+                        </p>
+                    </article>
+
+                    <article class="step-card">
+                        <span class="step-number" aria-hidden="true">2</span>
+                        <h3>Check the queue</h3>
+                        <p>
+                            A shuttle two minutes away is little use if fifty people are waiting
+                            ahead of you. Dispatchers publish the queue level, and it feeds
+                            directly into your estimate.
+                        </p>
+                    </article>
+
+                    <article class="step-card">
+                        <span class="step-number" aria-hidden="true">3</span>
+                        <h3>Decide</h3>
+                        <p>
+                            We compare riding against walking. When your feet would get you there
+                            first, UniTrack says so plainly rather than letting you wait for a bus
+                            you don't need.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             ROUTE STOPS
+             ================================================================== -->
+        <section class="section" aria-labelledby="stops-heading">
+            <div class="shell">
+                <div class="section-head">
+                    <span class="eyebrow">Route</span>
+                    <h2 class="section-title" id="stops-heading">Stops on the campus loop</h2>
+                    <p class="section-lede">
+                        The main loop serves these stops. Your nearest one is detected
+                        automatically when you share your location.
+                    </p>
+                </div>
+
+                <!--
+                    Populated from GET /api/v1/routes by UIManager.renderStopChips.
+                    Previously this list was hardcoded and had drifted out of sync
+                    with the backend, advertising stops (New Hall, Faculty of
+                    Engineering) that no route actually served. Rendering it from
+                    the same data the map uses means it cannot drift again.
+                -->
+                <div class="stops-strip" id="stops-strip">
+                    <span class="stop-chip" id="stops-placeholder">Loading stops…</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             AT A GLANCE
+             ================================================================== -->
+        <section class="section section-ambient" aria-labelledby="stats-heading">
+            <div class="shell">
+                <div class="section-head">
+                    <span class="eyebrow">At a glance</span>
+                    <h2 class="section-title" id="stats-heading">Built for the campus commute</h2>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat">
+                        <span class="stat-value">~6s</span>
+                        <span class="stat-label">Update interval</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="stat-routes">—</span>
+                        <span class="stat-label">Active routes</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="stat-stops">—</span>
+                        <span class="stat-label">Campus stops</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">Installs required</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ======================================================================
+         FOOTER
+         ====================================================================== -->
+    <footer class="site-footer">
+        <div class="shell">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a class="brand" href="index.html">
+                        <span class="brand-logo" aria-hidden="true">U</span>
+                        <span>
+                            <span class="brand-name">UniTrack</span>
+                            <span class="brand-sub">UNILAG Shuttle</span>
+                        </span>
+                    </a>
+                    <p class="footer-tagline">
+                        Real-time shuttle tracking for the University of Lagos. Built as a
+                        COS202 project, designed for the people actually standing at the stop.
+                    </p>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Views</h3>
+                    <ul>
+                        <li><a href="index.html">Student</a></li>
+                        <li><a href="driver.html">Driver</a></li>
+                        <li><a href="dispatcher.html">Dispatcher</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Learn</h3>
+                    <ul>
+                        <li><a href="#how-it-works">How it works</a></li>
+                        <li><a href="#stops-heading">Route stops</a></li>
+                        <li><a href="#main">Live map</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Project</h3>
+                    <ul>
+                        <li><a href="https://github.com/Salimmadeit/UniTrack" rel="noopener">Source code</a></li>
+                        <li><a href="https://github.com/Salimmadeit/UniTrack/issues" rel="noopener">Report an issue</a></li>
+                        <li><a href="https://www.unilag.edu.ng" rel="noopener">University of Lagos</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="footer-note">© 2026 UniTrack · University of Lagos shuttle tracking</p>
+                <span class="footer-status">Live tracking active</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/eta.js"></script>
+    <script src="js/queue.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

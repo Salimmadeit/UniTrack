@@ -1,0 +1,364 @@
+name: CI
+
+# Runs on every push and PR to main. Also exposed via workflow_dispatch so the
+# pipeline can be triggered by hand from the Actions tab without an empty commit.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel superseded runs on the same branch. Pushing three times in a row should
+# not queue three full builds; only the newest commit matters.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: '17'
+  JAVA_DISTRIBUTION: 'temurin'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: backend build + full test suite.
+  # ---------------------------------------------------------------------------
+  backend:
+    name: Backend (build & test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15 # a hung Spring context should fail, not burn CI minutes
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+          # setup-java's built-in caching keyed on pom.xml. Replaces the manual
+          # actions/cache step and handles the cache key/restore logic itself.
+          cache: maven
+
+      - name: Make the Maven wrapper executable
+        working-directory: ./backend
+        # Git on Windows does not always preserve the exec bit, so the wrapper
+        # can arrive on the runner without it.
+        run: chmod +x ./mvnw
+
+      - name: Compile
+        working-directory: ./backend
+        # Compiling as its own step means a syntax error is reported as a
+        # compile failure rather than buried in test output.
+        run: ./mvnw -B -ntp clean compile
+
+      - name: Run tests
+        working-directory: ./backend
+        run: ./mvnw -B -ntp test
+
+      - name: Publish test report
+        # Runs even when tests fail: that is exactly when the report is needed.
+        if: always()
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: backend/target/surefire-reports/TEST-*.xml
+          include_passed: true
+          detailed_summary: true
+          fail_on_failure: false
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: backend/target/surefire-reports/
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Package the executable JAR
+        working-directory: ./backend
+        # Tests already ran above; skipping them here avoids running the whole
+        # suite a second time for no extra signal.
+        run: ./mvnw -B -ntp -DskipTests package
+
+      - name: Verify the JAR was produced
+        working-directory: ./backend
+        # A silent packaging failure would otherwise ship an empty artifact.
+        run: |
+          JAR=$(find target -maxdepth 1 -name '*.jar' ! -name '*sources*' | head -n 1)
+          if [ -z "$JAR" ]; then
+            echo "::error::No JAR produced by the package phase"
+            exit 1
+          fi
+          echo "Built $JAR ($(du -h "$JAR" | cut -f1))"
+
+      - name: Upload backend JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: unitrack-backend-jar
+          path: backend/target/*.jar
+          retention-days: 14
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Job 2: frontend static checks. No bundler in this project (vanilla JS by
+  # design), so the pipeline validates syntax and asset wiring instead.
+  # ---------------------------------------------------------------------------
+  frontend:
+    name: Frontend (lint & validate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check JavaScript syntax
+        working-directory: ./frontend
+        # `node --check` parses each file without executing it. It catches the
+        # typos that would otherwise only surface as a blank page in a browser.
+        run: |
+          STATUS=0
+          for FILE in js/*.js; do
+            if node --check "$FILE"; then
+              echo "  ok  $FILE"
+            else
+              echo "::error file=frontend/$FILE::Syntax error"
+              STATUS=1
+            fi
+          done
+          exit $STATUS
+
+      - name: Lint with ESLint
+        working-directory: ./frontend
+        # ESLint is installed ad hoc and pinned: the frontend deliberately has
+        # no package.json, and an unpinned version could change rules overnight.
+        # eslint.config.mjs is committed so local `npx eslint js` and CI run the
+        # exact same rules (a config that only exists on the runner cannot be
+        # reproduced on a developer machine).
+        run: |
+          npm install --no-save --no-fund --no-audit eslint@9.17.0
+          npx eslint js --max-warnings=0
+
+      - name: Validate HTML asset references
+        working-directory: ./frontend
+        # Every local href/src must resolve. A renamed file that only breaks at
+        # runtime is exactly the kind of bug CI should catch.
+        run: |
+          STATUS=0
+          for PAGE in *.html; do
+            REFS=$(grep -oE '(src|href)="[^"]+"' "$PAGE" \
+              | sed -E 's/^(src|href)="//; s/"$//' \
+              | grep -vE '^(https?:|//|#|mailto:|data:)') || true
+            for REF in $REFS; do
+              TARGET="${REF%%[?#]*}"
+              if [ -n "$TARGET" ] && [ ! -e "$TARGET" ]; then
+                echo "::error file=frontend/$PAGE::Missing asset: $TARGET"
+                STATUS=1
+              fi
+            done
+            echo "  checked $PAGE"
+          done
+          exit $STATUS
+
+      - name: Verify the JS/HTML element contract
+        working-directory: ./frontend
+        # The pages and the scripts are coupled by element id. Renaming or
+        # dropping an id during a redesign leaves the JS silently querying null:
+        # the page still loads, the syntax is valid and the linter is happy, but
+        # a panel quietly stops updating. Nothing else in this pipeline catches
+        # that, so assert every getElementById target is actually defined.
+        run: |
+          STATUS=0
+          grep -ohE 'id="[^"]+"' *.html \
+            | sed -E 's/^id="//; s/"$//' | sort -u > defined-ids.txt
+          echo "Pages define $(wc -l < defined-ids.txt) unique ids"
+
+          for FILE in js/*.js; do
+            QUERIED=$(grep -ohE "getElementById\('[^']+'\)" "$FILE" \
+              | sed -E "s/^getElementById\('//; s/'\)$//" | sort -u) || true
+            for ID in $QUERIED; do
+              # -x -F: whole-line literal match, so 'map' cannot match 'map-hero'
+              if ! grep -qxF "$ID" defined-ids.txt; then
+                echo "::error file=frontend/$FILE::Queries #$ID but no page defines it"
+                STATUS=1
+              fi
+            done
+            echo "  checked $FILE"
+          done
+
+          rm -f defined-ids.txt
+          exit $STATUS
+
+      - name: Check accessibility basics
+        working-directory: ./frontend
+        # A cheap structural guard, not a substitute for real assistive-tech
+        # testing: confirms each page declares a language, a viewport, a title,
+        # and that no <img> ships without alt text.
+        run: |
+          STATUS=0
+          for PAGE in *.html; do
+            grep -q '<html[^>]*lang=' "$PAGE" || { echo "::error file=frontend/$PAGE::Missing lang attribute"; STATUS=1; }
+            grep -q 'name="viewport"' "$PAGE" || { echo "::error file=frontend/$PAGE::Missing viewport meta"; STATUS=1; }
+            grep -q '<title>' "$PAGE" || { echo "::error file=frontend/$PAGE::Missing title"; STATUS=1; }
+
+            # Compare the number of <img> tags against the number that carry an
+            # alt attribute. A negative lookahead would read better but is a
+            # PCRE feature grep -E does not support, so it would silently never
+            # match and this check would pass vacuously.
+            IMG_TOTAL=$(grep -oE '<img[^>]*>' "$PAGE" | wc -l)
+            IMG_WITH_ALT=$(grep -oE '<img[^>]*>' "$PAGE" | grep -c 'alt=' || true)
+            if [ "$IMG_TOTAL" -ne "$IMG_WITH_ALT" ]; then
+              echo "::error file=frontend/$PAGE::$((IMG_TOTAL - IMG_WITH_ALT)) <img> tag(s) missing alt text"
+              STATUS=1
+            fi
+
+            echo "  checked $PAGE"
+          done
+          exit $STATUS
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: unitrack-frontend
+          # node_modules is excluded: the ESLint step above installs ~86
+          # packages into this directory, and none of them are part of the
+          # deployable frontend. npm also drops a lockfile there despite
+          # --no-save, which is likewise not a deployable asset.
+          path: |
+            frontend/
+            !frontend/node_modules/
+            !frontend/eslint.config.mjs
+            !frontend/package-lock.json
+          retention-days: 14
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Job 3: boot the packaged JAR and hit the live API. Unit tests can pass while
+  # the assembled application still fails to start, so this is the real check
+  # that the deliverable works.
+  # ---------------------------------------------------------------------------
+  smoke-test:
+    name: Smoke test (live API)
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Download backend JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: unitrack-backend-jar
+          path: ./artifact
+
+      - name: Start the application
+        run: |
+          JAR=$(find ./artifact -name '*.jar' | head -n 1)
+          echo "Starting $JAR"
+          # In-memory DB so the smoke test leaves no file behind on the runner.
+          java -jar "$JAR" \
+            --spring.datasource.url='jdbc:h2:mem:smoke' \
+            --spring.jpa.hibernate.ddl-auto=create-drop \
+            > app.log 2>&1 &
+          echo $! > app.pid
+
+      - name: Wait for the health endpoint
+        # Polls instead of a fixed sleep: fast when startup is fast, and it
+        # still tolerates a slow cold start on a busy runner.
+        run: |
+          for ATTEMPT in $(seq 1 30); do
+            if curl -fsS http://localhost:8080/api/v1/health > /dev/null 2>&1; then
+              echo "Application is up after ${ATTEMPT}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::Application failed to start within 30s"
+          cat app.log
+          exit 1
+
+      - name: Exercise the API contract
+        run: |
+          set -e
+          BASE=http://localhost:8080/api/v1
+
+          echo "--- health"
+          curl -fsS "$BASE/health" | tee /dev/stderr | grep -q '"status":"UP"'
+
+          echo "--- routes are seeded"
+          curl -fsS "$BASE/routes" | grep -q '"stops"'
+
+          echo "--- POST a driver location"
+          curl -fsS -X POST "$BASE/location" \
+            -H 'Content-Type: application/json' \
+            -d '{"latitude":6.5185,"longitude":3.3895,"speed":20,"heading":90}' \
+            | grep -q '"latitude":6.5185'
+
+          echo "--- GET the latest location"
+          curl -fsS "$BASE/location" | grep -q '"updatedAt"'
+
+          echo "--- POST a queue level"
+          curl -fsS -X POST "$BASE/queue" \
+            -H 'Content-Type: application/json' \
+            -d '{"level":"MODERATE"}' | grep -q '"level":"MODERATE"'
+
+          echo "--- ETA responds with a nearest stop"
+          curl -fsS "$BASE/eta?lat=6.5167&lng=3.3850" | tee /dev/stderr | grep -q '"nearestStop"'
+
+          echo "--- invalid latitude is rejected with the documented error shape"
+          STATUS=$(curl -s -o body.txt -w '%{http_code}' -X POST "$BASE/location" \
+            -H 'Content-Type: application/json' \
+            -d '{"latitude":999,"longitude":3.3895}')
+          test "$STATUS" = "400" || { echo "::error::Expected 400 but got $STATUS"; cat body.txt; exit 1; }
+          grep -q '"error"' body.txt || { echo "::error::400 body is missing the error field"; cat body.txt; exit 1; }
+
+          echo "--- unknown queue level is rejected"
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/queue" \
+            -H 'Content-Type: application/json' -d '{"level":"NOPE"}')
+          test "$STATUS" = "400" || { echo "::error::Expected 400 but got $STATUS"; exit 1; }
+
+          echo "All API smoke checks passed."
+
+      - name: Application log
+        if: always()
+        run: cat app.log || true
+
+      - name: Stop the application
+        if: always()
+        run: kill "$(cat app.pid)" 2>/dev/null || true
+
+  # ---------------------------------------------------------------------------
+  # Job 4: single required status check. Branch protection can point at this one
+  # job instead of being updated every time a job is added or renamed.
+  # ---------------------------------------------------------------------------
+  ci-status:
+    name: CI status
+    runs-on: ubuntu-latest
+    needs: [backend, frontend, smoke-test]
+    if: always()
+    steps:
+      - name: Check the results of all jobs
+        run: |
+          echo "backend:    ${{ needs.backend.result }}"
+          echo "frontend:   ${{ needs.frontend.result }}"
+          echo "smoke-test: ${{ needs.smoke-test.result }}"
+          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "true" ]; then
+            echo "::error::One or more CI jobs did not succeed"
+            exit 1
+          fi
+          echo "All CI jobs succeeded."

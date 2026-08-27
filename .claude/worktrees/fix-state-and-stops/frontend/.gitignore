@@ -1,0 +1,7 @@
+# Local ESLint install used by `npx eslint js` (CI installs it ad hoc too).
+node_modules/
+package-lock.json
+
+# Editor junk
+.vscode/
+*.log
