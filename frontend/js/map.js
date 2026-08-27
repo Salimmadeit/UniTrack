@@ -66,11 +66,25 @@ MapManager.prototype.updateShuttleLocation = function (lat, lng, isStale) {
     this.shuttleMarker.setLatLng([lat, lng]); // reuse, never recreate
   }
 
-  var inner = this.shuttleMarker.getElement();
-  if (inner) {
-    var node = inner.querySelector('.shuttle-marker');
-    if (node) node.classList.toggle('is-stale', !!isStale);
-  }
+  this.setShuttleStale(isStale);
+};
+
+/**
+ * Fades the shuttle marker for the DISCONNECTED state, without moving it.
+ *
+ * Separate from updateShuttleLocation because the state machine can decay to
+ * DISCONNECTED with no new coordinates to apply - that is precisely the case
+ * where the driver stopped reporting. Keeping the class toggle in one place
+ * means the two callers cannot drift apart.
+ */
+MapManager.prototype.setShuttleStale = function (isStale) {
+  if (!this.shuttleMarker) return;
+
+  var element = this.shuttleMarker.getElement();
+  if (!element) return;
+
+  var node = element.querySelector('.shuttle-marker');
+  if (node) node.classList.toggle('is-stale', !!isStale);
 };
 
 MapManager.prototype.hasShuttle = function () {
@@ -109,7 +123,12 @@ MapManager.prototype.drawRoutes = function (routes) {
   if (this.routesDrawn || !routes || !routes.length) return;
 
   var self = this;
-  var colors = ['#7b0000', '#1a73e8'];
+  // Route colours are deliberately independent of the brand azure. The "you are
+  // here" dot is blue, so a blue route line would compete with it, and on a
+  // subway-map basis routes read best as distinct saturated hues that are not
+  // reused anywhere else in the UI. Orange and violet stay legible over OSM
+  // tiles in both themes and avoid the green/red reserved for status.
+  var colors = ['#e8710a', '#8e24aa'];
 
   routes.forEach(function (route, index) {
     if (!route.stops || !route.stops.length) return;

@@ -28,17 +28,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Student crowd reporting is a documented Phase 2 feature. Until the backend
-  // accepts student-sourced reports, point users at the dispatcher console
-  // instead of showing a dead-end alert.
-  var reportBtn = document.getElementById('report-queue-btn');
-  if (reportBtn) {
-    reportBtn.addEventListener('click', function () {
-      uiManager.showError(
-        'Student queue reporting is coming next. Dispatchers can update the queue from the Dispatcher view.'
-      );
-    });
-  }
+  // Crowd reporting (the #report-queue-btn FAB and its sheet) is owned by
+  // QueueModule in queue.js, so that the dispatcher console and the student
+  // sheet share one publish path and one debounce. Nothing to wire here.
 
   // Recalculate the map size on rotation / browser-chrome resize.
   window.addEventListener('resize', Utils.throttle(function () {

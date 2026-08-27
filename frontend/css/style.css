@@ -1,15 +1,17 @@
 /* ==========================================================================
    UniTrack Design System — "Immersive Glass"
    --------------------------------------------------------------------------
-   Mobile-first (360 / 390 / 414 -> up) | WCAG AA contrast | UNILAG brand
+   Mobile-first (360 / 390 / 414 -> up) | WCAG AA contrast | Transit azure + UNILAG gold
 
    DESIGN PRINCIPLES
    -----------------
    1. Muted foundation, single bold accent.
-      Backgrounds are warm off-whites and deep charcoals, never #fff/#000.
-      The UNILAG maroon appears ONLY on primary actions and the brand mark,
+      Backgrounds are cool off-whites and deep charcoals, never #fff/#000.
+      The transit azure appears ONLY on primary actions and the brand mark,
       so a call-to-action is the most saturated thing on screen and therefore
-      the first thing the eye lands on.
+      the first thing the eye lands on. UNILAG gold remains the secondary
+      accent, which keeps the university's palette present without making the
+      interface feel institutional.
 
    2. Depth through light, not lines.
       Elevation comes from multi-layered, highly blurred shadows plus 1px
@@ -35,10 +37,14 @@
    1. TOKENS — LIGHT (baseline)
    -------------------------------------------------------------------------- */
 :root {
-  /* Brand — reserved for primary actions and the logo mark */
-  --brand: #7b0000;
-  --brand-strong: #5a0000;
-  --brand-soft: #a11414;
+  /* Brand — reserved for primary actions and the logo mark.
+     Azure rather than the previous UNILAG maroon: this is a transport product,
+     and a bright blue is the colour people already associate with transit
+     wayfinding, so it reads as "go somewhere" instead of "institution". Gold is
+     retained as the accent, which keeps a visible tie to the UNILAG palette. */
+  --brand: #0b6bcb;
+  --brand-strong: #08519e;
+  --brand-soft: #3d91e8;
   --gold: #ffb800;
 
   /* Status hues */
@@ -48,11 +54,11 @@
   --red: #db4437;
   --grey: #9aa0a6;
 
-  /* Surfaces — warm neutrals, never pure white */
-  --surface-app: #f7f6f4;
-  --surface: #fffefd;
+  /* Surfaces — cool neutrals, never pure white */
+  --surface-app: #f6f8fb;
+  --surface: #fdfeff;
   --surface-raised: #ffffff;
-  --surface-sunken: #efedea;
+  --surface-sunken: #eaeff5;
 
   /* Text (all pairings >= 4.5:1 on their intended surface) */
   --text-primary: #1a1a1f;
@@ -60,11 +66,11 @@
   --text-muted: #6d6d78;
   --text-on-brand: #ffffff;
 
-  /* Brand-as-text. Neutral by default now: maroon is an ACTION colour, so
-     using it for body links would dilute the single-accent rule. */
-  --brand-text: #7b0000;
-  --brand-tint: rgba(123, 0, 0, 0.06);
-  --brand-tint-strong: rgba(123, 0, 0, 0.12);
+  /* Brand-as-text. #0b6bcb sits at 5.27:1 on white, so it clears AA for body
+     text as well as for large text. */
+  --brand-text: #0b6bcb;
+  --brand-tint: rgba(11, 107, 203, 0.07);
+  --brand-tint-strong: rgba(11, 107, 203, 0.14);
 
   /* Status text/tint/line triplets */
   --success-text: #0a6b3d;
@@ -86,7 +92,12 @@
   /* Borders & focus */
   --border: rgba(26, 26, 31, 0.08);
   --border-strong: rgba(26, 26, 31, 0.16);
-  --focus-ring: 0 0 0 3px rgba(26, 115, 232, 0.45);
+  /* Two-tone ring. A single blue ring was fine against maroon buttons but is
+     nearly invisible against the new azure ones, and gold alone fails 3:1
+     against a white surface. Gold reads against the button, the navy outer edge
+     reads against the page, so the indicator survives on either background. */
+  --focus-ring: 0 0 0 3px rgba(255, 184, 0, 0.95),
+    0 0 0 5px rgba(8, 81, 158, 0.55);
 
   /* Elevation — soft, layered, wide-radius */
   --shadow-xs: 0 1px 2px rgba(26, 26, 31, 0.05);
@@ -96,7 +107,7 @@
     0 4px 12px rgba(26, 26, 31, 0.04);
   --shadow-xl: 0 32px 64px rgba(26, 26, 31, 0.12),
     0 8px 20px rgba(26, 26, 31, 0.06);
-  --shadow-brand: 0 12px 28px rgba(123, 0, 0, 0.24);
+  --shadow-brand: 0 12px 28px rgba(11, 107, 203, 0.28);
 
   /* Glass — translucency high enough to keep text legible over map tiles */
   --glass-bg: rgba(255, 255, 255, 0.82);
@@ -105,18 +116,18 @@
   --glass-blur: blur(16px) saturate(180%);
 
   /* Ambient radial washes layered behind sections */
-  --ambient-1: rgba(123, 0, 0, 0.07);
-  --ambient-2: rgba(26, 115, 232, 0.06);
-  --ambient-3: rgba(255, 184, 0, 0.06);
+  --ambient-1: rgba(11, 107, 203, 0.08);
+  --ambient-2: rgba(61, 145, 232, 0.06);
+  --ambient-3: rgba(255, 184, 0, 0.07);
 
   /* Map tiles */
   --map-tile-filter: none;
   --map-scrim: linear-gradient(
     to bottom,
-    rgba(247, 246, 244, 0.55) 0%,
-    rgba(247, 246, 244, 0) 28%,
-    rgba(247, 246, 244, 0) 70%,
-    rgba(247, 246, 244, 0.75) 100%
+    rgba(246, 248, 251, 0.55) 0%,
+    rgba(246, 248, 251, 0) 28%,
+    rgba(246, 248, 251, 0) 70%,
+    rgba(246, 248, 251, 0.75) 100%
   );
 
   /* Radii */
@@ -194,12 +205,14 @@
     --text-secondary: #b9bcc5;
     --text-muted: #9096a0;
 
-    --brand: #a81c1c;
-    --brand-strong: #8d1010;
-    --brand-soft: #d94a4a;
-    --brand-text: #f0a0a0;
-    --brand-tint: rgba(240, 160, 160, 0.09);
-    --brand-tint-strong: rgba(240, 160, 160, 0.16);
+    /* Lifted well above the light-theme azure: #0b6bcb on a charcoal surface is
+       too dark to register as the accent, so dark mode uses the mid-tone. */
+    --brand: #3d91e8;
+    --brand-strong: #2b7ad0;
+    --brand-soft: #6fb0f2;
+    --brand-text: #8ec3fb;
+    --brand-tint: rgba(142, 195, 251, 0.1);
+    --brand-tint-strong: rgba(142, 195, 251, 0.18);
 
     --success-text: #5cd79c;
     --success-tint: rgba(92, 215, 156, 0.12);
@@ -219,7 +232,8 @@
 
     --border: rgba(255, 255, 255, 0.09);
     --border-strong: rgba(255, 255, 255, 0.16);
-    --focus-ring: 0 0 0 3px rgba(125, 179, 255, 0.55);
+    --focus-ring: 0 0 0 3px rgba(255, 184, 0, 0.95),
+      0 0 0 5px rgba(13, 13, 16, 0.85);
 
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
@@ -232,7 +246,7 @@
     --glass-bg-strong: rgba(18, 18, 22, 0.93);
     --glass-border: rgba(255, 255, 255, 0.12);
 
-    --ambient-1: rgba(216, 74, 74, 0.1);
+    --ambient-1: rgba(61, 145, 232, 0.12);
     --ambient-2: rgba(125, 179, 255, 0.08);
     --ambient-3: rgba(255, 184, 0, 0.06);
 
@@ -257,12 +271,13 @@
   --text-secondary: #b9bcc5;
   --text-muted: #9096a0;
 
-  --brand: #a81c1c;
-  --brand-strong: #8d1010;
-  --brand-soft: #d94a4a;
-  --brand-text: #f0a0a0;
-  --brand-tint: rgba(240, 160, 160, 0.09);
-  --brand-tint-strong: rgba(240, 160, 160, 0.16);
+  /* See the note in the prefers-color-scheme block above. */
+  --brand: #3d91e8;
+  --brand-strong: #2b7ad0;
+  --brand-soft: #6fb0f2;
+  --brand-text: #8ec3fb;
+  --brand-tint: rgba(142, 195, 251, 0.1);
+  --brand-tint-strong: rgba(142, 195, 251, 0.18);
 
   --success-text: #5cd79c;
   --success-tint: rgba(92, 215, 156, 0.12);
@@ -282,7 +297,8 @@
 
   --border: rgba(255, 255, 255, 0.09);
   --border-strong: rgba(255, 255, 255, 0.16);
-  --focus-ring: 0 0 0 3px rgba(125, 179, 255, 0.55);
+  --focus-ring: 0 0 0 3px rgba(255, 184, 0, 0.95),
+    0 0 0 5px rgba(13, 13, 16, 0.85);
 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
@@ -295,7 +311,7 @@
   --glass-bg-strong: rgba(18, 18, 22, 0.93);
   --glass-border: rgba(255, 255, 255, 0.12);
 
-  --ambient-1: rgba(216, 74, 74, 0.1);
+  --ambient-1: rgba(61, 145, 232, 0.12);
   --ambient-2: rgba(125, 179, 255, 0.08);
   --ambient-3: rgba(255, 184, 0, 0.06);
 
@@ -355,7 +371,7 @@ h1, h2, h3, h4 {
 
 p { color: var(--text-secondary); }
 
-/* Links are neutral: maroon is reserved for actions. */
+/* Links are neutral: the brand azure is reserved for actions. */
 a {
   color: var(--text-primary);
   text-decoration: none;
@@ -859,7 +875,7 @@ svg { display: block; }
 }
 
 /* --------------------------------------------------------------------------
-   6. BUTTONS — maroon appears here and essentially nowhere else
+   6. BUTTONS — the brand azure appears here and essentially nowhere else
    -------------------------------------------------------------------------- */
 .btn {
   display: inline-flex;
@@ -1312,6 +1328,99 @@ svg { display: block; }
 .queue-button.packed[aria-pressed="true"] { background: var(--danger-tint); border-color: var(--danger-text); }
 
 /* --------------------------------------------------------------------------
+   9b. STUDENT REPORT SHEET
+   Bottom sheet launched from the map FAB so a student can report crowding.
+   Deliberately reuses .queue-dot / .queue-label from the dispatcher console:
+   the two surfaces present identical choices, and duplicating the styles is how
+   they would silently drift apart.
+   -------------------------------------------------------------------------- */
+.report-sheet {
+  position: fixed;
+  inset: 0;
+  /* Above the sticky navbar (2000), which is itself above the hero overlay
+     (1100). A modal that the navbar can overlap is not a modal. */
+  z-index: 3000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--space-4);
+  padding-bottom: calc(var(--space-4) + var(--safe-b));
+  background: rgba(13, 13, 16, 0.45);
+  /* The backdrop is the click target that dismisses the sheet (see queue.js). */
+  animation: report-fade var(--dur) var(--ease-out);
+}
+
+.report-panel {
+  width: 100%;
+  max-width: 460px;
+  display: grid;
+  gap: var(--space-4);
+  animation: report-rise var(--dur-slow) var(--ease-out);
+}
+
+.report-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.report-close {
+  display: grid;
+  place-items: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  margin-right: calc(var(--space-2) * -1);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  background: transparent;
+  flex-shrink: 0; /* never shrink below the 48px tap target */
+}
+.report-close:hover { background: var(--neutral-tint); color: var(--text-primary); }
+
+.report-options { display: grid; gap: var(--space-3); }
+
+.report-option {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--tap-min);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.report-option:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.report-option:active { transform: scale(0.99); }
+.report-option[disabled] { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.report-option.low { color: var(--success-text); }
+.report-option.low:hover { background: var(--success-tint); border-color: var(--success-line); }
+
+.report-option.moderate { color: var(--warning-text); }
+.report-option.moderate:hover { background: var(--warning-tint); border-color: var(--warning-line); }
+
+.report-option.packed { color: var(--danger-text); }
+.report-option.packed:hover { background: var(--danger-tint); border-color: var(--danger-line); }
+
+@keyframes report-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* A short rise, not a bounce: the motion says "this came from the button you
+   pressed" and then gets out of the way. */
+@keyframes report-rise {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
    10. FOOTER
    -------------------------------------------------------------------------- */
 .site-footer {
@@ -1411,7 +1520,7 @@ svg { display: block; }
   position: relative;
 }
 
-/* Stale: drop the saturated maroon so a stale position never looks live */
+/* Stale: drop the saturated brand colour so a stale position never looks live */
 .shuttle-marker.is-stale {
   background: var(--grey);
   box-shadow: var(--shadow-sm);

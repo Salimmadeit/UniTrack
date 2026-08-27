@@ -12,7 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
@@ -37,6 +38,28 @@ public class DataSeeder implements CommandLineRunner {
         }
     }
 
+    /**
+     * Seeds the two demo routes and their stops.
+     *
+     * <p>KNOWN ISSUE - the coordinates below are placeholders, not survey data.
+     * They step in near-uniform increments (+0.001 lat, +0.002 lng) along a
+     * straight diagonal, which is why stops such as New Hall, Sports Centre and
+     * the Senate Building render in visibly wrong places. The whole set also sits
+     * roughly a kilometre west of the actual Akoka campus centroid (about 6.5164,
+     * 3.3967), so the polyline as a whole is offset, not just individual points.
+     *
+     * <p>Deliberately left as-is rather than replaced with remembered values:
+     * plausible-looking coordinates that are quietly wrong are harder to spot than
+     * obviously synthetic ones, and a student could go and wait at a stop that is
+     * not there. These need to be replaced with verified positions (OSM/Nominatim
+     * or Google Maps) before any field test.
+     *
+     * <p>Note that the stop roster is also incomplete: the student view previously
+     * advertised "New Hall" and "Faculty of Engineering", neither of which exists
+     * here. That strip is now rendered from GET /routes, so it currently shows the
+     * real (shorter) list rather than a fictional one - but the missing stops
+     * should be added when the real coordinates are.
+     */
     private void seedRoutesAndStops() {
         Route route1 = new Route();
         route1.setName("Main Gate \u2192 Faculty of Science");
@@ -82,7 +105,10 @@ public class DataSeeder implements CommandLineRunner {
         location.setLongitude(3.3850);
         location.setSpeed(0.0);
         location.setHeading(0.0);
-        location.setUpdatedAt(LocalDateTime.now().minusMinutes(10)); // Seed as disconnected
+        // Backdated well past the DISCONNECTED threshold so a fresh install
+        // honestly reports "no shuttle broadcasting" rather than presenting the
+        // seed row as a live vehicle sitting at the main gate.
+        location.setUpdatedAt(Instant.now().minus(10, ChronoUnit.MINUTES));
         locationRepository.save(location);
     }
 
@@ -90,7 +116,8 @@ public class DataSeeder implements CommandLineRunner {
         QueueStatus status = new QueueStatus();
         status.setId(1L);
         status.setLevel("LOW");
-        status.setUpdatedAt(LocalDateTime.now());
+        status.setSource("DISPATCHER");
+        status.setUpdatedAt(Instant.now());
         queueStatusRepository.save(status);
     }
 }

@@ -1,8 +1,8 @@
 package com.unitrack.controller;
 
 import com.unitrack.dto.LocationDTO;
+import com.unitrack.dto.LocationResponse;
 import com.unitrack.exception.ResourceNotFoundException;
-import com.unitrack.model.Location;
 import com.unitrack.service.LocationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +17,9 @@ public class LocationController {
     private final LocationService locationService;
 
     @PostMapping
-    public ResponseEntity<Location> updateLocation(@Valid @RequestBody LocationDTO locationDTO) {
-        return ResponseEntity.ok(locationService.updateLocation(locationDTO));
+    public ResponseEntity<LocationResponse> updateLocation(@Valid @RequestBody LocationDTO locationDTO) {
+        return ResponseEntity.ok(
+                locationService.toResponse(locationService.updateLocation(locationDTO)));
     }
 
     /**
@@ -27,8 +28,9 @@ public class LocationController {
      * empty rather than showing a generic failure.
      */
     @GetMapping
-    public ResponseEntity<Location> getLatestLocation() {
+    public ResponseEntity<LocationResponse> getLatestLocation() {
         return locationService.getLatestLocation()
+                .map(locationService::toResponse)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No location data available",

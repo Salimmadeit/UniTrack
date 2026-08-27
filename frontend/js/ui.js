@@ -120,8 +120,13 @@ UIManager.prototype.updateQueueDisplay = function (queue, etaFallback) {
 /**
  * Renders the network state machine.
  * NORMAL (0-15s) | WARNING (16-30s) | STALE (31-60s) | DISCONNECTED (60s+)
+ *
+ * @param {string} state
+ * @param {number|null} ageSeconds age of the reading, as reported by the server
+ *        and aged forward locally. Not a Date: see the comment at the top of
+ *        eta.js for why the client must not subtract clocks.
  */
-UIManager.prototype.updateBadge = function (state, lastUpdated) {
+UIManager.prototype.updateBadge = function (state, ageSeconds) {
   var presets = {
     NORMAL: { label: 'Live', cls: 'badge badge-normal', help: 'Live tracking. ETA is current.' },
     WARNING: { label: 'Updating…', cls: 'badge badge-warning', help: 'Waiting for the next position update.' },
@@ -135,7 +140,9 @@ UIManager.prototype.updateBadge = function (state, lastUpdated) {
   this._setClass(this.freshnessBadge, 'badgeClass', preset.cls);
   this._setText(this.confidenceText, 'confidence', preset.help);
 
-  var updated = lastUpdated ? 'Updated ' + Utils.timeAgo(lastUpdated) : '—';
+  var updated = typeof ageSeconds === 'number' && !isNaN(ageSeconds)
+    ? 'Updated ' + Utils.timeAgoFromSeconds(ageSeconds)
+    : '—';
   this._setText(this.freshnessTime, 'freshness', updated);
 
   // Only the DISCONNECTED state explains the empty map (spec requirement).
@@ -172,4 +179,58 @@ UIManager.prototype.setRefreshing = function (isRefreshing) {
   if (!button) return;
   button.disabled = isRefreshing;
   button.textContent = isRefreshing ? 'Refreshing…' : 'Refresh';
+};
+
+/**
+ * Renders the "stops on the campus loop" strip, and the route/stop counts, from
+ * the routes payload.
+ *
+ * Driven by the API rather than hardcoded in the HTML: the previous static list
+ * had drifted, naming stops that no route served, which is worse than showing
+ * nothing because a student could go and wait at one. Deriving both the strip
+ * and the counts from the same response the map draws keeps them honest.
+ *
+ * @param {Array} routes - GET /routes payload.
+ */
+UIManager.prototype.renderStopChips = function (routes) {
+  var strip = document.getElementById('stops-strip');
+  var routeStat = document.getElementById('stat-routes');
+  var stopStat = document.getElementById('stat-stops');
+
+  if (!Array.isArray(routes) || !routes.length) {
+    // Leave the placeholder in place but make it honest rather than a
+    // permanent "Loading…" that never resolves.
+    var placeholder = document.getElementById('stops-placeholder');
+    if (placeholder) placeholder.textContent = 'Stop list unavailable';
+    return;
+  }
+
+  // A stop served by two routes (Main Gate, typically) should appear once.
+  var seen = {};
+  var names = [];
+  routes.forEach(function (route) {
+    (route.stops || []).forEach(function (stop) {
+      if (!stop || !stop.name || seen[stop.name]) return;
+      seen[stop.name] = true;
+      names.push(stop.name);
+    });
+  });
+
+  if (routeStat) routeStat.textContent = String(routes.length);
+  if (stopStat) stopStat.textContent = String(names.length);
+
+  if (!strip) return;
+
+  // One fragment, one reflow, and textContent rather than innerHTML so a stop
+  // name from the database can never inject markup.
+  var fragment = document.createDocumentFragment();
+  names.forEach(function (name) {
+    var chip = document.createElement('span');
+    chip.className = 'stop-chip';
+    chip.textContent = name;
+    fragment.appendChild(chip);
+  });
+
+  strip.textContent = '';
+  strip.appendChild(fragment);
 };

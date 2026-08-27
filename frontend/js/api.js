@@ -116,8 +116,22 @@ var ApiService = (function () {
       return request('/location', { method: 'POST', body: payload });
     },
 
-    postQueueStatus: function (level) {
-      return request('/queue', { method: 'POST', body: { level: level } });
+    /**
+     * Reports a crowd level.
+     *
+     * @param {string} level  LOW | MODERATE | PACKED
+     * @param {string} [source] STUDENT | DISPATCHER. Omitted means DISPATCHER,
+     *        matching the backend default, so the dispatcher console needs no
+     *        change.
+     *
+     * Rejects with an ApiError of status 429 when the server's debounce window
+     * has not elapsed. Callers should treat that as "too soon", not as a
+     * failure - the report was well-formed, just early.
+     */
+    postQueueStatus: function (level, source) {
+      var body = { level: level };
+      if (source) body.source = source;
+      return request('/queue', { method: 'POST', body: body });
     }
   };
 })();

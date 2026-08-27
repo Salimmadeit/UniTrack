@@ -6,18 +6,35 @@ var Utils = (function () {
   'use strict';
 
   /**
-   * Formats a relative time string: "just now", "2 min ago", "45 sec ago".
-   * Used for network freshness timestamps.
+   * Formats an already-known age in seconds: "just now", "45 sec ago",
+   * "2 min ago".
+   *
+   * Preferred over timeAgo() whenever the server reports the age itself. Doing
+   * the subtraction here needs two clocks to agree, and they frequently do not:
+   * the backend container runs in UTC while phones on campus are UTC+1, and a
+   * laptop's clock can simply be wrong. Either one silently shifts the age and
+   * pushes the state machine into the wrong state.
    */
-  function timeAgo(date) {
-    if (!(date instanceof Date) || isNaN(date)) return '—';
-    var seconds = Math.floor((new Date() - date) / 1000);
+  function timeAgoFromSeconds(seconds) {
+    if (typeof seconds !== 'number' || isNaN(seconds) || seconds < 0) return '—';
     if (seconds < 5) return 'just now';
-    if (seconds < 60) return seconds + ' sec ago';
+    if (seconds < 60) return Math.floor(seconds) + ' sec ago';
     var minutes = Math.floor(seconds / 60);
     if (minutes < 60) return minutes + ' min ago';
     var hours = Math.floor(minutes / 60);
     return hours + ' hour' + (hours === 1 ? '' : 's') + ' ago';
+  }
+
+  /**
+   * Formats a relative time string from a Date: "just now", "2 min ago".
+   *
+   * Fallback for when the server has not supplied an age. Subject to the clock
+   * skew described on timeAgoFromSeconds, so prefer that function.
+   */
+  function timeAgo(date) {
+    if (!(date instanceof Date) || isNaN(date)) return '—';
+    var seconds = Math.floor((new Date() - date) / 1000);
+    return timeAgoFromSeconds(Math.max(0, seconds));
   }
 
   /**
@@ -106,6 +123,7 @@ var Utils = (function () {
 
   return {
     timeAgo: timeAgo,
+    timeAgoFromSeconds: timeAgoFromSeconds,
     formatDistance: formatDistance,
     formatEta: formatEta,
     debounce: debounce,

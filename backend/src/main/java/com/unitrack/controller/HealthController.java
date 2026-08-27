@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 
 @RestController
@@ -16,7 +16,11 @@ public class HealthController {
     public ResponseEntity<Map<String, Object>> healthCheck() {
         return ResponseEntity.ok(Map.of(
                 "status", "UP",
-                "timestamp", LocalDateTime.now()
+                // Instant, not LocalDateTime: a health timestamp with no timezone
+                // offset is ambiguous to whoever reads it, and this endpoint is
+                // exactly what someone checks when diagnosing a deployment across
+                // timezones.
+                "timestamp", Instant.now()
         ));
     }
 }

@@ -14,7 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,7 +66,7 @@ class EtaServiceTest {
         return stop;
     }
 
-    private Location location(double lat, double lng, double speed, LocalDateTime updatedAt) {
+    private Location location(double lat, double lng, double speed, Instant updatedAt) {
         Location location = new Location();
         location.setId(1L);
         location.setLatitude(lat);
@@ -81,7 +81,7 @@ class EtaServiceTest {
         QueueStatus status = new QueueStatus();
         status.setId(1L);
         status.setLevel(level);
-        status.setUpdatedAt(LocalDateTime.now());
+        status.setUpdatedAt(Instant.now());
         return status;
     }
 
@@ -106,7 +106,7 @@ class EtaServiceTest {
         // Speed 0 would make (distance / speed) infinite, so the service must
         // substitute a realistic speed rather than emit Infinity.
         when(locationService.getLatestLocation())
-                .thenReturn(Optional.of(location(6.5210, 3.3930, 0.0, LocalDateTime.now())));
+                .thenReturn(Optional.of(location(6.5210, 3.3930, 0.0, Instant.now())));
         when(queueService.getQueueStatus()).thenReturn(Optional.empty());
         when(stopRepository.findAll()).thenReturn(List.of(mainGate));
 
@@ -121,7 +121,7 @@ class EtaServiceTest {
     @DisplayName("A moving shuttle's reported speed is used as-is")
     void movingShuttleUsesReportedSpeed() {
         when(locationService.getLatestLocation())
-                .thenReturn(Optional.of(location(6.5210, 3.3930, 25.0, LocalDateTime.now())));
+                .thenReturn(Optional.of(location(6.5210, 3.3930, 25.0, Instant.now())));
         when(queueService.getQueueStatus()).thenReturn(Optional.empty());
         when(stopRepository.findAll()).thenReturn(List.of(mainGate));
 
@@ -134,7 +134,7 @@ class EtaServiceTest {
     @DisplayName("Queue level maps to the documented wait: LOW=2, MODERATE=8, PACKED=15")
     void queueLevelMapsToWaitMinutes() {
         when(locationService.getLatestLocation())
-                .thenReturn(Optional.of(location(6.5210, 3.3930, 20.0, LocalDateTime.now())));
+                .thenReturn(Optional.of(location(6.5210, 3.3930, 20.0, Instant.now())));
         when(stopRepository.findAll()).thenReturn(List.of(mainGate));
 
         when(queueService.getQueueStatus()).thenReturn(Optional.of(queue("LOW")));
@@ -151,7 +151,7 @@ class EtaServiceTest {
     @DisplayName("Queue level is matched case-insensitively")
     void queueLevelIsCaseInsensitive() {
         when(locationService.getLatestLocation())
-                .thenReturn(Optional.of(location(6.5210, 3.3930, 20.0, LocalDateTime.now())));
+                .thenReturn(Optional.of(location(6.5210, 3.3930, 20.0, Instant.now())));
         when(stopRepository.findAll()).thenReturn(List.of(mainGate));
         when(queueService.getQueueStatus()).thenReturn(Optional.of(queue("packed")));
 
@@ -165,7 +165,7 @@ class EtaServiceTest {
         Stop near = stop("Sports Centre", 6.5175, 3.3870);
 
         when(locationService.getLatestLocation())
-                .thenReturn(Optional.of(location(6.5210, 3.3930, 20.0, LocalDateTime.now())));
+                .thenReturn(Optional.of(location(6.5210, 3.3930, 20.0, Instant.now())));
         when(queueService.getQueueStatus()).thenReturn(Optional.empty());
         // Deliberately ordered so a naive "first match" implementation fails.
         when(stopRepository.findAll()).thenReturn(List.of(far, near, mainGate));
@@ -181,7 +181,7 @@ class EtaServiceTest {
         // Shuttle ~5 km away, student essentially standing at the stop:
         // walking is seconds, the shuttle is many minutes.
         when(locationService.getLatestLocation())
-                .thenReturn(Optional.of(location(6.5600, 3.4200, 20.0, LocalDateTime.now())));
+                .thenReturn(Optional.of(location(6.5600, 3.4200, 20.0, Instant.now())));
         when(queueService.getQueueStatus()).thenReturn(Optional.of(queue("PACKED")));
         when(stopRepository.findAll()).thenReturn(List.of(mainGate));
 
@@ -197,7 +197,7 @@ class EtaServiceTest {
     void shuttleFasterWhenStudentIsFarFromStop() {
         // Shuttle sitting at the stop, student ~3 km away: a long walk, no wait.
         when(locationService.getLatestLocation())
-                .thenReturn(Optional.of(location(MAIN_GATE_LAT, MAIN_GATE_LNG, 20.0, LocalDateTime.now())));
+                .thenReturn(Optional.of(location(MAIN_GATE_LAT, MAIN_GATE_LNG, 20.0, Instant.now())));
         when(queueService.getQueueStatus()).thenReturn(Optional.of(queue("LOW")));
         when(stopRepository.findAll()).thenReturn(List.of(mainGate));
 
@@ -222,7 +222,7 @@ class EtaServiceTest {
 
     private String confidenceForAgeSeconds(int ageSeconds) {
         when(locationService.getLatestLocation()).thenReturn(Optional.of(
-                location(6.5210, 3.3930, 20.0, LocalDateTime.now().minusSeconds(ageSeconds))
+                location(6.5210, 3.3930, 20.0, Instant.now().minusSeconds(ageSeconds))
         ));
         return etaService.calculateEta(MAIN_GATE_LAT, MAIN_GATE_LNG).getConfidence();
     }
@@ -231,7 +231,7 @@ class EtaServiceTest {
     @DisplayName("Reports 'Unknown' rather than failing when no stops are seeded")
     void handlesEmptyStopList() {
         when(locationService.getLatestLocation())
-                .thenReturn(Optional.of(location(6.5210, 3.3930, 20.0, LocalDateTime.now())));
+                .thenReturn(Optional.of(location(6.5210, 3.3930, 20.0, Instant.now())));
         when(queueService.getQueueStatus()).thenReturn(Optional.empty());
         when(stopRepository.findAll()).thenReturn(List.of());
 
