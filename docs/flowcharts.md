@@ -43,7 +43,7 @@ flowchart TD
     style FETCH_LOC fill:#1A73E8,color:#fff
     style FETCH_ETA fill:#1A73E8,color:#fff
     style FETCH_QUEUE fill:#1A73E8,color:#fff
-    style UPDATE_CARD fill:#7B0000,color:#fff
+    style UPDATE_CARD fill:#0B6BCB,color:#fff
 ```
 
 ---

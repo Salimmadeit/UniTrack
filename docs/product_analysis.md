@@ -236,7 +236,7 @@ The following adjustments ensure the app is practical for UNILAG students on Nig
 | **Slow/unreliable mobile data** (MTN, Glo, Airtel — 2G/3G common) | Tiny JSON payloads (<1 KB). No images in API responses. Graceful timeout handling (8s timeout, not browser default 30s). State machine degrades visually instead of hanging |
 | **Data cost** (students buy small data bundles) | Polling at 7s with ~500-byte responses ≈ 250 KB/hour — negligible. No CDN-heavy assets. Bootstrap + Leaflet loaded from CDN with cache headers |
 | **Lower-end Android phones** (1–2 GB RAM, older Chrome) | No heavy frameworks. Vanilla JS. Reuse DOM elements. Lazy map tile loading. No animations beyond CSS transitions |
-| **Bright outdoor sun** (Lagos climate) | High-contrast colours. UNILAG Maroon on white. Large, bold text. No thin/grey fonts outdoors |
+| **Bright outdoor sun** (Lagos climate) | High-contrast colours. Transit azure (`#0B6BCB`) on white clears 5.2:1. Large, bold text. No thin/grey fonts outdoors |
 | **Intermittent power** (device battery anxiety) | Wake Lock only on driver page. Student page is passive polling — minimal battery impact |
 | **Campus Wi-Fi dead zones** | State machine handles gaps. App doesn't crash — it degrades and recovers automatically |
 

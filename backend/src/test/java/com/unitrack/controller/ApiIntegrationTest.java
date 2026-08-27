@@ -1,6 +1,10 @@
 package com.unitrack.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.unitrack.model.QueueStatus;
+import com.unitrack.repository.QueueStatusRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +13,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.lessThan;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,6 +46,28 @@ class ApiIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private QueueStatusRepository queueStatusRepository;
+
+    /**
+     * Resets the queue row to a known, safely-backdated state.
+     *
+     * <p>The queue is a single shared row and the debounce is time-based, so
+     * without this the tests are order-dependent: one test leaving "PACKED"
+     * behind makes the next test's identical report a debounced 429 rather than
+     * the 200 it expects. Backdating past the window means no test can inherit
+     * another's timer, whatever order JUnit picks.
+     */
+    @BeforeEach
+    void resetQueueState() {
+        QueueStatus status = queueStatusRepository.findById(1L).orElseGet(QueueStatus::new);
+        status.setId(1L);
+        status.setLevel("LOW");
+        status.setSource("DISPATCHER");
+        status.setUpdatedAt(Instant.now().minus(1, ChronoUnit.HOURS));
+        queueStatusRepository.save(status);
+    }
 
     private String json(Object value) throws Exception {
         return objectMapper.writeValueAsString(value);
@@ -125,13 +156,73 @@ class ApiIntegrationTest {
                         .content(json(Map.of("latitude", 6.5300, "longitude", 3.4000))))
                 .andExpect(status().isOk());
 
-        // The GET must return the second reading, and the id must still be 1:
-        // the spec calls for the latest position only, not a history table.
+        // The GET must return the second reading: the spec calls for the latest
+        // position only, not a history table. The primary key is deliberately
+        // absent from the response - it is a database detail, not part of the
+        // published contract.
         mockMvc.perform(get("/api/v1/location"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.latitude").value(6.5300))
-                .andExpect(jsonPath("$.longitude").value(3.4000));
+                .andExpect(jsonPath("$.longitude").value(3.4000))
+                .andExpect(jsonPath("$.id").doesNotExist());
+    }
+
+    /**
+     * The bug this guards against: {@code updatedAt} was a LocalDateTime, so it
+     * serialised with no timezone offset. The container runs in UTC and phones on
+     * campus are UTC+1, and a browser reads an offset-less datetime as local
+     * time - so a reading posted a second ago appeared to be an hour old and the
+     * student view showed "offline" while the marker was visibly moving.
+     *
+     * <p>Two guarantees make that impossible to reintroduce: the timestamp is an
+     * absolute instant (trailing Z, no interpretation required), and the server
+     * publishes the age it measured itself so no client ever has to subtract two
+     * clocks.
+     */
+    @Test
+    @DisplayName("A freshly posted location reports a near-zero age and a UTC-qualified timestamp")
+    void freshLocationIsNotReportedAsStale() throws Exception {
+        mockMvc.perform(post("/api/v1/location")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("latitude", 6.5185, "longitude", 3.3895, "speed", 15.0))))
+                .andExpect(status().isOk());
+
+        String body = mockMvc.perform(get("/api/v1/location"))
+                .andExpect(status().isOk())
+                // Well inside the 15s NORMAL window: anything near 3600 is the
+                // timezone bug returning.
+                .andExpect(jsonPath("$.ageSeconds").value(lessThan(5)))
+                .andExpect(jsonPath("$.serverTime").exists())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JsonNode payload = objectMapper.readTree(body);
+        String updatedAt = payload.get("updatedAt").asText();
+
+        org.junit.jupiter.api.Assertions.assertTrue(
+                updatedAt.endsWith("Z"),
+                "updatedAt must be an absolute UTC instant so no client has to guess "
+                        + "a timezone, but was: " + updatedAt);
+
+        // And the instant must genuinely be recent, not merely well-formatted.
+        long ageSeconds = Duration.between(Instant.parse(updatedAt), Instant.now()).getSeconds();
+        org.junit.jupiter.api.Assertions.assertTrue(
+                Math.abs(ageSeconds) < 60,
+                "updatedAt should be within a minute of now, but was " + ageSeconds + "s off");
+    }
+
+    @Test
+    @DisplayName("The ETA of a freshly posted location is NORMAL, not DISCONNECTED")
+    void freshLocationYieldsNormalConfidence() throws Exception {
+        mockMvc.perform(post("/api/v1/location")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("latitude", 6.5210, "longitude", 3.3930, "speed", 20.0))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/eta").param("lat", "6.5167").param("lng", "3.3850"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.confidence").value("NORMAL"));
     }
 
     @Test
@@ -164,6 +255,88 @@ class ApiIntegrationTest {
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/v1/queue"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.level").value("PACKED"));
+    }
+
+    @Test
+    @DisplayName("A student may report crowding, and the report is attributed to them")
+    void studentCanReportQueueLevel() throws Exception {
+        mockMvc.perform(post("/api/v1/queue")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("level", "MODERATE", "source", "STUDENT"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.level").value("MODERATE"))
+                .andExpect(jsonPath("$.source").value("STUDENT"));
+
+        mockMvc.perform(get("/api/v1/queue"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.source").value("STUDENT"));
+    }
+
+    @Test
+    @DisplayName("An omitted source defaults to DISPATCHER, keeping the old contract working")
+    void queueSourceDefaultsToDispatcher() throws Exception {
+        mockMvc.perform(post("/api/v1/queue")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("level", "LOW"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.source").value("DISPATCHER"));
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/queue rejects an unrecognised source")
+    void postQueueRejectsUnknownSource() throws Exception {
+        mockMvc.perform(post("/api/v1/queue")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("level", "LOW", "source", "ROBOT"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Validation failed"));
+    }
+
+    /**
+     * The spec's 10-second debounce has to be enforced here, not only in the
+     * dispatcher page: the endpoint is public and unauthenticated, so a
+     * browser-side guard can simply be bypassed.
+     *
+     * <p>429 rather than 400 because the payload was valid - the caller was
+     * merely early - and the body still carries the current queue state so a
+     * rejected client does not need a second request to refresh.
+     */
+    @Test
+    @DisplayName("An immediate repeat of the same level is debounced with 429 and Retry-After")
+    void repeatedIdenticalQueueReportIsDebounced() throws Exception {
+        mockMvc.perform(post("/api/v1/queue")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("level", "PACKED", "source", "DISPATCHER"))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/v1/queue")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("level", "PACKED", "source", "DISPATCHER"))))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(header().exists("Retry-After"))
+                // Still reports the live state, so the UI can render from it.
+                .andExpect(jsonPath("$.level").value("PACKED"));
+    }
+
+    /**
+     * The debounce must not swallow a genuine change of state. A global
+     * "one report per 10 seconds" lock would, and that is the difference between
+     * suppressing a double-tap and losing the report that the stop just went
+     * from Moderate to Packed.
+     */
+    @Test
+    @DisplayName("A different level is accepted immediately, even inside the debounce window")
+    void changedQueueLevelIsNotDebounced() throws Exception {
+        mockMvc.perform(post("/api/v1/queue")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("level", "LOW", "source", "DISPATCHER"))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/v1/queue")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("level", "PACKED", "source", "DISPATCHER"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.level").value("PACKED"));
     }
