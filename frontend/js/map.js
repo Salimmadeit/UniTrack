@@ -46,7 +46,6 @@ MapManager.prototype.init = function () {
 };
 
 MapManager.prototype.loadGoogleMapsScript = function () {
-  var self = this;
   return new Promise(function (resolve, reject) {
     if (window.google && window.google.maps) return resolve();
     var script = document.createElement('script');
@@ -95,7 +94,7 @@ MapManager.prototype.initLeaflet = function () {
 
   L.control.zoom({ position: 'topright' }).addTo(this.map);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: CONFIG.MAP_MAX_ZOOM,
     subdomains: 'abcd'
   }).addTo(this.map);
@@ -302,7 +301,7 @@ MapManager.prototype.drawRoutes = function (routes) {
   if (this.routesDrawn) return;
 
   var self = this;
-  // Route 1 (Maroon): Main Gate -> Senate -> Faculty of Science
+  // Route 1 (Maroon): Main Gate -> Sports Centre -> Faculty of Science
   // Route 2 (Gold): Main Gate -> New Hall -> DLI
   var colors = ['#7B0000', '#D97706'];
 

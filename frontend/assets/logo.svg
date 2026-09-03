@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B0000"/>
+      <stop offset="50%" stop-color="#660000"/>
+      <stop offset="100%" stop-color="#4A0000"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE066"/>
+      <stop offset="40%" stop-color="#FFB800"/>
+      <stop offset="100%" stop-color="#D48800"/>
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFB800" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#7B0000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="whiteSoft" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F0F2F5"/>
+    </linearGradient>
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+    <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#FFB800" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Background squircle/badge -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle inner border ring -->
+  <rect x="14" y="14" width="484" height="484" rx="100" fill="none" stroke="url(#goldGrad)" stroke-width="3" stroke-opacity="0.4"/>
+  
+  <!-- Ambient radar/tracking rings -->
+  <circle cx="256" cy="236" r="190" fill="none" stroke="#FFB800" stroke-width="1.5" stroke-opacity="0.12" stroke-dasharray="8 6"/>
+  <circle cx="256" cy="236" r="148" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-opacity="0.08"/>
+  <circle cx="256" cy="236" r="105" fill="url(#glowGrad)"/>
+
+  <!-- GPS Pin Shape / Beacon Halo behind bus -->
+  <g filter="url(#dropShadow)">
+    <!-- Outer Location Marker silhouette in UNILAG Gold -->
+    <path d="M 256,76 
+             C 176,76 116,134 116,214
+             C 116,290 220,380 244,402
+             C 251,408 261,408 268,402
+             C 292,380 396,290 396,214
+             C 396,134 336,76 256,76 Z" 
+          fill="url(#goldGrad)" />
+
+    <!-- Inner Core Pin Cavity in Deep Maroon -->
+    <path d="M 256,92 
+             C 188,92 134,142 134,212
+             C 134,276 226,356 248,376
+             C 253,380 259,380 264,376
+             C 286,356 378,276 378,212
+             C 378,142 324,92 256,92 Z" 
+          fill="#540000" />
+  </g>
+
+  <!-- Electric Shuttle Icon (Clean Geometric SVG) -->
+  <g id="shuttleBus" filter="url(#dropShadow)">
+    <!-- Main Bus Chassis -->
+    <rect x="194" y="148" width="124" height="152" rx="26" fill="url(#whiteSoft)" stroke="#FFFFFF" stroke-width="2"/>
+    
+    <!-- Windshield (dark contrast) -->
+    <rect x="206" y="162" width="100" height="42" rx="10" fill="#1C2127"/>
+    <!-- Windshield light reflection -->
+    <path d="M 212,166 L 236,166 L 222,200 L 208,200 Z" fill="#FFFFFF" fill-opacity="0.25"/>
+
+    <!-- Destination Sign / LED display -->
+    <rect x="226" y="152" width="60" height="6" rx="3" fill="url(#goldGrad)"/>
+
+    <!-- Side Passenger Windows -->
+    <rect x="206" y="214" width="22" height="24" rx="4" fill="#2E3842"/>
+    <rect x="234" y="214" width="44" height="24" rx="4" fill="#2E3842"/>
+    <rect x="284" y="214" width="22" height="24" rx="4" fill="#2E3842"/>
+
+    <!-- Electric Lightning Bolt Accent on bus body -->
+    <path d="M 260,217 L 250,227 L 257,227 L 251,237 L 263,225 L 256,225 Z" fill="url(#goldGrad)"/>
+
+    <!-- Grille & Headlights -->
+    <!-- Headlights -->
+    <circle cx="214" cy="260" r="8" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
+    <circle cx="214" cy="260" r="4" fill="#FFFFFF"/>
+    <circle cx="298" cy="260" r="8" fill="url(#goldGrad)" filter="url(#goldGlow)"/>
+    <circle cx="298" cy="260" r="4" fill="#FFFFFF"/>
+
+    <!-- Front Grille Plate -->
+    <rect x="234" y="254" width="44" height="14" rx="5" fill="#E2E5E9"/>
+    <line x1="240" y1="261" x2="272" y2="261" stroke="#88929A" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Bumper -->
+    <rect x="202" y="278" width="108" height="12" rx="6" fill="#242B33"/>
+    
+    <!-- Wheels -->
+    <rect x="188" y="206" width="6" height="28" rx="3" fill="#1C2127"/>
+    <rect x="318" y="206" width="6" height="28" rx="3" fill="#1C2127"/>
+    <rect x="188" y="254" width="6" height="26" rx="3" fill="#1C2127"/>
+    <rect x="318" y="254" width="6" height="26" rx="3" fill="#1C2127"/>
+  </g>
+
+  <!-- Location Pulse Dot at Base of Pin -->
+  <circle cx="256" cy="426" r="16" fill="#FFB800" fill-opacity="0.25"/>
+  <circle cx="256" cy="426" r="9" fill="url(#goldGrad)"/>
+  <circle cx="256" cy="426" r="4" fill="#FFFFFF"/>
+
+  <!-- Brand Typography: Uni-Track -->
+  <text x="256" y="472" 
+        font-family="system-ui, -apple-system, Roboto, sans-serif" 
+        font-size="28" 
+        font-weight="900" 
+        letter-spacing="5" 
+        text-anchor="middle" 
+        fill="#FFFFFF">UNI•TRACK</text>
+  <text x="256" y="492" 
+        font-family="system-ui, -apple-system, Roboto, sans-serif" 
+        font-size="11" 
+        font-weight="700" 
+        letter-spacing="3" 
+        text-anchor="middle" 
+        fill="#FFB800" 
+        fill-opacity="0.9">UNILAG ELECTRIC SHUTTLE</text>
+</svg>

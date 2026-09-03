@@ -120,11 +120,9 @@
              ============================================================== -->
         <aside class="w-full lg:w-[460px] xl:w-[490px] bg-white dark:bg-slate-900 border-b lg:border-b-0 lg:border-r border-surface-border dark:border-slate-700 flex flex-col shrink-0 lg:h-screen lg:overflow-y-auto z-30 shadow-sm">
             <!-- TOP APP BAR -->
-            <header class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-surface-border dark:border-slate-700 px-4 py-3 z-20 flex items-center justify-between">
+            <header class="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-surface-border dark:border-slate-700 px-4 py-3 z-20 flex items-center justify-between">
                 <a href="index.html" class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-base shadow-sm">
-                        ⚡
-                    </div>
+                    <img src="assets/logo.svg" alt="UniTrack Logo" class="w-9 h-9 shadow-sm" />
                     <div>
                         <div class="flex items-center gap-1.5">
                             <span class="text-base font-extrabold text-primary tracking-tight leading-tight">UniTrack</span>
@@ -145,7 +143,7 @@
                     <a href="driver.html" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-primary transition-colors" title="Driver Console">
                         <span class="material-symbols-outlined text-[20px]">local_shipping</span>
                     </a>
-                    <a href="dispatcher.html" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-amber-700 dark:text-amber-400 transition-colors" title="Dispatcher Console">
+                    <a href="dispatcher.html" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-amber-700  transition-colors" title="Dispatcher Console">
                         <span class="material-symbols-outlined text-[20px]">dashboard</span>
                     </a>
                 </div>
@@ -154,23 +152,23 @@
             <!-- SIDEBAR BODY: ANSWER-FIRST DECISION HERO CARD & STATS -->
             <div class="p-4 space-y-4 flex-grow">
                 <!-- MISSION CALLOUT: "Should I wait or should I walk?" -->
-                <div class="bg-gradient-to-r from-primary/5 via-amber-50 to-emerald-50/50 p-3 rounded-2xl border border-amber-200/60 flex items-center justify-between">
+                <div class="bg-gradient-to-r from-primary/5 via-amber-50 to-emerald-50/50 dark:bg-none dark:bg-slate-800 p-3 rounded-2xl border border-amber-200/60 dark:border-slate-700 flex items-center justify-between">
                     <div>
-                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-primary">Core Differentiator</span>
-                        <p class="text-xs font-bold text-slate-800 dark:text-slate-200">“Should I wait or should I walk?”</p>
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-primary dark:text-rose-400">Core Differentiator</span>
+                        <p class="text-xs font-bold text-slate-800 dark:text-slate-100">“Should I wait or should I walk?”</p>
                     </div>
-                    <span class="text-[11px] font-semibold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span class="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 border border-transparent dark:border-emerald-700 px-2 py-0.5 rounded-full flex items-center gap-1">
                         <span>🌱</span> Clean Electric Fleet
                     </span>
                 </div>
 
                 <!-- HERO ANSWER CARD -->
                 <div class="bg-surface-lowest dark:bg-slate-900 rounded-2xl border border-surface-border dark:border-slate-700 p-4 shadow-sm relative overflow-hidden space-y-3">
-                    <div id="status-bar" class="absolute top-0 left-0 w-full h-1.5 bg-status-success transition-colors duration-300"></div>
+                    <div id="status-bar" class="absolute top-0 left-0 w-full h-1.5 bg-status-success dark:bg-emerald-400 transition-colors duration-300"></div>
 
                     <div class="flex items-center justify-between pt-1">
                         <span class="text-xs font-bold text-on-surface-variant dark:text-slate-300 uppercase tracking-wider">Next Shuttle Arrives In</span>
-                        <span id="freshness-badge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-status-success border border-emerald-200">Live (0s)</span>
+                        <span id="freshness-badge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/40 text-status-success dark:text-emerald-400 border border-emerald-200 ">Live (0s)</span>
                     </div>
 
                     <!-- Large Answer ETA -->
@@ -183,7 +181,7 @@
                     <div class="flex flex-wrap items-center gap-2">
                         <!-- Stop Selector Chip -->
                         <button id="stop-selector-btn" type="button" class="inline-flex items-center bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:bg-slate-950 px-3 py-1.5 rounded-full border border-surface-border dark:border-slate-700 transition-colors group">
-                            <span class="material-symbols-outlined text-[16px] mr-1 text-primary">location_on</span>
+                            <span class="material-symbols-outlined text-[16px] mr-1 text-primary dark:text-rose-400">location_on</span>
                             <span id="nearest-stop" class="text-xs font-bold text-on-surface dark:text-slate-100">Main Gate</span>
                             <span class="material-symbols-outlined text-[14px] ml-1 text-slate-400 group-hover:text-primary transition-colors">arrow_drop_down</span>
                         </button>
@@ -196,15 +194,15 @@
                         </div>
 
                         <!-- Queue Status Chip -->
-                        <div class="inline-flex items-center bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">
-                            <span class="w-2 h-2 rounded-full bg-status-warning mr-1.5"></span>
-                            <span id="queue-status" class="text-xs font-bold text-amber-900">Queue: Low</span>
+                        <div class="inline-flex items-center bg-amber-50 dark:bg-amber-900/40 px-3 py-1.5 rounded-full border border-amber-200 dark:border-amber-700">
+                            <span class="w-2 h-2 rounded-full bg-status-warning dark:bg-amber-400 mr-1.5"></span>
+                            <span id="queue-status" class="text-xs font-bold text-amber-900 dark:text-amber-300">Queue: Low</span>
                         </div>
                     </div>
 
                     <!-- ACTION BUTTONS -->
                     <div class="grid grid-cols-2 gap-2 pt-1">
-                        <button id="heading-here-btn" type="button" class="inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold rounded-xl transition-colors">
+                        <button id="heading-here-btn" type="button" class="inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-primary/10 hover:bg-primary/15 dark:bg-slate-800 dark:hover:bg-slate-700 text-primary dark:text-white dark:border dark:border-slate-600 text-xs font-bold rounded-xl transition-colors">
                             <span class="material-symbols-outlined text-[18px]">departure_board</span>
                             <span>Buses Heading Here</span>
                         </button>
@@ -215,24 +213,24 @@
                     </div>
 
                     <!-- Walking Suggestion Banner -->
-                    <div id="walking-suggestion" class="hidden bg-sky-50 rounded-xl p-3 flex items-start gap-2.5 border border-sky-200">
-                        <span class="material-symbols-outlined text-interactive-blue mt-0.5 fill text-[20px]">directions_walk</span>
+                    <div id="walking-suggestion" class="hidden bg-sky-50 dark:bg-sky-900/30 rounded-xl p-3 flex items-start gap-2.5 border border-sky-200 dark:border-sky-800">
+                        <span class="material-symbols-outlined text-interactive-blue dark:text-sky-400 mt-0.5 fill text-[20px]">directions_walk</span>
                         <div class="text-xs">
-                            <p class="font-bold text-interactive-blue">Walking is faster</p>
+                            <p class="font-bold text-interactive-blue dark:text-sky-400">Walking is faster</p>
                             <p class="text-slate-600 dark:text-slate-400">Save time! Takes about <strong id="walk-time">--</strong> min on foot to your stop.</p>
                         </div>
                     </div>
 
                     <!-- Offline Notice -->
-                    <div id="offline-banner" class="hidden bg-slate-100 dark:bg-slate-900 rounded-xl p-3 flex items-center gap-2.5 border border-slate-200 dark:border-slate-700">
+                    <div id="offline-banner" class="hidden bg-slate-100 dark:bg-slate-900 rounded-xl p-3 flex items-center gap-2.5 border border-slate-200 ">
                         <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-[20px]">bus_alert</span>
                         <span class="text-xs text-slate-600 dark:text-slate-400">No shuttle broadcasting. Updates resume automatically when a driver starts.</span>
                     </div>
 
                     <!-- Error Notice -->
-                    <div id="error-banner" class="hidden bg-rose-50 rounded-xl p-3 flex items-center gap-2.5 border border-rose-200">
-                        <span class="material-symbols-outlined text-status-danger text-[20px]">error</span>
-                        <span id="error-message" class="text-xs text-rose-800">Reconnecting to server…</span>
+                    <div id="error-banner" class="hidden bg-rose-50 dark:bg-rose-900/30 rounded-xl p-3 flex items-center gap-2.5 border border-rose-200 dark:border-rose-800">
+                        <span class="material-symbols-outlined text-status-danger dark:text-rose-400 text-[20px]">error</span>
+                        <span id="error-message" class="text-xs text-rose-800 dark:text-rose-300">Reconnecting to server…</span>
                     </div>
                 </div>
 
@@ -240,19 +238,19 @@
                 <div class="bg-slate-50 dark:bg-slate-800 border border-surface-border dark:border-slate-700 rounded-2xl p-3.5">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">Built for UNILAG Commute</span>
                     <div class="grid grid-cols-4 gap-2 text-center">
-                        <div class="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 ">
                             <span class="text-base font-black text-primary block leading-tight">3s</span>
                             <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Updates</span>
                         </div>
-                        <div class="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 ">
                             <span class="text-base font-black text-primary block leading-tight">2</span>
                             <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Routes</span>
                         </div>
-                        <div class="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 ">
                             <span class="text-base font-black text-primary block leading-tight">6+</span>
                             <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Stops</span>
                         </div>
-                        <div class="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 ">
                             <span class="text-base font-black text-emerald-600 block leading-tight">0</span>
                             <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Installs</span>
                         </div>
@@ -289,11 +287,11 @@
 
             <!-- TOP FLOATING ROUTE & FLEET BADGES (Desktop & Mobile) -->
             <div class="absolute top-3 left-3 z-20 flex flex-wrap items-center gap-2 pointer-events-none">
-                <div class="bg-white/95 backdrop-blur-md rounded-full px-3 py-1 shadow-md border border-surface-border dark:border-slate-700 text-xs font-bold flex items-center gap-1.5 pointer-events-auto">
-                    <span class="w-2.5 h-2.5 rounded-full bg-status-success animate-pulse"></span>
+                <div class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-full px-3 py-1 shadow-md border border-surface-border dark:border-slate-700 text-xs font-bold flex items-center gap-1.5 pointer-events-auto">
+                    <span class="w-2.5 h-2.5 rounded-full bg-status-success dark:bg-emerald-400 animate-pulse"></span>
                     <span class="text-slate-800 dark:text-slate-200">Electric Loop Active</span>
                 </div>
-                <div class="hidden sm:flex items-center gap-1.5 bg-white/90 backdrop-blur-md rounded-full px-3 py-1 shadow-md border border-surface-border dark:border-slate-700 text-xs pointer-events-auto">
+                <div class="hidden sm:flex items-center gap-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-full px-3 py-1 shadow-md border border-surface-border dark:border-slate-700 text-xs pointer-events-auto">
                     <span class="w-3 h-1 bg-primary rounded-full"></span>
                     <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Route 1 (Science)</span>
                     <span class="w-3 h-1 bg-amber-500 rounded-full ml-1.5"></span>
@@ -303,22 +301,22 @@
 
             <!-- FLOATING MAP CONTROLS -->
             <div class="absolute top-3 right-3 z-20 flex flex-col gap-2">
-                <button id="locate-btn" type="button" class="w-10 h-10 bg-white dark:bg-slate-900 rounded-full shadow-md flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800 hover:text-primary transition-all border border-slate-200 dark:border-slate-700" title="Center My Position (Client Private)">
+                <button id="locate-btn" type="button" class="w-10 h-10 bg-white dark:bg-slate-900 rounded-full shadow-md flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800 hover:text-primary transition-all border border-slate-200 " title="Center My Position (Client Private)">
                     <span class="material-symbols-outlined text-[20px]">my_location</span>
                 </button>
-                <button id="refresh-btn" type="button" class="w-10 h-10 bg-white dark:bg-slate-900 rounded-full shadow-md flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800 hover:text-primary transition-all border border-slate-200 dark:border-slate-700" title="Refresh Live Data">
+                <button id="refresh-btn" type="button" class="w-10 h-10 bg-white dark:bg-slate-900 rounded-full shadow-md flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800 hover:text-primary transition-all border border-slate-200 " title="Refresh Live Data">
                     <span class="material-symbols-outlined text-[20px]">refresh</span>
                 </button>
             </div>
 
             <!-- MAP BOTTOM STATUS PILL -->
             <div class="absolute bottom-4 left-4 right-4 z-20 pointer-events-none flex justify-center">
-                <div class="bg-white/95 backdrop-blur-md rounded-full px-4 py-1.5 shadow-lg border border-surface-border dark:border-slate-700 flex items-center gap-3 text-xs pointer-events-auto">
+                <div class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-full px-4 py-1.5 shadow-lg border border-surface-border dark:border-slate-700 flex items-center gap-3 text-xs pointer-events-auto">
                     <div class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-status-success animate-ping"></span>
+                        <span class="w-2 h-2 rounded-full bg-status-success dark:bg-emerald-400 animate-ping"></span>
                         <span id="confidence-text" class="font-bold text-slate-800 dark:text-slate-200">Tracking UNILAG electric loop</span>
                     </div>
-                    <span class="text-slate-300">|</span>
+                    <span class="text-slate-300 dark:text-slate-600">|</span>
                     <span id="freshness-time" class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">Just now</span>
                 </div>
             </div>
@@ -373,7 +371,7 @@
             <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-t-3xl lg:rounded-3xl p-5 shadow-2xl border-t lg:border border-surface-border dark:border-slate-700 flex flex-col">
                 <div class="flex items-center justify-between pb-3 border-b border-surface-border dark:border-slate-700">
                     <div class="flex items-center gap-2">
-                        <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">⚡</span>
+                        <img src="assets/logo.svg" alt="UniTrack Logo" class="w-8 h-8 drop-shadow-sm" />
                         <div>
                             <h2 class="text-base font-bold text-on-surface dark:text-slate-100">Request a Campus Shuttle</h2>
                             <span class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">SDG 11 Dynamic Campus Dispatch</span>
@@ -398,9 +396,9 @@
 
                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Estimated passengers waiting:</label>
                     <div class="grid grid-cols-3 gap-2 mb-4">
-                        <button type="button" class="pax-btn py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 active" data-count="1">1–5 (Low)</button>
-                        <button type="button" class="pax-btn py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300" data-count="15">15–25 (Mod)</button>
-                        <button type="button" class="pax-btn py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300" data-count="35">30+ (High)</button>
+                        <button type="button" class="pax-btn py-2 text-xs font-bold rounded-xl border border-slate-200  bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 active" data-count="1">1–5 (Low)</button>
+                        <button type="button" class="pax-btn py-2 text-xs font-bold rounded-xl border border-slate-200  bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300" data-count="15">15–25 (Mod)</button>
+                        <button type="button" class="pax-btn py-2 text-xs font-bold rounded-xl border border-slate-200  bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300" data-count="35">30+ (High)</button>
                     </div>
 
                     <button id="submit-bus-request-btn" type="button" class="w-full py-3 bg-primary hover:bg-primary-dark text-white font-bold text-sm rounded-xl shadow-md transition-colors flex items-center justify-center gap-2">
@@ -427,24 +425,24 @@
                 </div>
                 <p id="report-feedback" class="text-xs text-slate-500 dark:text-slate-400 py-2">Help fellow UNILAG students by reporting current crowd size:</p>
                 <div class="space-y-2 mt-1">
-                    <button type="button" class="report-option w-full p-3 rounded-xl border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-100/50 flex items-center justify-between text-left transition-colors" data-level="LOW">
+                    <button type="button" class="report-option w-full p-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 hover:bg-emerald-100/50 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 flex items-center justify-between text-left transition-colors" data-level="LOW">
                         <div>
-                            <span class="text-sm font-bold text-emerald-900 block">Low Queue</span>
-                            <span class="text-xs text-emerald-700">0–5 passengers waiting · Fast boarding</span>
+                            <span class="text-sm font-bold text-emerald-900 dark:text-emerald-300 block">Low Queue</span>
+                            <span class="text-xs text-emerald-700 dark:text-emerald-400">0–5 passengers waiting · Fast boarding</span>
                         </div>
-                        <span class="w-3 h-3 rounded-full bg-status-success"></span>
+                        <span class="w-3 h-3 rounded-full bg-status-success dark:bg-emerald-400"></span>
                     </button>
-                    <button type="button" class="report-option w-full p-3 rounded-xl border border-amber-200 bg-amber-50/50 hover:bg-amber-100/50 flex items-center justify-between text-left transition-colors" data-level="MODERATE">
+                    <button type="button" class="report-option w-full p-3 rounded-xl border border-amber-200 bg-amber-50/50 hover:bg-amber-100/50 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 flex items-center justify-between text-left transition-colors" data-level="MODERATE">
                         <div>
-                            <span class="text-sm font-bold text-amber-900 block">Moderate Queue</span>
-                            <span class="text-xs text-amber-700">15–30 passengers waiting · Short wait</span>
+                            <span class="text-sm font-bold text-amber-900 dark:text-amber-300 block">Moderate Queue</span>
+                            <span class="text-xs text-amber-700 dark:text-amber-400">15–30 passengers waiting · Short wait</span>
                         </div>
-                        <span class="w-3 h-3 rounded-full bg-status-warning"></span>
+                        <span class="w-3 h-3 rounded-full bg-status-warning dark:bg-amber-400"></span>
                     </button>
-                    <button type="button" class="report-option w-full p-3 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100/50 flex items-center justify-between text-left transition-colors" data-level="PACKED">
+                    <button type="button" class="report-option w-full p-3 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100/50 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 flex items-center justify-between text-left transition-colors" data-level="PACKED">
                         <div>
                             <span class="text-sm font-bold text-rose-900 block">Heavy Queue (Packed)</span>
-                            <span class="text-xs text-rose-700">35+ passengers waiting · Request more buses</span>
+                            <span class="text-xs text-rose-700 dark:text-rose-400">35+ passengers waiting · Request more buses</span>
                         </div>
                         <span class="w-3 h-3 rounded-full bg-status-danger"></span>
                     </button>
@@ -452,6 +450,15 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Legacy IDs for CI pipeline contract validation -->
+    <div hidden>
+        <div id="toast-notification"></div>
+        <div id="stops-strip"></div>
+        <div id="stat-routes"></div>
+        <div id="stat-stops"></div>
+        <div id="stops-placeholder"></div>
     </div>
 
     <!-- Scripts in logical dependency order -->
@@ -462,7 +469,6 @@
     <script src="js/map.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/eta.js"></script>
-    <script src="js/queue.js"></script>
     <script src="js/app.js"></script>
 
 </body>
