@@ -7,7 +7,7 @@ import com.unitrack.model.QueueStatus;
 import com.unitrack.model.Stop;
 import com.unitrack.repository.StopRepository;
 import com.unitrack.util.HaversineUtil;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -15,12 +15,18 @@ import java.time.Instant;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class EtaService {
 
     private final LocationService locationService;
     private final QueueService queueService;
     private final StopRepository stopRepository;
+
+    @Autowired
+    public EtaService(LocationService locationService, QueueService queueService, StopRepository stopRepository) {
+        this.locationService = locationService;
+        this.queueService = queueService;
+        this.stopRepository = stopRepository;
+    }
     
     private static final double WALKING_SPEED_KMH = 5.0;
     private static final double DEFAULT_SHUTTLE_SPEED_KMH = 20.0;
@@ -60,12 +66,14 @@ public class EtaService {
             speed = DEFAULT_SHUTTLE_SPEED_KMH;
         }
 
-        double etaMinutes = (distanceKm / speed) * 60.0;
+        // Road routing distance factor (campus roads detour around buildings ~1.25x haversine)
+        double roadDistanceKm = distanceKm * 1.25;
+        double etaMinutes = (roadDistanceKm / speed) * 60.0;
         
         // Walking logic
         double walkingMinutes = 0.0;
         if (nearestStop != null) {
-            walkingMinutes = (minDistanceToStop / WALKING_SPEED_KMH) * 60.0;
+            walkingMinutes = ((minDistanceToStop * 1.15) / WALKING_SPEED_KMH) * 60.0;
         }
         
         // Queue wait time
@@ -74,9 +82,6 @@ public class EtaService {
         
         boolean walkingFaster = (etaMinutes + queueWaitMinutes) > walkingMinutes;
 
-        // Confidence based on data freshness. Both operands are Instants read
-        // from this machine's clock, so no timezone conversion is involved and
-        // the age cannot be thrown off by where the caller happens to be.
         long secondsSinceUpdate = location.getUpdatedAt() == null
                 ? Long.MAX_VALUE
                 : Math.max(0, Duration.between(location.getUpdatedAt(), Instant.now()).getSeconds());
@@ -84,13 +89,15 @@ public class EtaService {
 
         return EtaResponse.builder()
                 .etaMinutes(Math.round(etaMinutes * 10.0) / 10.0)
-                .distanceKm(Math.round(distanceKm * 100.0) / 100.0)
+                .distanceKm(Math.round(roadDistanceKm * 100.0) / 100.0)
                 .shuttleSpeed(speed)
                 .confidence(confidence)
                 .walkingMinutes(Math.round(walkingMinutes * 10.0) / 10.0)
                 .walkingFaster(walkingFaster)
                 .queueWaitMinutes(queueWaitMinutes)
                 .nearestStop(nearestStop != null ? nearestStop.getName() : "Unknown")
+                .shuttleLatitude(location.getLatitude())
+                .shuttleLongitude(location.getLongitude())
                 .build();
     }
     

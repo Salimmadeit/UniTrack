@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UNILAG Shuttle - Uni-Track</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#2e3132",
+                        "secondary-fixed": "#ffdea8",
+                        "tertiary-fixed": "#dfe0ff",
+                        "on-tertiary-container": "#8f9cff",
+                        "primary-fixed": "#ffdad4",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "background": "#f8f9fa",
+                        "primary": "#520000",
+                        "on-primary-fixed": "#410000",
+                        "on-tertiary": "#ffffff",
+                        "status-success": "#0F9D58",
+                        "surface": "#f8f9fa",
+                        "surface-tint": "#b02d1f",
+                        "surface-container": "#edeeef",
+                        "outline": "#8d706c",
+                        "surface-container-low": "#f3f4f5",
+                        "status-warning": "#F4B400",
+                        "surface-dim": "#d9dadb",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e1e3e4",
+                        "error": "#ba1a1a",
+                        "interactive-blue": "#1A73E8",
+                        "on-tertiary-fixed-variant": "#1b32be",
+                        "surface-bright": "#f8f9fa",
+                        "inverse-primary": "#ffb4a8",
+                        "surface-border": "#E9ECEF",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#0020b1",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#8e120a",
+                        "on-surface-variant": "#59413d",
+                        "error-container": "#ffdad6",
+                        "status-danger": "#DB4437",
+                        "tertiary-fixed-dim": "#bcc3ff",
+                        "on-error": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "outline-variant": "#e1bfb9",
+                        "on-surface": "#191c1d",
+                        "on-secondary-container": "#6b4b00",
+                        "secondary-container": "#feb700",
+                        "on-primary-container": "#ff7d6a",
+                        "secondary-fixed-dim": "#ffba20",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-secondary-fixed-variant": "#5e4200",
+                        "tertiary": "#001278",
+                        "text-muted": "#9AA0A6",
+                        "on-tertiary-fixed": "#000d60",
+                        "secondary": "#7c5800",
+                        "surface-container-high": "#e7e8e9",
+                        "primary-container": "#7b0000",
+                        "on-secondary-fixed": "#271900",
+                        "on-background": "#191c1d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-margin": "16px",
+                        "stack-lg": "24px",
+                        "touch-target": "48px",
+                        "stack-md": "16px",
+                        "stack-sm": "4px",
+                        "base": "8px",
+                        "gutter": "12px"
+                    },
+                    "fontFamily": {
+                        "label-bold": ["system-ui"],
+                        "label-sm": ["system-ui"],
+                        "headline-md": ["system-ui"],
+                        "headline-lg": ["system-ui"],
+                        "body-md": ["system-ui"],
+                        "hero-eta": ["system-ui"],
+                        "hero-eta-mobile": ["system-ui"],
+                        "body-lg": ["system-ui"]
+                    },
+                    "fontSize": {
+                        "label-bold": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "hero-eta": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "hero-eta-mobile": ["40px", { "lineHeight": "1.1", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-on-background border-b border-surface-border dark:border-outline fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-margin h-touch-target">
+<div class="flex items-center gap-2">
+<span class="font-headline-lg text-headline-lg font-bold text-primary dark:text-on-primary-fixed-variant">UNILAG Shuttle</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary dark:text-on-primary-fixed-variant cursor-pointer active:opacity-80 hover:bg-surface-container-low dark:hover:bg-surface-dim transition-colors p-2 rounded-full" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-primary dark:text-on-primary-fixed-variant cursor-pointer active:opacity-80 hover:bg-surface-container-low dark:hover:bg-surface-dim transition-colors p-2 rounded-full" data-icon="settings">settings</span>
+<span class="material-symbols-outlined text-primary dark:text-on-primary-fixed-variant cursor-pointer active:opacity-80 hover:bg-surface-container-low dark:hover:bg-surface-dim transition-colors p-2 rounded-full" data-icon="help">help</span>
+</div>
+</header>
+<main class="flex-grow pt-touch-target">
+<!-- Hero Section -->
+<section class="w-full bg-surface-container-lowest border-b border-surface-border relative overflow-hidden py-16 px-container-margin md:px-8">
+<div class="max-w-4xl mx-auto flex flex-col items-center text-center">
+<div class="w-24 h-24 bg-primary text-on-primary rounded-full flex items-center justify-center mb-6 shadow-sm">
+<span class="material-symbols-outlined text-[48px]" data-icon="directions_bus" style="font-variation-settings: 'FILL' 1;">directions_bus</span>
+</div>
+<h1 class="font-hero-eta-mobile md:font-hero-eta text-hero-eta-mobile md:text-hero-eta text-on-surface mb-4">Uni-Track System</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-8">Real-time shuttle tracking and queue management for the University of Lagos community.</p>
+<div class="flex gap-4 flex-wrap justify-center">
+<a class="bg-primary text-on-primary font-label-bold text-label-bold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm" href="#students">
+<span class="material-symbols-outlined" data-icon="map">map</span> Get Started
+                    </a>
+</div>
+</div>
+</section>
+<!-- Portals Section -->
+<section class="max-w-6xl mx-auto py-16 px-container-margin md:px-8" id="portals">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-8 text-center">Select Your Portal</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Students Card -->
+<a class="block bg-surface-container-lowest border border-surface-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group" href="/student">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-[100px] text-primary" data-icon="school">school</span>
+</div>
+<div class="w-12 h-12 bg-primary-container text-on-primary-container rounded-lg flex items-center justify-center mb-4">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Students &amp; Staff</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Track live shuttle locations, view estimated arrival times, and check queue lengths before heading to the park.</p>
+<span class="text-interactive-blue font-label-bold text-label-bold flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Track Shuttles <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</span>
+</a>
+<!-- Drivers Card -->
+<a class="block bg-surface-container-lowest border border-surface-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group" href="/driver">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-[100px] text-secondary" data-icon="directions_bus">directions_bus</span>
+</div>
+<div class="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-lg flex items-center justify-center mb-4">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Drivers</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Broadcast your live location, manage your current route, and communicate status to dispatchers.</p>
+<span class="text-secondary font-label-bold text-label-bold flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Broadcast Location <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</span>
+</a>
+<!-- Dispatchers Card -->
+<a class="block bg-surface-container-lowest border border-surface-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group" href="/dispatcher">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-[100px] text-tertiary" data-icon="admin_panel_settings">admin_panel_settings</span>
+</div>
+<div class="w-12 h-12 bg-tertiary-container text-on-tertiary rounded-lg flex items-center justify-center mb-4">
+<span class="material-symbols-outlined" data-icon="low_priority">low_priority</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Dispatchers</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Manage queues, dispatch vehicles, and oversee the entire fleet operations in real-time.</p>
+<span class="text-tertiary font-label-bold text-label-bold flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Manage Queues <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</span>
+</a>
+</div>
+</section>
+<!-- How it works -->
+<section class="bg-surface-container-low py-16 px-container-margin md:px-8">
+<div class="max-w-4xl mx-auto">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-12 text-center">How It Works</h2>
+<div class="flex flex-col md:flex-row gap-8 relative">
+<!-- Connecting line for desktop -->
+<div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-surface-border -z-10 -translate-y-1/2"></div>
+<!-- Step 1 -->
+<div class="flex-1 flex flex-col items-center text-center bg-surface-container-lowest p-6 rounded-xl border border-surface-border shadow-sm z-10">
+<div class="w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center mb-4 font-headline-md text-headline-md shadow-sm">1</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Track Live</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">See exactly where the shuttles are on the campus map in real-time.</p>
+</div>
+<!-- Step 2 -->
+<div class="flex-1 flex flex-col items-center text-center bg-surface-container-lowest p-6 rounded-xl border border-surface-border shadow-sm z-10">
+<div class="w-12 h-12 bg-secondary text-on-secondary rounded-full flex items-center justify-center mb-4 font-headline-md text-headline-md shadow-sm">2</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Check the Queue</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">View live queue lengths at major parks to anticipate wait times.</p>
+</div>
+<!-- Step 3 -->
+<div class="flex-1 flex flex-col items-center text-center bg-surface-container-lowest p-6 rounded-xl border border-surface-border shadow-sm z-10">
+<div class="w-12 h-12 bg-tertiary text-on-tertiary rounded-full flex items-center justify-center mb-4 font-headline-md text-headline-md shadow-sm">3</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Decide</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Make informed decisions on whether to wait for a shuttle or take an alternative route.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer class="bg-surface-container border-t border-surface-border py-6 px-container-margin text-center">
+<p class="font-body-md text-body-md text-on-surface-variant">© 2024 University of Lagos. Academic Utility System.</p>
+</footer>
+</body></html>

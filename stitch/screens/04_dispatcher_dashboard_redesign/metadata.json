@@ -1,0 +1,14 @@
+{
+  "num": 4,
+  "title": "Uni-Track: Dispatcher Dashboard Redesign",
+  "id": "48e7d25f40464926bbb921b056e15405",
+  "slug": "04_dispatcher_dashboard_redesign",
+  "deviceType": "MOBILE",
+  "width": "780",
+  "height": "2556",
+  "files": {
+    "screenshot": "screen.png",
+    "code": "code.html"
+  },
+  "hasScreenshot": true
+}

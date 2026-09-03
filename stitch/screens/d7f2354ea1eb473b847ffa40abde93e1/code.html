@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Uni-Track - Driver</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed-variant": "#5e4200",
+                      "background": "#f8f9fa",
+                      "surface": "#f8f9fa",
+                      "outline": "#8d706c",
+                      "primary-fixed-dim": "#ffb4a8",
+                      "outline-variant": "#e1bfb9",
+                      "surface-tint": "#b02d1f",
+                      "on-primary-fixed-variant": "#8e120a",
+                      "on-primary-fixed": "#410000",
+                      "on-tertiary-container": "#8f9cff",
+                      "surface-container": "#edeeef",
+                      "on-tertiary-fixed-variant": "#1b32be",
+                      "primary-fixed": "#ffdad4",
+                      "surface-bright": "#f8f9fa",
+                      "error-container": "#ffdad6",
+                      "surface-border": "#E9ECEF",
+                      "surface-container-low": "#f3f4f5",
+                      "inverse-primary": "#ffb4a8",
+                      "interactive-blue": "#1A73E8",
+                      "primary": "#520000",
+                      "on-primary-container": "#ff7d6a",
+                      "status-warning": "#F4B400",
+                      "surface-container-high": "#e7e8e9",
+                      "surface-variant": "#e1e3e4",
+                      "status-success": "#0F9D58",
+                      "on-primary": "#ffffff",
+                      "tertiary-container": "#0020b1",
+                      "on-error-container": "#93000a",
+                      "on-secondary-container": "#6b4b00",
+                      "surface-dim": "#d9dadb",
+                      "secondary-fixed-dim": "#ffba20",
+                      "on-surface-variant": "#59413d",
+                      "on-background": "#191c1d",
+                      "secondary-container": "#feb700",
+                      "tertiary-fixed": "#dfe0ff",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-fixed-dim": "#bcc3ff",
+                      "on-tertiary": "#ffffff",
+                      "on-surface": "#191c1d",
+                      "tertiary": "#001278",
+                      "error": "#ba1a1a",
+                      "secondary-fixed": "#ffdea8",
+                      "text-muted": "#9AA0A6",
+                      "inverse-on-surface": "#f0f1f2",
+                      "inverse-surface": "#2e3132",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed": "#000d60",
+                      "on-secondary-fixed": "#271900",
+                      "primary-container": "#7b0000",
+                      "status-danger": "#DB4437",
+                      "secondary": "#7c5800",
+                      "surface-container-highest": "#e1e3e4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base": "8px",
+                      "touch-target": "48px",
+                      "stack-sm": "4px",
+                      "stack-md": "16px",
+                      "container-margin": "16px",
+                      "stack-lg": "24px",
+                      "gutter": "12px"
+              },
+              "fontFamily": {
+                      "label-bold": [
+                              "system-ui"
+                      ],
+                      "label-sm": [
+                              "system-ui"
+                      ],
+                      "headline-md": [
+                              "system-ui"
+                      ],
+                      "hero-eta-mobile": [
+                              "system-ui"
+                      ],
+                      "headline-lg": [
+                              "system-ui"
+                      ],
+                      "hero-eta": [
+                              "system-ui"
+                      ],
+                      "body-md": [
+                              "system-ui"
+                      ],
+                      "body-lg": [
+                              "system-ui"
+                      ]
+              },
+              "fontSize": {
+                      "label-bold": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "hero-eta-mobile": [
+                              "40px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "hero-eta": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Map Background Pattern Simulation */
+        .map-bg {
+            background-color: #E9ECEF;
+            background-image: 
+                linear-gradient(45deg, #f0f1f2 25%, transparent 25%, transparent 75%, #f0f1f2 75%, #f0f1f2),
+                linear-gradient(45deg, #f0f1f2 25%, transparent 25%, transparent 75%, #f0f1f2 75%, #f0f1f2);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md overflow-hidden relative">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 border-b border-surface-border dark:border-outline-variant bg-surface dark:bg-surface-dim transition-colors duration-200">
+<div class="flex items-center justify-between px-container-margin h-touch-target w-full">
+<button aria-label="Menu" class="w-touch-target h-touch-target flex items-center justify-center text-primary dark:text-primary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="directions_bus">directions_bus</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Uni-Track</h1>
+<button aria-label="Profile" class="w-touch-target h-touch-target flex items-center justify-center text-primary dark:text-primary-fixed-dim hover:bg-surface-container dark:hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area - Driver View -->
+<main class="flex-1 flex flex-col pt-touch-target pb-[80px] relative h-[884px]">
+<!-- Top Section (30% - Broadcasting Controls) -->
+<section class="bg-surface border-b border-surface-border shadow-sm z-10 flex-shrink-0 p-container-margin pt-stack-md pb-stack-lg flex flex-col gap-stack-md" style="min-height: 35vh;">
+<!-- Status Header -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-stack-sm">
+<span class="w-3 h-3 rounded-full bg-status-danger transition-colors duration-300" id="status-dot"></span>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface" id="status-text">Offline</h2>
+</div>
+<div class="flex gap-2">
+<span class="inline-flex items-center gap-1 bg-surface-container-low px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-sm text-status-success" data-icon="signal_cellular_4_bar" style="font-variation-settings: 'FILL' 1;">signal_cellular_4_bar</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Strong</span>
+</span>
+<span class="inline-flex items-center gap-1 bg-surface-container-low px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="sync">sync</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant" id="ping-text">--</span>
+</span>
+</div>
+</div>
+<!-- Current Route Info -->
+<div class="bg-surface-container p-stack-md rounded-lg flex flex-col gap-stack-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Assigned Route</span>
+<button class="text-interactive-blue font-label-bold text-label-bold">Change</button>
+</div>
+<div class="flex items-center gap-stack-md">
+<div class="bg-primary-container text-on-primary-container w-10 h-10 rounded-full flex items-center justify-center font-bold">
+                        C1
+                    </div>
+<div>
+<p class="font-headline-md text-headline-md font-bold text-on-surface">Campus Loop</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Next: Main Library</p>
+</div>
+</div>
+</div>
+<!-- Primary Action Toggle -->
+<button class="w-full h-[64px] rounded-xl flex items-center justify-center gap-stack-md bg-status-success text-on-primary font-headline-lg text-headline-lg-mobile transition-all duration-300 shadow-md active:scale-[0.98]" id="broadcast-toggle">
+<span class="material-symbols-outlined text-[32px]" data-icon="power_settings_new" style="font-variation-settings: 'FILL' 1;">power_settings_new</span>
+<span>Start Broadcasting</span>
+</button>
+<!-- Wake Lock Notice -->
+<div class="flex items-start gap-stack-sm text-on-surface-variant mt-2">
+<span class="material-symbols-outlined text-sm mt-[2px]" data-icon="info">info</span>
+<p class="font-label-sm text-label-sm leading-tight">Screen will stay awake while broadcasting to ensure continuous tracking.</p>
+</div>
+</section>
+<!-- Bottom Section (70% - Simplified Map View) -->
+<section class="flex-1 relative map-bg z-0 overflow-hidden">
+<!-- Map Placeholder Image -->
+<div class="absolute inset-0 bg-cover bg-center opacity-60" data-alt="A stylized, simplified top-down map of a university campus (UNILAG) tailored for a light-mode mobile app interface. The map uses minimal details, focusing on main roads in off-white against a very light gray background (#F8F9FA). Small, subtle maroon (#7B0000) line indicating a bus route. The aesthetic is clean, highly legible, and professional, avoiding cluttered street names. Soft, diffused lighting creates a flat, modern utility feel." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD92Lkwxu8LtkCrFPLVqDc30MJ04bULpP6Mdc2DVkJUm70pXiXrcQT3YOIIbbEnQG5ZfH5vadXDxHIoExfaiXtqbVAi75LgI7jUp3JZxtkdxOEJgiOMVUdeoDxOF47ZQbQ0_D8JtBRBgXPiRbGpAmSK7NkZ-v4sSQm3d6tWWXorwaTCZW38w8R3KEXyYSXmpSuRuOkzcMwPTVZMCyowtuJV_x5-53SW2JKNHFc844n4IgYqbkvb7Jpp')"></div>
+<!-- Driver's Location Marker (Center) -->
+<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+<!-- Pulse Effect (Only active when broadcasting) -->
+<div class="absolute w-24 h-24 bg-primary rounded-full opacity-0 scale-50 pointer-events-none transition-all duration-1000" id="location-pulse"></div>
+<div class="w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg border-4 border-surface z-10 transition-transform duration-300" id="driver-marker">
+<span class="material-symbols-outlined text-[28px]" data-icon="directions_bus" style="font-variation-settings: 'FILL' 1;">directions_bus</span>
+</div>
+<!-- Speed indicator -->
+<div class="mt-2 bg-surface text-on-surface px-3 py-1 rounded-full shadow-md font-label-bold text-label-bold text-sm hidden border border-surface-border" id="speed-badge">
+                    25 km/h
+                 </div>
+</div>
+<!-- Route Progress Overlay (Bottom of map) -->
+<div class="absolute bottom-stack-md left-container-margin right-container-margin bg-surface p-stack-md rounded-xl shadow-lg border border-surface-border">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-bold text-label-bold text-on-surface">Route Progress</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">4 stops left</span>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[40%] rounded-full"></div>
+</div>
+</div>
+<!-- Recenter Button -->
+<button class="absolute top-stack-md right-container-margin w-touch-target h-touch-target bg-surface text-on-surface rounded-full shadow-md flex items-center justify-center border border-surface-border">
+<span class="material-symbols-outlined" data-icon="my_location">my_location</span>
+</button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<!-- Displayed on mobile, hidden on md+ -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl border-t border-surface-border dark:border-outline-variant bg-surface dark:bg-surface-dim shadow-md transition-colors duration-200">
+<div class="flex justify-around items-center h-16 w-full px-gutter pb-safe">
+<!-- Inactive: Student -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform w-[72px] h-[48px]" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm mt-1">Student</span>
+</a>
+<!-- Active: Driver -->
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1 hover:opacity-80 active:scale-95 transition-transform w-[72px] h-[48px]" href="#">
+<span class="material-symbols-outlined" data-icon="local_taxi" style="font-variation-settings: 'FILL' 1;">local_taxi</span>
+<span class="font-label-sm text-label-sm mt-1 font-bold">Driver</span>
+</a>
+<!-- Inactive: Dispatcher -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform w-[72px] h-[48px]" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm mt-1">Dispatcher</span>
+</a>
+</div>
+</nav>
+<!-- Top Navigation (Desktop/Tablet) -->
+<!-- Hidden on mobile, flex on md+ -->
+<nav class="hidden md:flex fixed top-0 right-0 h-touch-target items-center pr-container-margin z-50 gap-stack-md">
+<a class="font-label-bold text-label-bold text-on-surface-variant px-stack-sm py-2 hover:bg-surface-container rounded-md" href="#">Student</a>
+<a class="font-label-bold text-label-bold text-primary px-stack-sm py-2 bg-secondary-container rounded-md" href="#">Driver</a>
+<a class="font-label-bold text-label-bold text-on-surface-variant px-stack-sm py-2 hover:bg-surface-container rounded-md" href="#">Dispatcher</a>
+</nav>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('broadcast-toggle');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const pingText = document.getElementById('ping-text');
+            const locationPulse = document.getElementById('location-pulse');
+            const driverMarker = document.getElementById('driver-marker');
+            const speedBadge = document.getElementById('speed-badge');
+            
+            let isBroadcasting = false;
+            let pingInterval;
+            let secondsSincePing = 0;
+
+            toggleBtn.addEventListener('click', () => {
+                isBroadcasting = !isBroadcasting;
+                
+                if (isBroadcasting) {
+                    // Start Broadcasting State
+                    toggleBtn.classList.remove('bg-status-success');
+                    toggleBtn.classList.add('bg-status-danger');
+                    toggleBtn.innerHTML = `
+                        <span class="material-symbols-outlined text-[32px]" data-icon="stop_circle" style="font-variation-settings: 'FILL' 1;">stop_circle</span>
+                        <span>Stop Broadcasting</span>
+                    `;
+                    
+                    statusDot.classList.replace('bg-status-danger', 'bg-status-success');
+                    statusText.textContent = 'Broadcasting Live';
+                    statusText.classList.replace('text-on-surface', 'text-status-success');
+                    
+                    driverMarker.classList.add('scale-110');
+                    speedBadge.classList.remove('hidden');
+                    
+                    // Start Pulse Animation via CSS classes
+                    locationPulse.classList.add('animate-ping', 'opacity-30');
+                    
+                    // Simulate ping timer
+                    secondsSincePing = 0;
+                    updatePingText();
+                    pingInterval = setInterval(() => {
+                        secondsSincePing++;
+                        if (secondsSincePing > 5) {
+                            secondsSincePing = 0; // Simulate regular ping updates
+                        }
+                        updatePingText();
+                    }, 1000);
+
+                } else {
+                    // Stop Broadcasting State
+                    toggleBtn.classList.remove('bg-status-danger');
+                    toggleBtn.classList.add('bg-status-success');
+                    toggleBtn.innerHTML = `
+                        <span class="material-symbols-outlined text-[32px]" data-icon="power_settings_new" style="font-variation-settings: 'FILL' 1;">power_settings_new</span>
+                        <span>Start Broadcasting</span>
+                    `;
+                    
+                    statusDot.classList.replace('bg-status-success', 'bg-status-danger');
+                    statusText.textContent = 'Offline';
+                    statusText.classList.replace('text-status-success', 'text-on-surface');
+                    
+                    driverMarker.classList.remove('scale-110');
+                    speedBadge.classList.add('hidden');
+                    
+                    locationPulse.classList.remove('animate-ping', 'opacity-30');
+                    
+                    clearInterval(pingInterval);
+                    pingText.textContent = '--';
+                }
+            });
+
+            function updatePingText() {
+                pingText.textContent = secondsSincePing === 0 ? 'Just now' : `${secondsSincePing}s ago`;
+            }
+        });
+    </script>
+</body></html>

@@ -66,17 +66,24 @@
    */
   function apply(preference) {
     var root = document.documentElement;
+    var resolved = resolve(preference);
+
     if (preference === SYSTEM) {
       root.removeAttribute('data-theme');
     } else {
       root.setAttribute('data-theme', preference);
     }
 
+    if (resolved === DARK) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+
     // Colour the mobile browser chrome to match the app surface.
-    var resolved = resolve(preference);
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      meta.setAttribute('content', resolved === DARK ? '#16161a' : '#ffffff');
+      meta.setAttribute('content', resolved === DARK ? '#0f172a' : '#ffffff');
     }
 
     root.dispatchEvent(
@@ -124,8 +131,7 @@
 
     /**
      * Wires up every [data-theme-toggle] button on the page and keeps their
-     * aria-pressed state in sync with the resolved theme (screen readers
-     * announce "pressed" for dark).
+     * aria-pressed state and icon in sync with the resolved theme.
      */
     bindToggles: function (scope) {
       var root = scope || document;
@@ -141,11 +147,20 @@
             isDark ? 'Switch to light theme' : 'Switch to dark theme'
           );
           button.title = isDark ? 'Switch to light theme' : 'Switch to dark theme';
+
+          var iconEl = button.querySelector('.theme-icon, .material-symbols-outlined');
+          if (iconEl) {
+            iconEl.textContent = isDark ? 'light_mode' : 'dark_mode';
+          }
         });
       };
 
       Array.prototype.forEach.call(buttons, function (button) {
-        button.addEventListener('click', function () {
+        // Prevent duplicate listener bindings
+        if (button._themeBound) return;
+        button._themeBound = true;
+        button.addEventListener('click', function (e) {
+          e.preventDefault();
           Theme.toggle();
         });
       });

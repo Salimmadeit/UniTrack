@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Driver Dashboard - UNILAG Shuttle</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-on-surface": "#f0f1f2",
+                      "on-background": "#191c1d",
+                      "surface-border": "#E9ECEF",
+                      "tertiary-fixed-dim": "#bcc3ff",
+                      "inverse-primary": "#ffb4a8",
+                      "surface-variant": "#e1e3e4",
+                      "primary": "#520000",
+                      "background": "#f8f9fa",
+                      "surface-tint": "#b02d1f",
+                      "secondary-fixed-dim": "#ffba20",
+                      "primary-container": "#7b0000",
+                      "on-surface-variant": "#59413d",
+                      "surface": "#f8f9fa",
+                      "on-tertiary-fixed": "#000d60",
+                      "outline": "#8d706c",
+                      "surface-dim": "#d9dadb",
+                      "on-secondary": "#ffffff",
+                      "surface-container-low": "#f3f4f5",
+                      "on-secondary-fixed": "#271900",
+                      "status-danger": "#DB4437",
+                      "on-primary-fixed": "#410000",
+                      "secondary-container": "#feb700",
+                      "surface-container": "#edeeef",
+                      "secondary": "#7c5800",
+                      "on-tertiary-container": "#8f9cff",
+                      "on-secondary-fixed-variant": "#5e4200",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed-variant": "#8e120a",
+                      "error": "#ba1a1a",
+                      "status-warning": "#F4B400",
+                      "on-tertiary-fixed-variant": "#1b32be",
+                      "error-container": "#ffdad6",
+                      "text-muted": "#9AA0A6",
+                      "on-primary": "#ffffff",
+                      "inverse-surface": "#2e3132",
+                      "on-primary-container": "#ff7d6a",
+                      "tertiary": "#001278",
+                      "surface-container-lowest": "#ffffff",
+                      "on-error": "#ffffff",
+                      "secondary-fixed": "#ffdea8",
+                      "on-surface": "#191c1d",
+                      "outline-variant": "#e1bfb9",
+                      "tertiary-fixed": "#dfe0ff",
+                      "tertiary-container": "#0020b1",
+                      "primary-fixed-dim": "#ffb4a8",
+                      "on-secondary-container": "#6b4b00",
+                      "surface-container-highest": "#e1e3e4",
+                      "status-success": "#0F9D58",
+                      "surface-bright": "#f8f9fa",
+                      "primary-fixed": "#ffdad4",
+                      "surface-container-high": "#e7e8e9",
+                      "interactive-blue": "#1A73E8",
+                      "on-tertiary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "touch-target": "48px",
+                      "stack-md": "16px",
+                      "stack-sm": "4px",
+                      "container-margin": "16px",
+                      "gutter": "12px",
+                      "base": "8px",
+                      "stack-lg": "24px"
+              },
+              "fontFamily": {
+                      "hero-eta-mobile": [
+                              "system-ui"
+                      ],
+                      "label-sm": [
+                              "system-ui"
+                      ],
+                      "headline-lg": [
+                              "system-ui"
+                      ],
+                      "hero-eta": [
+                              "system-ui"
+                      ],
+                      "body-md": [
+                              "system-ui"
+                      ],
+                      "body-lg": [
+                              "system-ui"
+                      ],
+                      "label-bold": [
+                              "system-ui"
+                      ],
+                      "headline-md": [
+                              "system-ui"
+                      ]
+              },
+              "fontSize": {
+                      "hero-eta-mobile": [
+                              "40px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "hero-eta": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-bold": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body { font-family: system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex">
+<!-- Side Navigation -->
+<aside class="hidden md:flex bg-surface-container-lowest border-r border-surface-border shadow-sm flex-col p-base h-screen w-64 fixed left-0 top-0 z-40">
+<div class="mb-stack-lg px-container-margin pt-container-margin">
+<h1 class="font-headline-md text-headline-md font-extrabold text-primary">Shuttle System</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">University of Lagos</p>
+</div>
+<nav class="flex-1 space-y-stack-sm">
+<!-- Active Tab: Live Tracking matches intent -->
+<a class="flex items-center gap-gutter px-container-margin py-base bg-secondary-container text-on-secondary-container rounded-lg font-label-bold text-label-bold cursor-pointer transition-all scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">map</span>
+                Live Tracking
+            </a>
+<a class="flex items-center gap-gutter px-container-margin py-base text-on-surface-variant hover:bg-surface-container hover:bg-surface-container-high transition-all rounded-lg font-label-bold text-label-bold cursor-pointer active:scale-90 scale-95" href="#">
+<span class="material-symbols-outlined">directions_bus</span>
+                Fleet Management
+            </a>
+<a class="flex items-center gap-gutter px-container-margin py-base text-on-surface-variant hover:bg-surface-container hover:bg-surface-container-high transition-all rounded-lg font-label-bold text-label-bold cursor-pointer active:scale-90 scale-95" href="#">
+<span class="material-symbols-outlined">low_priority</span>
+                Queue Control
+            </a>
+<a class="flex items-center gap-gutter px-container-margin py-base text-on-surface-variant hover:bg-surface-container hover:bg-surface-container-high transition-all rounded-lg font-label-bold text-label-bold cursor-pointer active:scale-90 scale-95" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+                Analytics
+            </a>
+</nav>
+<div class="mt-auto pt-stack-lg border-t border-surface-border">
+<button class="w-full flex justify-center items-center gap-base py-base bg-surface-variant text-on-surface font-label-bold text-label-bold rounded-full mb-stack-md hover:bg-surface-dim transition-colors h-touch-target">
+                Force Relocate
+            </button>
+<a class="flex items-center gap-gutter px-container-margin py-base text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg font-label-bold text-label-bold cursor-pointer active:scale-90 scale-95" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Logout
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-64 flex flex-col h-screen overflow-hidden">
+<!-- Top App Bar (Mobile Only for Navigation, acts as header here) -->
+<header class="md:hidden fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-margin h-touch-target bg-surface border-b border-surface-border">
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary">UNILAG Shuttle</h1>
+<div class="flex items-center gap-gutter text-primary">
+<span class="material-symbols-outlined cursor-pointer hover:bg-surface-container-low transition-colors active:opacity-80 rounded-full p-1">notifications</span>
+</div>
+</header>
+<!-- Split View Layout -->
+<div class="flex flex-1 flex-col md:flex-row mt-touch-target md:mt-0 overflow-hidden">
+<!-- Left Side: Telemetry & Controls -->
+<div class="w-full md:w-1/3 p-container-margin md:p-stack-lg bg-background flex flex-col gap-stack-lg overflow-y-auto border-r border-surface-border">
+<!-- Driver Info & Route -->
+<section class="bg-surface p-stack-md rounded-xl border border-surface-border shadow-sm flex flex-col gap-base">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold">Route A - Campus Ring</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Bus 42 • Driver ID: 8892</p>
+</div>
+<span class="inline-flex items-center gap-1 bg-surface-container-high text-on-surface-variant px-2 py-1 rounded-full font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">signal_cellular_alt</span> Strong
+                        </span>
+</div>
+<div class="mt-stack-sm flex items-center justify-between border-t border-surface-border pt-base">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-text-muted">Next Stop</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Main Library</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm text-text-muted">ETA</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">2 mins</span>
+</div>
+</div>
+</section>
+<!-- Big Broadcast Action -->
+<section class="flex-1 flex flex-col justify-center items-center">
+<button class="w-full h-32 md:h-48 rounded-2xl bg-status-danger text-on-error font-headline-lg text-headline-lg font-bold shadow-md hover:opacity-90 active:scale-95 transition-all flex flex-col items-center justify-center gap-base" id="broadcast-toggle">
+<span class="material-symbols-outlined text-4xl" id="broadcast-icon">stop_circle</span>
+<span id="broadcast-text">STOP BROADCASTING</span>
+</button>
+<p class="font-label-sm text-label-sm text-text-muted mt-stack-sm text-center">Tap to pause location sharing. Emergency tracking remains active.</p>
+</section>
+<!-- Telemetry Grid -->
+<section class="grid grid-cols-2 gap-gutter">
+<div class="bg-surface p-stack-md rounded-lg border border-surface-border flex flex-col items-center justify-center gap-1">
+<span class="material-symbols-outlined text-primary text-2xl">battery_charging_full</span>
+<span class="font-headline-md text-headline-md text-on-surface font-bold">87%</span>
+<span class="font-label-sm text-label-sm text-text-muted">Device Battery</span>
+</div>
+<div class="bg-surface p-stack-md rounded-lg border border-surface-border flex flex-col items-center justify-center gap-1">
+<span class="material-symbols-outlined text-status-success text-2xl">speed</span>
+<span class="font-headline-md text-headline-md text-on-surface font-bold">24 km/h</span>
+<span class="font-label-sm text-label-sm text-text-muted">Current Speed</span>
+</div>
+</section>
+</div>
+<!-- Right Side: Map Canvas -->
+<div class="w-full md:w-2/3 relative h-full bg-surface-container-low" data-location="Lagos, Nigeria" style="">
+<!-- Map Placeholder -->
+<div class="absolute inset-0 w-full h-full bg-cover bg-center" data-alt="A top-down, clean vector style digital map of a university campus. Light mode aesthetic with pale grey roads and light green campus areas. High contrast. Focused on usability and legibility." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAkX2BUzzh9f9QTteU3_kMqBnTw7lXFk_5ulR5ldubuZ6Vi7cJ6SJgDf7kr8MiayYjseOl45KcoxoK7y9rGID2Dp0KJ-asVVgrzEXYZqcF9vBe0N6WQmuNvPAB219OovVFSgFDw5nQ46I3pgCCnTnElSafj_gyB1_JxIT-pCweTux8Ce5rR-1Eu_20qxwlN7qXE2hqSgfWeMIrxeE8_lMjsbA28ouANAqFJYKrCmoUnmvBVsjA_XRDI')"></div>
+<!-- UI Overlay on Map -->
+<div class="absolute top-container-margin left-container-margin right-container-margin flex justify-between pointer-events-none">
+<div class="bg-surface/90 backdrop-blur-sm p-base rounded-lg border border-surface-border shadow-sm flex items-center gap-base pointer-events-auto">
+<span class="w-3 h-3 rounded-full bg-status-success animate-pulse"></span>
+<span class="font-label-bold text-label-bold text-on-surface">Location Active</span>
+</div>
+<div class="bg-surface/90 backdrop-blur-sm p-2 rounded-full border border-surface-border shadow-sm pointer-events-auto cursor-pointer hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface">my_location</span>
+</div>
+</div>
+<!-- Simulated Bus Marker -->
+<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+<div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center border-4 border-white shadow-md relative">
+<span class="material-symbols-outlined text-white">directions_bus</span>
+<!-- Heading indicator -->
+<div class="absolute -top-3 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-primary"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple toggle logic for the broadcast button
+        const toggleBtn = document.getElementById('broadcast-toggle');
+        const toggleIcon = document.getElementById('broadcast-icon');
+        const toggleText = document.getElementById('broadcast-text');
+        let isBroadcasting = true;
+
+        toggleBtn.addEventListener('click', () => {
+            isBroadcasting = !isBroadcasting;
+            if (isBroadcasting) {
+                toggleBtn.classList.remove('bg-status-success', 'text-on-secondary');
+                toggleBtn.classList.add('bg-status-danger', 'text-on-error');
+                toggleIcon.textContent = 'stop_circle';
+                toggleText.textContent = 'STOP BROADCASTING';
+            } else {
+                toggleBtn.classList.remove('bg-status-danger', 'text-on-error');
+                toggleBtn.classList.add('bg-status-success', 'text-on-secondary');
+                toggleIcon.textContent = 'play_circle';
+                toggleText.textContent = 'START BROADCASTING';
+            }
+        });
+    </script>
+</body></html>

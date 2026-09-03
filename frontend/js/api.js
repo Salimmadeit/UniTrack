@@ -31,9 +31,15 @@ var ApiService = (function () {
       ? setTimeout(function () { controller.abort(); }, CONFIG.REQUEST_TIMEOUT_MS)
       : null;
 
+    var headers = { 'Content-Type': 'application/json' };
+    var token = sessionStorage.getItem('unitrack_driver_token');
+    if (token) {
+      headers['Authorization'] = 'Bearer ' + token;
+    }
+
     var init = {
       method: opts.method || 'GET',
-      headers: opts.body ? { 'Content-Type': 'application/json' } : undefined,
+      headers: opts.body ? headers : (token ? { 'Authorization': 'Bearer ' + token } : undefined),
       body: opts.body ? JSON.stringify(opts.body) : undefined,
       cache: 'no-store' // polled endpoints must never be served from cache
     };
@@ -128,6 +134,43 @@ var ApiService = (function () {
      * has not elapsed. Callers should treat that as "too soon", not as a
      * failure - the report was well-formed, just early.
      */
+    fetchActiveShuttles: function () {
+      return optionalGet('/location/all').then(function (res) {
+        return Array.isArray(res) ? res : [];
+      });
+    },
+
+    requestBus: function (stationName, count, note) {
+      return request('/dispatch/request', {
+        method: 'POST',
+        body: { stationName: stationName, passengerCount: count || 1, note: note }
+      });
+    },
+
+    fetchDispatchAlerts: function () {
+      return optionalGet('/dispatch/alerts').then(function (res) {
+        return Array.isArray(res) ? res : [];
+      });
+    },
+
+    acknowledgeDispatchAlert: function (id, shuttleId) {
+      return request('/dispatch/acknowledge/' + encodeURIComponent(id), {
+        method: 'POST',
+        body: { shuttleId: shuttleId }
+      });
+    },
+
+    driverLogin: function (shuttleId, pin, googleToken) {
+      return request('/auth/driver/login', {
+        method: 'POST',
+        body: { shuttleId: shuttleId, pin: pin, googleToken: googleToken }
+      });
+    },
+
+    checkAuthStatus: function () {
+      return optionalGet('/auth/status');
+    },
+
     postQueueStatus: function (level, source) {
       var body = { level: level };
       if (source) body.source = source;

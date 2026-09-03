@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Uni-Track: Dispatcher Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed-variant": "#8e120a",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#2e3132",
+                    "tertiary-fixed": "#dfe0ff",
+                    "background": "#f8f9fa",
+                    "status-warning": "#F4B400",
+                    "on-tertiary-fixed-variant": "#1b32be",
+                    "on-background": "#191c1d",
+                    "status-success": "#0F9D58",
+                    "tertiary": "#001278",
+                    "surface-bright": "#f8f9fa",
+                    "secondary": "#7c5800",
+                    "tertiary-container": "#0020b1",
+                    "inverse-on-surface": "#f0f1f2",
+                    "on-surface-variant": "#59413d",
+                    "on-secondary-fixed-variant": "#5e4200",
+                    "on-secondary-fixed": "#271900",
+                    "on-secondary-container": "#6b4b00",
+                    "surface-container": "#edeeef",
+                    "surface-dim": "#d9dadb",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#ffba20",
+                    "status-danger": "#DB4437",
+                    "surface-variant": "#e1e3e4",
+                    "inverse-primary": "#ffb4a8",
+                    "outline-variant": "#e1bfb9",
+                    "surface-container-low": "#f3f4f5",
+                    "on-primary-fixed": "#410000",
+                    "error": "#ba1a1a",
+                    "interactive-blue": "#1A73E8",
+                    "text-muted": "#9AA0A6",
+                    "surface": "#f8f9fa",
+                    "surface-border": "#E9ECEF",
+                    "on-error-container": "#93000a",
+                    "secondary-container": "#feb700",
+                    "on-primary-container": "#ff7d6a",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#ffdea8",
+                    "surface-tint": "#b02d1f",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#ffdad4",
+                    "tertiary-fixed-dim": "#bcc3ff",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#7b0000",
+                    "primary": "#520000",
+                    "surface-container-high": "#e7e8e9",
+                    "outline": "#8d706c",
+                    "on-surface": "#191c1d",
+                    "on-tertiary-fixed": "#000d60",
+                    "surface-container-highest": "#e1e3e4",
+                    "on-tertiary-container": "#8f9cff",
+                    "primary-fixed-dim": "#ffb4a8",
+                    "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "touch-target": "48px",
+                    "stack-lg": "24px",
+                    "container-margin": "16px",
+                    "stack-sm": "4px",
+                    "base": "8px",
+                    "gutter": "12px",
+                    "stack-md": "16px"
+            },
+            "fontFamily": {
+                    "hero-eta": [
+                            "system-ui"
+                    ],
+                    "hero-eta-mobile": [
+                            "system-ui"
+                    ],
+                    "headline-lg": [
+                            "system-ui"
+                    ],
+                    "headline-md": [
+                            "system-ui"
+                    ],
+                    "label-bold": [
+                            "system-ui"
+                    ],
+                    "body-md": [
+                            "system-ui"
+                    ],
+                    "label-sm": [
+                            "system-ui"
+                    ],
+                    "body-lg": [
+                            "system-ui"
+                    ]
+            },
+            "fontSize": {
+                    "hero-eta": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "hero-eta-mobile": [
+                            "40px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-bold": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "26px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+        }
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'system-ui', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background max-w-[480px] mx-auto min-h-screen relative pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full max-w-[480px] z-50 bg-surface border-b border-surface-border">
+<div class="flex items-center justify-between px-container-margin h-touch-target w-full">
+<button aria-label="Menu" class="text-primary hover:bg-surface-container transition-colors duration-200 p-2 rounded-full -ml-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">directions_bus</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Uni-Track</h1>
+<button aria-label="Profile" class="text-primary hover:bg-surface-container transition-colors duration-200 p-2 rounded-full -mr-2">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<main class="pt-[calc(48px+16px)] px-container-margin flex flex-col gap-stack-lg pb-container-margin">
+<!-- Header -->
+<div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Dispatcher Dashboard</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Station: Main Gate</p>
+</div>
+<!-- Top Section: Reporting -->
+<section class="bg-surface-container-lowest border border-surface-border rounded-xl p-container-margin shadow-sm flex flex-col gap-stack-md">
+<h3 class="font-headline-md text-headline-md">Current Station Status</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Update the queue level to inform students and drivers.</p>
+<div class="flex flex-col gap-base mt-2">
+<button class="w-full min-h-[64px] bg-status-success text-on-primary rounded-lg font-headline-md text-headline-md shadow-sm active:opacity-80 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    Low (0-15)
+                </button>
+<button class="w-full min-h-[64px] bg-status-warning text-on-secondary-fixed rounded-lg font-headline-md text-headline-md shadow-sm active:opacity-80 transition-opacity flex items-center justify-center gap-2 border border-secondary-fixed">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
+                    Moderate (15-30)
+                </button>
+<button class="w-full min-h-[64px] bg-status-danger text-on-error rounded-lg font-headline-md text-headline-md shadow-sm active:opacity-80 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">error</span>
+                    Packed (50+)
+                </button>
+</div>
+<div class="flex items-center gap-2 text-text-muted mt-2 justify-center">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="font-label-sm text-label-sm">Last Updated: 2 mins ago by You</span>
+</div>
+</section>
+<!-- Middle Section: Fleet Overview -->
+<section class="flex flex-col gap-stack-md">
+<h3 class="font-headline-md text-headline-md">Fleet Overview (Loop A)</h3>
+<div class="flex flex-col gap-base">
+<!-- Shuttle Item 1 -->
+<div class="bg-surface border border-surface-border rounded-lg p-container-margin shadow-sm flex flex-col gap-stack-sm">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-label-bold text-label-bold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-base">directions_bus</span> Bus A
+                            </h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Near Faculty of Science</p>
+</div>
+<span class="bg-surface-container-high text-on-surface px-2 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1">
+<div class="w-2 h-2 rounded-full bg-status-success"></div> En Route
+                        </span>
+</div>
+<div class="mt-2 flex gap-2">
+<button class="flex-1 bg-interactive-blue text-on-primary py-2 rounded font-label-bold text-label-bold active:bg-tertiary-container transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-sm">notifications_active</span> Ping
+                        </button>
+<button class="flex-1 border border-interactive-blue text-interactive-blue py-2 rounded font-label-bold text-label-bold active:bg-surface-container transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-sm">compare_arrows</span> Relocate
+                        </button>
+</div>
+</div>
+<!-- Shuttle Item 2 -->
+<div class="bg-surface border border-surface-border rounded-lg p-container-margin shadow-sm flex flex-col gap-stack-sm">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-label-bold text-label-bold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-base">directions_bus</span> Bus C
+                            </h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">At Main Gate (Loading)</p>
+</div>
+<span class="bg-surface-container-high text-on-surface px-2 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1">
+<div class="w-2 h-2 rounded-full bg-status-warning"></div> Loading
+                        </span>
+</div>
+<div class="mt-2 flex gap-2">
+<button class="flex-1 bg-interactive-blue text-on-primary py-2 rounded font-label-bold text-label-bold active:bg-tertiary-container transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-sm">notifications_active</span> Ping
+                        </button>
+<button class="flex-1 border border-interactive-blue text-interactive-blue py-2 rounded font-label-bold text-label-bold active:bg-surface-container transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-sm">compare_arrows</span> Relocate
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Section: Live Map -->
+<section class="flex flex-col gap-stack-md h-64 rounded-xl overflow-hidden border border-surface-border relative shadow-sm">
+<div class="absolute inset-0 bg-surface-container-low flex items-center justify-center flex-col z-0">
+<span class="material-symbols-outlined text-4xl text-outline-variant mb-2">map</span>
+<span class="font-label-bold text-label-bold text-on-surface-variant">Live Map View</span>
+</div>
+<!-- Simulated Map Overlay UI (Markers) -->
+<div class="absolute inset-0 z-10 pointer-events-none p-4 relative">
+<!-- Main Gate Station Marker -->
+<div class="absolute top-[30%] left-[20%] flex flex-col items-center">
+<div class="bg-surface-container-lowest p-1 rounded-full border border-surface-border shadow flex items-center gap-1">
+<div class="w-3 h-3 rounded-full bg-status-warning"></div>
+<span class="font-label-sm text-label-sm text-on-surface px-1">Main Gate</span>
+</div>
+<span class="material-symbols-outlined text-primary mt-1 text-3xl" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+<!-- Bus A Marker -->
+<div class="absolute top-[60%] right-[30%] flex flex-col items-center">
+<div class="bg-primary text-on-primary p-2 rounded-full shadow-md flex items-center justify-center border-2 border-surface-container-lowest">
+<span class="material-symbols-outlined text-base">directions_bus</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface mt-1 bg-surface-container-lowest/80 px-1 rounded">Bus A</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full max-w-[480px] z-50 bg-surface rounded-t-xl border-t border-surface-border shadow-md pb-safe md:hidden">
+<div class="flex justify-around items-center h-16 w-full px-gutter">
+<!-- Student (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm mt-1">Student</span>
+</button>
+<!-- Driver (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:opacity-80 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">local_taxi</span>
+<span class="font-label-sm text-label-sm mt-1">Driver</span>
+</button>
+<!-- Dispatcher (Active) -->
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 hover:opacity-80 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-sm text-label-sm mt-1">Dispatcher</span>
+</button>
+</div>
+</nav>
+</body></html>

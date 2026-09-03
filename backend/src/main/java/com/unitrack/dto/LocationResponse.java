@@ -1,8 +1,5 @@
 package com.unitrack.dto;
 
-import lombok.Builder;
-import lombok.Data;
-
 import java.time.Instant;
 
 /**
@@ -20,8 +17,6 @@ import java.time.Instant;
  * ageSeconds} is computed against the server's own clock, where both timestamps
  * come from the same source and cannot disagree. The client reads it directly.
  */
-@Data
-@Builder
 public class LocationResponse {
 
     private Double latitude;
@@ -29,23 +24,104 @@ public class LocationResponse {
     private Double speed;
     private Double heading;
 
-    /**
-     * When the reading was recorded. Serialised as an ISO-8601 instant with a
-     * trailing Z (e.g. "2026-08-26T13:00:00.123Z"), so it is unambiguous no
-     * matter which timezone the reader is in.
-     */
+    private String shuttleId;
+    private String routeId;
+    private String status;
+    private Integer batteryLevel;
+    private String state;
+
     private Instant updatedAt;
-
-    /**
-     * The server's "now" at the moment this response was built. Exposed so a
-     * client can detect its own clock skew, and so the age below can be
-     * independently verified rather than simply trusted.
-     */
     private Instant serverTime;
-
-    /**
-     * Age of the reading in seconds, measured entirely on the server.
-     * This is the value the network state machine should use.
-     */
     private long ageSeconds;
+
+    public LocationResponse() {}
+
+    public LocationResponse(Double latitude, Double longitude, Double speed, Double heading,
+                            String shuttleId, String routeId, String status, Integer batteryLevel,
+                            String state, Instant updatedAt, Instant serverTime, long ageSeconds) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.speed = speed;
+        this.heading = heading;
+        this.shuttleId = shuttleId;
+        this.routeId = routeId;
+        this.status = status;
+        this.batteryLevel = batteryLevel;
+        this.state = state;
+        this.updatedAt = updatedAt;
+        this.serverTime = serverTime;
+        this.ageSeconds = ageSeconds;
+    }
+
+    public static LocationResponseBuilder builder() {
+        return new LocationResponseBuilder();
+    }
+
+    public static class LocationResponseBuilder {
+        private Double latitude;
+        private Double longitude;
+        private Double speed;
+        private Double heading;
+        private String shuttleId;
+        private String routeId;
+        private String status;
+        private Integer batteryLevel;
+        private String state;
+        private Instant updatedAt;
+        private Instant serverTime;
+        private long ageSeconds;
+
+        public LocationResponseBuilder latitude(Double latitude) { this.latitude = latitude; return this; }
+        public LocationResponseBuilder longitude(Double longitude) { this.longitude = longitude; return this; }
+        public LocationResponseBuilder speed(Double speed) { this.speed = speed; return this; }
+        public LocationResponseBuilder heading(Double heading) { this.heading = heading; return this; }
+        public LocationResponseBuilder shuttleId(String shuttleId) { this.shuttleId = shuttleId; return this; }
+        public LocationResponseBuilder routeId(String routeId) { this.routeId = routeId; return this; }
+        public LocationResponseBuilder status(String status) { this.status = status; return this; }
+        public LocationResponseBuilder batteryLevel(Integer batteryLevel) { this.batteryLevel = batteryLevel; return this; }
+        public LocationResponseBuilder state(String state) { this.state = state; return this; }
+        public LocationResponseBuilder updatedAt(Instant updatedAt) { this.updatedAt = updatedAt; return this; }
+        public LocationResponseBuilder serverTime(Instant serverTime) { this.serverTime = serverTime; return this; }
+        public LocationResponseBuilder ageSeconds(long ageSeconds) { this.ageSeconds = ageSeconds; return this; }
+
+        public LocationResponse build() {
+            return new LocationResponse(latitude, longitude, speed, heading, shuttleId, routeId, status, batteryLevel, state, updatedAt, serverTime, ageSeconds);
+        }
+    }
+
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
+
+    public Double getSpeed() { return speed; }
+    public void setSpeed(Double speed) { this.speed = speed; }
+
+    public Double getHeading() { return heading; }
+    public void setHeading(Double heading) { this.heading = heading; }
+
+    public String getShuttleId() { return shuttleId; }
+    public void setShuttleId(String shuttleId) { this.shuttleId = shuttleId; }
+
+    public String getRouteId() { return routeId; }
+    public void setRouteId(String routeId) { this.routeId = routeId; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public Integer getBatteryLevel() { return batteryLevel; }
+    public void setBatteryLevel(Integer batteryLevel) { this.batteryLevel = batteryLevel; }
+
+    public String getState() { return state; }
+    public void setState(String state) { this.state = state; }
+
+    public Instant getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+
+    public Instant getServerTime() { return serverTime; }
+    public void setServerTime(Instant serverTime) { this.serverTime = serverTime; }
+
+    public long getAgeSeconds() { return ageSeconds; }
+    public void setAgeSeconds(long ageSeconds) { this.ageSeconds = ageSeconds; }
 }

@@ -1,170 +1,236 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="UniTrack dispatcher console: publish the current shuttle queue level so students see how busy the stop is.">
-    <meta name="theme-color" content="#f6f8fb">
-    <title>UniTrack — Dispatcher Console</title>
+    <meta name="description" content="UniTrack Dispatcher Console: Live station queue management, demand alert dispatching, and electric fleet monitoring for University of Lagos.">
+    <meta name="theme-color" content="#7B0000">
+    <title>UniTrack — Dispatcher Operations Console</title>
 
-    <!-- Theme applied before first paint to prevent a light flash in dark mode -->
+    <!-- Theme applied before first paint to prevent flash in dark mode -->
     <script src="js/theme.js"></script>
 
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
-    <header class="site-nav">
-        <div class="nav-inner">
-            <a class="brand" href="index.html">
-                <span class="brand-logo" aria-hidden="true">U</span>
-                <span>
-                    <span class="brand-name">UniTrack</span>
-                    <span class="brand-sub">Dispatcher Console</span>
-                </span>
+    <!-- Tailwind CSS with custom UniTrack tokens -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7B0000",
+                        "primary-dark": "#520000",
+                        "primary-container": "#7B0000",
+                        "on-primary": "#ffffff",
+                        "secondary": "#7C5800",
+                        "secondary-container": "#FEB700",
+                        "on-secondary-container": "#4A3500",
+                        "surface": "#F8F9FA",
+                        "surface-border": "#E9ECEF",
+                        "on-surface": "#191C1D",
+                        "on-surface-variant": "#59413D",
+                        "status-success": "#0F9D58",
+                        "status-warning": "#F4B400",
+                        "status-danger": "#DB4437",
+                        "interactive-blue": "#1A73E8",
+                        "sdg-11": "#FD9D24",
+                        "sdg-13": "#3F7E44"
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans antialiased min-h-screen flex flex-col md:flex-row">
+
+    <!-- SIDEBAR NAVIGATION (Desktop) -->
+    <aside class="w-full md:w-64 bg-white dark:bg-slate-900 border-b md:border-b-0 md:border-r border-surface-border dark:border-slate-800 flex flex-col justify-between shrink-0 p-4 z-40">
+        <div>
+            <!-- BRAND -->
+            <a href="index.html" class="flex items-center gap-3 mb-6 group">
+                <div class="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-white font-black text-xl shadow-md group-hover:scale-105 transition-transform">
+                    U
+                </div>
+                <div>
+                    <h1 class="text-base font-extrabold text-primary dark:text-rose-400 tracking-tight leading-none">UniTrack</h1>
+                    <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">UNILAG Operations</span>
+                </div>
             </a>
 
-            <div class="nav-actions">
-                <nav aria-label="Views">
-                    <ul class="nav-links" id="nav-menu">
-                        <li><a href="index.html">Student</a></li>
-                        <li><a href="driver.html">Driver</a></li>
-                        <li><a href="dispatcher.html" aria-current="page">Dispatcher</a></li>
-                    </ul>
-                </nav>
+            <!-- NAV LINKS -->
+            <nav class="space-y-1.5" aria-label="Dispatcher Navigation">
+                <a href="index.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined text-[20px] text-slate-500">map</span>
+                    <span>Student View</span>
+                </a>
+                <a href="driver.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined text-[20px] text-slate-500">local_shipping</span>
+                    <span>Driver Console</span>
+                </a>
+                <a href="dispatcher.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-primary/10 dark:bg-primary/20 text-primary dark:text-rose-400 border border-primary/20 transition-colors" aria-current="page">
+                    <span class="material-symbols-outlined text-[20px] fill">dashboard</span>
+                    <span>Dispatcher Console</span>
+                </a>
+            </nav>
 
-                <button type="button" class="theme-toggle" data-theme-toggle
-                        aria-pressed="false" aria-label="Switch to dark theme">
-                    <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-                         stroke-linejoin="round" aria-hidden="true">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-                         stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="4"></circle>
-                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
-                    </svg>
-                </button>
-
-                <button type="button" class="nav-toggle" data-nav-toggle
-                        aria-expanded="false" aria-controls="nav-menu"
-                        aria-label="Open navigation menu">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-                         aria-hidden="true">
-                        <path d="M3 6h18M3 12h18M3 18h18"></path>
-                    </svg>
-                </button>
+            <!-- SDG TARGETS -->
+            <div class="mt-8 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-surface-border dark:border-slate-800 space-y-2">
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Sustainability Goals</span>
+                <div class="flex flex-col gap-1.5">
+                    <div class="flex items-center gap-2 text-xs font-semibold text-amber-800 dark:text-amber-300">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span>SDG 11: Sustainable Cities</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span>SDG 13: Climate Action</span>
+                    </div>
+                </div>
             </div>
         </div>
-    </header>
 
-    <main class="page-card" id="main">
-        <section class="panel" aria-labelledby="queue-heading">
-            <div class="panel-head">
-                <h1 class="panel-title" id="queue-heading">How busy is the queue?</h1>
-                <span class="status-chip" id="queue-state" role="status">Not set</span>
+        <!-- FOOTER ACTIONS -->
+        <div class="pt-4 border-t border-surface-border dark:border-slate-800 flex items-center justify-between">
+            <button data-theme-toggle type="button" class="flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors" title="Toggle theme">
+                <span class="material-symbols-outlined text-[18px] theme-icon">dark_mode</span>
+                <span>Theme</span>
+            </button>
+            <span class="text-[10px] font-semibold text-slate-400">v2.0.0 · Akoka</span>
+        </div>
+    </aside>
+
+    <!-- MAIN OPERATIONS WORKSPACE -->
+    <main class="flex-1 flex flex-col h-auto md:h-screen overflow-hidden">
+        <!-- TOP STATS HEADER -->
+        <header class="bg-white dark:bg-slate-900 border-b border-surface-border dark:border-slate-800 px-6 py-4 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-sm">
+            <div>
+                <h2 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Dispatcher Command Overview</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Real-time UNILAG Campus Shuttle Network Operations</p>
             </div>
 
-            <p class="helper-text">One tap. No typing. Students see the change within seconds.</p>
-
-            <!-- aria-pressed communicates the current selection to screen readers -->
-            <div class="queue-actions" role="group" aria-labelledby="queue-heading">
-                <button type="button" class="queue-button low" data-level="LOW" aria-pressed="false">
-                    <span class="queue-dot" aria-hidden="true"></span>
-                    <span class="queue-label">
-                        <b>Low</b>
-                        <span>0–5 people waiting</span>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Active Shuttles</span>
+                    <span id="active-shuttles-stat" class="text-sm font-black text-primary dark:text-rose-400">-- Online</span>
+                </div>
+                <div class="h-8 w-px bg-surface-border dark:bg-slate-800"></div>
+                <div class="text-right">
+                    <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">System Status</span>
+                    <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Optimal
                     </span>
-                    <span class="queue-check" aria-hidden="true">✓</span>
-                </button>
-
-                <button type="button" class="queue-button moderate" data-level="MODERATE" aria-pressed="false">
-                    <span class="queue-dot" aria-hidden="true"></span>
-                    <span class="queue-label">
-                        <b>Moderate</b>
-                        <span>15–30 people waiting</span>
-                    </span>
-                    <span class="queue-check" aria-hidden="true">✓</span>
-                </button>
-
-                <button type="button" class="queue-button packed" data-level="PACKED" aria-pressed="false">
-                    <span class="queue-dot" aria-hidden="true"></span>
-                    <span class="queue-label">
-                        <b>Packed</b>
-                        <span>50+ people waiting</span>
-                    </span>
-                    <span class="queue-check" aria-hidden="true">✓</span>
-                </button>
+                </div>
             </div>
-        </section>
+        </header>
 
-        <section class="panel compact" aria-label="Update status">
-            <p class="helper-text" id="queue-feedback" role="status">
-                Select a queue level above to publish it.
-            </p>
-        </section>
+        <!-- THREE COLUMN WORKSPACE (Responsive) -->
+        <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 overflow-y-auto bg-slate-100 dark:bg-slate-950">
+
+            <!-- COLUMN 1: STATION QUEUE CONTROLS -->
+            <section class="bg-white dark:bg-slate-900 rounded-2xl border border-surface-border dark:border-slate-800 p-5 shadow-sm flex flex-col gap-4">
+                <div class="flex items-center justify-between border-b border-surface-border dark:border-slate-800 pb-3">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Station Queues</h3>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">One-tap update for campus stops</p>
+                    </div>
+                    <span id="dispatcher-feedback" class="text-xs text-slate-400 font-medium">Ready</span>
+                </div>
+
+                <!-- DYNAMIC STATION CARDS -->
+                <div id="stations-container" class="space-y-3.5 overflow-y-auto max-h-[calc(100vh-250px)] pr-1">
+                    <!-- Populated dynamically by dispatcher.js -->
+                </div>
+            </section>
+
+            <!-- COLUMN 2: LIVE RELOCATION DEMAND ALERTS -->
+            <section class="bg-white dark:bg-slate-900 rounded-2xl border border-surface-border dark:border-slate-800 p-5 shadow-sm flex flex-col gap-4">
+                <div class="flex items-center justify-between border-b border-surface-border dark:border-slate-800 pb-3">
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Demand Alerts</h3>
+                        <span id="alerts-count-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0 active</span>
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-semibold">Live passenger calls</span>
+                </div>
+
+                <!-- MANUAL BROADCAST ACTION -->
+                <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-surface-border dark:border-slate-800 space-y-2">
+                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Manual Shuttle Recall</span>
+                    <div class="flex gap-2">
+                        <select id="manual-station-select" class="flex-1 text-xs border border-surface-border dark:border-slate-700 rounded-lg p-2 bg-white dark:bg-slate-900 text-slate-800 dark:text-white">
+                            <option value="Main Gate">Main Gate</option>
+                            <option value="Sports Centre">Sports Centre</option>
+                            <option value="Faculty of Science">Faculty of Science</option>
+                            <option value="New Hall">New Hall</option>
+                            <option value="DLI">DLI</option>
+                        </select>
+                        <select id="manual-pax-count" class="w-20 text-xs border border-surface-border dark:border-slate-700 rounded-lg p-2 bg-white dark:bg-slate-900 text-slate-800 dark:text-white">
+                            <option value="15">15 pax</option>
+                            <option value="30">30 pax</option>
+                            <option value="50">50+ pax</option>
+                        </select>
+                        <button id="manual-dispatch-btn" type="button" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-lg shadow-sm transition-colors flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px]">send</span>
+                            <span>Alert</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- LIVE ALERTS FEED -->
+                <div id="alerts-container" class="space-y-3 overflow-y-auto max-h-[calc(100vh-320px)] pr-1">
+                    <div class="p-6 text-center text-slate-400 dark:text-slate-500 text-xs">
+                        <span class="material-symbols-outlined text-[28px] animate-spin mb-1">sync</span>
+                        <p>Syncing live demand calls…</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COLUMN 3: FLEET OVERVIEW & BATTERY STATUS -->
+            <section class="bg-white dark:bg-slate-900 rounded-2xl border border-surface-border dark:border-slate-800 p-5 shadow-sm flex flex-col gap-4">
+                <div class="flex items-center justify-between border-b border-surface-border dark:border-slate-800 pb-3">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Fleet Status</h3>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Active electric shuttles on campus</p>
+                    </div>
+                    <span class="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                        <span>🌱</span> Zero Emission
+                    </span>
+                </div>
+
+                <!-- FLEET CARDS -->
+                <div id="fleet-container" class="space-y-3.5 overflow-y-auto max-h-[calc(100vh-250px)] pr-1">
+                    <!-- Populated dynamically by dispatcher.js -->
+                    <div class="p-6 text-center text-slate-400 dark:text-slate-500 text-xs">
+                        <span class="material-symbols-outlined text-[28px] animate-spin mb-1">sync</span>
+                        <p>Loading fleet telemetry…</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
     </main>
 
-    <footer class="site-footer">
-        <div class="shell">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <a class="brand" href="index.html">
-                        <span class="brand-logo" aria-hidden="true">U</span>
-                        <span>
-                            <span class="brand-name">UniTrack</span>
-                            <span class="brand-sub">UNILAG Shuttle</span>
-                        </span>
-                    </a>
-                    <p class="footer-tagline">
-                        Real-time shuttle tracking for the University of Lagos. Built as a
-                        COS202 project, designed for the people actually standing at the stop.
-                    </p>
-                </div>
-
-                <div class="footer-col">
-                    <h3>Views</h3>
-                    <ul>
-                        <li><a href="index.html">Student</a></li>
-                        <li><a href="driver.html">Driver</a></li>
-                        <li><a href="dispatcher.html">Dispatcher</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-col">
-                    <h3>Learn</h3>
-                    <ul>
-                        <li><a href="index.html#how-it-works">How it works</a></li>
-                        <li><a href="index.html#stops-heading">Route stops</a></li>
-                        <li><a href="index.html">Live map</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-col">
-                    <h3>Project</h3>
-                    <ul>
-                        <li><a href="https://github.com/Salimmadeit/UniTrack" rel="noopener">Source code</a></li>
-                        <li><a href="https://github.com/Salimmadeit/UniTrack/issues" rel="noopener">Report an issue</a></li>
-                        <li><a href="https://www.unilag.edu.ng" rel="noopener">University of Lagos</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p class="footer-note">© 2026 UniTrack · University of Lagos shuttle tracking</p>
-                <span class="footer-status">Live tracking active</span>
-            </div>
-        </div>
-    </footer>
-
+    <!-- CORE SCRIPTS -->
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/api.js"></script>
-    <script src="js/nav.js"></script>
-    <script src="js/queue.js"></script>
+    <script src="js/dispatcher.js"></script>
 </body>
 </html>

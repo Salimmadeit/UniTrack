@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: unitrack-backend
+    runtime: java
+    rootDir: backend
+    buildCommand: chmod +x mvnw && ./mvnw clean package -DskipTests
+    startCommand: java -jar target/backend-0.0.1-SNAPSHOT.jar
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: DDL_AUTO
+        value: update
+      - key: H2_CONSOLE_ENABLED
+        value: false

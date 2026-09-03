@@ -1,0 +1,14 @@
+{
+  "num": 14,
+  "title": "Uni-Track: Driver Dashboard Redesign",
+  "id": "d7f2354ea1eb473b847ffa40abde93e1",
+  "slug": "14_driver_dashboard_redesign",
+  "deviceType": "MOBILE",
+  "width": "780",
+  "height": "1768",
+  "files": {
+    "screenshot": "screen.png",
+    "code": "code.html"
+  },
+  "hasScreenshot": true
+}
