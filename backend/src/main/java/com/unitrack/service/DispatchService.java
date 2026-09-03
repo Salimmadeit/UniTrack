@@ -2,6 +2,7 @@ package com.unitrack.service;
 
 import com.unitrack.dto.DispatchRequestDTO;
 import com.unitrack.model.DispatchRequest;
+import com.unitrack.exception.ResourceNotFoundException;
 import com.unitrack.repository.DispatchRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,7 @@ public class DispatchService {
     }
 
     public DispatchRequest acknowledge(Long id, String shuttleId) {
-        DispatchRequest req = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Request not found"));
+        DispatchRequest req = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Not found", "Dispatch request with ID " + id + " does not exist"));
         req.setStatus("ACKNOWLEDGED");
         req.setAcknowledgedBy(shuttleId != null ? shuttleId : "BUS-01");
         return repository.save(req);

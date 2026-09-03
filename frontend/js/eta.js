@@ -331,6 +331,19 @@ EtaController.prototype.refresh = function () {
   });
 };
 
+/** Re-requests the student's GPS position and pans the map to it. */
+EtaController.prototype.recentreOnStudent = function () {
+  var self = this;
+  this.locateStudent(function (success) {
+    if (self.studentLocation) {
+      self.mapManager.panTo(self.studentLocation.lat, self.studentLocation.lng);
+    }
+    if (!success) {
+      self.uiManager.showToast('📍 Could not get your location. Check GPS permissions.');
+    }
+  });
+};
+
 /** Selects a stop and focuses incoming buses heading there. */
 EtaController.prototype.selectStop = function (stopName, lat, lng) {
   this.selectedStop = { name: stopName, lat: lat, lng: lng };

@@ -148,7 +148,7 @@
   }
 
   function fetchCurrentQueue() {
-    ApiService.getQueueStatus()
+    ApiService.fetchQueueStatus()
       .then(function (res) {
         if (res && res.level) {
           var mainState = stationStates['Main Gate'] || {};
