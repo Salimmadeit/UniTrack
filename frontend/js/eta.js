@@ -204,6 +204,13 @@ EtaController.prototype.poll = function () {
     };
   }
 
+  var refreshBtn = document.getElementById('refresh-btn');
+  if (refreshBtn) {
+    refreshBtn.disabled = true;
+    var icon = refreshBtn.querySelector('.material-symbols-outlined');
+    if (icon) icon.classList.add('animate-spin');
+  }
+
   // Promise.all with per-request recovery: one failing endpoint must not blank
   // the whole screen.
   return Promise.all([
@@ -244,10 +251,22 @@ EtaController.prototype.poll = function () {
     })
     .then(function () {
       self.inFlight = false;
+      var refreshBtn = document.getElementById('refresh-btn');
+      if (refreshBtn) {
+        refreshBtn.disabled = false;
+        var icon = refreshBtn.querySelector('.material-symbols-outlined');
+        if (icon) icon.classList.remove('animate-spin');
+      }
       self._scheduleNext();
     })
     .catch(function () {
       self.inFlight = false;
+      var refreshBtn = document.getElementById('refresh-btn');
+      if (refreshBtn) {
+        refreshBtn.disabled = false;
+        var icon = refreshBtn.querySelector('.material-symbols-outlined');
+        if (icon) icon.classList.remove('animate-spin');
+      }
       self._scheduleNext();
     });
 };
@@ -344,8 +363,22 @@ EtaController.prototype.refresh = function () {
 /** Re-requests the student's GPS position and pans the map to it. */
 EtaController.prototype.recentreOnStudent = function () {
   var self = this;
+  
+  var locateBtn = document.getElementById('locate-btn');
+  if (locateBtn) {
+    locateBtn.disabled = true;
+    var icon = locateBtn.querySelector('.material-symbols-outlined');
+    if (icon) icon.classList.add('animate-spin');
+  }
+
   this.locateStudent(function (success, position) {
-    if (self.studentLocation) {
+    if (locateBtn) {
+      locateBtn.disabled = false;
+      var icon = locateBtn.querySelector('.material-symbols-outlined');
+      if (icon) icon.classList.remove('animate-spin');
+    }
+
+    if (success && self.studentLocation) {
       var distKm = Utils.getDistanceToCampus ? Utils.getDistanceToCampus(self.studentLocation.lat, self.studentLocation.lng) : 0;
       var accuracy = position && position.coords ? position.coords.accuracy : self.studentAccuracy;
       var returnPill = document.getElementById('return-campus-pill');
@@ -368,8 +401,7 @@ EtaController.prototype.recentreOnStudent = function () {
         self.uiManager.showToast('📍 Centered on your position on campus.');
         if (returnPill) returnPill.classList.add('hidden');
       }
-    }
-    if (!success) {
+    } else {
       self.uiManager.showToast('📍 Could not get your location. Check GPS permissions.');
     }
   }, true);
