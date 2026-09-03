@@ -4,7 +4,7 @@ import com.unitrack.dto.QueueDTO;
 import com.unitrack.dto.QueueResponse;
 import com.unitrack.model.QueueStatus;
 import com.unitrack.repository.QueueStatusRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -12,10 +12,14 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class QueueService {
 
     private final QueueStatusRepository queueStatusRepository;
+
+    @Autowired
+    public QueueService(QueueStatusRepository queueStatusRepository) {
+        this.queueStatusRepository = queueStatusRepository;
+    }
 
     /**
      * Minimum gap before the *same* reporter may repeat the *same* level.

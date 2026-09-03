@@ -3,9 +3,7 @@ package com.unitrack.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
-@Data
 public class LocationDTO {
 
     @NotNull(message = "Latitude is required")
@@ -24,4 +22,35 @@ public class LocationDTO {
     @Min(value = 0, message = "Heading must be between 0 and 360")
     @Max(value = 360, message = "Heading must be between 0 and 360")
     private Double heading = 0.0;
+
+    private String shuttleId;
+    private String routeId;
+    private String status;
+    private Integer batteryLevel;
+
+    public LocationDTO() {}
+
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
+
+    public Double getSpeed() { return speed; }
+    public void setSpeed(Double speed) { this.speed = speed; }
+
+    public Double getHeading() { return heading; }
+    public void setHeading(Double heading) { this.heading = heading; }
+
+    public String getShuttleId() { return shuttleId; }
+    public void setShuttleId(String shuttleId) { this.shuttleId = shuttleId; }
+
+    public String getRouteId() { return routeId; }
+    public void setRouteId(String routeId) { this.routeId = routeId; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public Integer getBatteryLevel() { return batteryLevel; }
+    public void setBatteryLevel(Integer batteryLevel) { this.batteryLevel = batteryLevel; }
 }

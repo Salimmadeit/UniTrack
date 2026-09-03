@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UNILAG Shuttle - Student View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-background": "#191c1d",
+                        "surface-border": "#E9ECEF",
+                        "tertiary-fixed-dim": "#bcc3ff",
+                        "inverse-primary": "#ffb4a8",
+                        "surface-variant": "#e1e3e4",
+                        "primary": "#520000",
+                        "background": "#f8f9fa",
+                        "surface-tint": "#b02d1f",
+                        "secondary-fixed-dim": "#ffba20",
+                        "primary-container": "#7b0000",
+                        "on-surface-variant": "#59413d",
+                        "surface": "#f8f9fa",
+                        "on-tertiary-fixed": "#000d60",
+                        "outline": "#8d706c",
+                        "surface-dim": "#d9dadb",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f3f4f5",
+                        "on-secondary-fixed": "#271900",
+                        "status-danger": "#DB4437",
+                        "on-primary-fixed": "#410000",
+                        "secondary-container": "#feb700",
+                        "surface-container": "#edeeef",
+                        "secondary": "#7c5800",
+                        "on-tertiary-container": "#8f9cff",
+                        "on-secondary-fixed-variant": "#5e4200",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#8e120a",
+                        "error": "#ba1a1a",
+                        "status-warning": "#F4B400",
+                        "on-tertiary-fixed-variant": "#1b32be",
+                        "error-container": "#ffdad6",
+                        "text-muted": "#9AA0A6",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#2e3132",
+                        "on-primary-container": "#ff7d6a",
+                        "tertiary": "#001278",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdea8",
+                        "on-surface": "#191c1d",
+                        "outline-variant": "#e1bfb9",
+                        "tertiary-fixed": "#dfe0ff",
+                        "tertiary-container": "#0020b1",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "on-secondary-container": "#6b4b00",
+                        "surface-container-highest": "#e1e3e4",
+                        "status-success": "#0F9D58",
+                        "surface-bright": "#f8f9fa",
+                        "primary-fixed": "#ffdad4",
+                        "surface-container-high": "#e7e8e9",
+                        "interactive-blue": "#1A73E8",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "touch-target": "48px",
+                        "stack-md": "16px",
+                        "stack-sm": "4px",
+                        "container-margin": "16px",
+                        "gutter": "12px",
+                        "base": "8px",
+                        "stack-lg": "24px"
+                    },
+                    "fontFamily": {
+                        "hero-eta-mobile": ["system-ui"],
+                        "label-sm": ["system-ui"],
+                        "headline-lg": ["system-ui"],
+                        "hero-eta": ["system-ui"],
+                        "body-md": ["system-ui"],
+                        "body-lg": ["system-ui"],
+                        "label-bold": ["system-ui"],
+                        "headline-md": ["system-ui"]
+                    },
+                    "fontSize": {
+                        "hero-eta-mobile": ["40px", { "lineHeight": "1.1", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "hero-eta": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "label-bold": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background h-full overflow-hidden text-on-surface font-body-md">
+<!-- Top App Bar (Web) -->
+<header class="hidden md:flex fixed top-0 left-0 w-full z-50 justify-between items-center px-container-margin h-touch-target bg-surface border-b border-surface-border">
+<div class="flex items-center gap-gutter">
+<span class="font-headline-lg text-headline-lg font-bold text-primary">UNILAG Shuttle</span>
+</div>
+<div class="flex items-center gap-stack-md">
+<!-- Active Navigation Logic applied to implicit "Student View" intent, though TopAppBar JSON doesn't specify tabs, it has trailing icons -->
+<button class="w-touch-target h-touch-target flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-touch-target h-touch-target flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="w-touch-target h-touch-target flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">help</span>
+</button>
+<img alt="User profile" class="w-10 h-10 rounded-full bg-surface-container-high object-cover" data-alt="A small circular avatar placeholder image showing a generic user profile silhouette against a light neutral background, suitable for a professional academic application interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkp7TIso_S31DMGhJPO--TIWQL97jhh5FwG05a7-Fwxuyxvj9MdO4fSilFt0s8K8psg4bTwq71uwyFI58B-Xvo7omEy8LVV7pEQmWKaYHjFz5I9F8i_Ke8Jv5C2-L3b4Rgt_4rqFVHln1gZ2BxB2qi_INMzOkHvJOnctOrIOlkXFUVKV2bqKFKKB6OgW9__wLKTm_hZSjw8Yjkrdu0Ytz4gB2YOmWIcDBnot9rdeVBaXp3ypHF2bHb"/>
+</div>
+</header>
+<div class="flex h-full pt-touch-target md:pt-touch-target">
+<!-- Side Navigation (Web) -->
+<nav class="hidden md:flex flex-col bg-surface-container-lowest h-full w-64 border-r border-surface-border shadow-sm p-base fixed left-0 top-touch-target z-40">
+<div class="mb-stack-lg p-stack-sm flex items-center gap-gutter">
+<img alt="UNILAG Logo" class="w-12 h-12 rounded-lg bg-surface-variant object-contain" data-alt="A placeholder logo for the University of Lagos Shuttle System, featuring a clean, modern crest or emblem design in deep maroon and gold tones on a white background, suggesting institutional authority and reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6OUeK9TzJyH08qMA_WUkv0vszCcf--evy3GP3i-Lum5rRnY5DisVk9QQv55t6WZ7rYyOEUTxVUznX4lFmpu1XbaSxZaZAEN9HHnx4g5q6F8WGjitn5e8j54zoJCyp6Qj4kgkj7gj0BWifeodsl96_Nlsd6DlPwkZehuGEFxlysjjJdVMIdQFULI1-nxImtq2i97bSFptYFAGW8Xi9x1czAHUJwmYiLWJfJ768b1ixWrR4j5UfXopF"/>
+<div>
+<h2 class="font-headline-md text-headline-md font-extrabold text-primary">Shuttle System</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">University of Lagos</p>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-stack-sm">
+<!-- Active Navigation: Live Tracking maps to Student Home intent -->
+<a class="flex items-center gap-gutter p-stack-sm h-touch-target bg-secondary-container text-on-secondary-container rounded-lg cursor-pointer scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">map</span>
+<span class="font-label-bold text-label-bold">Live Tracking</span>
+</a>
+<a class="flex items-center gap-gutter p-stack-sm h-touch-target text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg cursor-pointer scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">directions_bus</span>
+<span class="font-label-bold text-label-bold">Fleet Management</span>
+</a>
+<a class="flex items-center gap-gutter p-stack-sm h-touch-target text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg cursor-pointer scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">low_priority</span>
+<span class="font-label-bold text-label-bold">Queue Control</span>
+</a>
+<a class="flex items-center gap-gutter p-stack-sm h-touch-target text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg cursor-pointer scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-label-bold text-label-bold">Analytics</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-stack-sm">
+<button class="w-full h-touch-target bg-surface-container-high hover:bg-surface-dim text-primary font-label-bold text-label-bold rounded-lg transition-all scale-95 active:scale-90">
+                    Force Relocate
+                </button>
+<a class="flex items-center gap-gutter p-stack-sm h-touch-target text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg cursor-pointer scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-bold text-label-bold">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 relative w-full h-full md:ml-64">
+<!-- Map Background -->
+<div class="absolute inset-0 bg-surface-dim z-0">
+<img alt="Campus Map" class="w-full h-full object-cover opacity-80" data-alt="A clean, highly detailed digital map visualization of a university campus. The map uses a light, modern color palette with distinct roads, buildings, and green spaces, suitable for a functional tracking application." data-location="Lagos, Nigeria" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCREkbifd5T3BBrWhHUOHXagsKoNMllrRO0soO6LBTTXbEX6G_b45fGoB2Sb-d21vIFKyyBmgCxrcYO4xJRP2dPUPJqIsZDq2EhG154AT0H_PvlEiF1A_qTONVysyNLHJNBIkZaQBNd5laYSaH6EMMgg3fbK5pKYkaNp9ZQIz22t-GJEdvfPiP69ApL5RsDZALQF_9LN6r0sT_32qAQuZ8BFSmt6gU_Vmtxut19T16cN3NGNqSqlJSd"/>
+<!-- Map Marker Example -->
+<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10">
+<div class="bg-primary text-on-primary w-12 h-12 rounded-full flex items-center justify-center shadow-md border-2 border-surface">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">directions_bus</span>
+</div>
+<div class="mt-1 bg-surface text-on-surface font-label-sm text-label-sm px-2 py-1 rounded shadow-sm">
+                        Bus 04
+                    </div>
+</div>
+</div>
+<!-- Overlay / Decision Card -->
+<div class="absolute top-container-margin left-container-margin right-container-margin md:right-auto md:w-96 z-20 flex flex-col gap-stack-md">
+<!-- Hero Answer Card -->
+<div class="bg-surface border border-surface-border rounded-xl shadow-md p-stack-lg flex flex-col gap-stack-sm">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider">Nearest Shuttle</h3>
+<p class="font-body-md text-body-md text-on-surface">Education Faculty Stop</p>
+</div>
+<div class="bg-status-warning/10 text-status-warning px-3 py-1 rounded-full flex items-center gap-2 border border-status-warning/20">
+<span class="w-2 h-2 rounded-full bg-status-warning"></span>
+<span class="font-label-sm text-label-sm font-semibold">Moderate</span>
+</div>
+</div>
+<div class="mt-stack-sm flex items-end gap-gutter">
+<span class="font-hero-eta text-hero-eta text-primary">3</span>
+<span class="font-headline-md text-headline-md text-primary pb-2">min</span>
+</div>
+<div class="mt-stack-sm bg-interactive-blue/10 text-interactive-blue p-stack-sm rounded-lg flex items-center gap-gutter">
+<span class="material-symbols-outlined">directions_walk</span>
+<span class="font-label-bold text-label-bold">Walking is faster (2 min)</span>
+</div>
+</div>
+<!-- Secondary Info List -->
+<div class="bg-surface/90 backdrop-blur-md border border-surface-border rounded-xl shadow-sm overflow-hidden">
+<div class="px-stack-md py-stack-sm border-b border-surface-border bg-surface-container-lowest">
+<h4 class="font-label-bold text-label-bold text-on-surface">Upcoming Stops</h4>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center justify-between p-stack-md border-b border-surface-border hover:bg-surface-container-low transition-colors cursor-pointer">
+<span class="font-body-md text-body-md text-on-surface">Main Gate</span>
+<span class="font-label-bold text-label-bold text-on-surface-variant">5 min</span>
+</div>
+<div class="flex items-center justify-between p-stack-md hover:bg-surface-container-low transition-colors cursor-pointer">
+<span class="font-body-md text-body-md text-on-surface">DLI</span>
+<span class="font-label-bold text-label-bold text-on-surface-variant">8 min</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

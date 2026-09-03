@@ -5,16 +5,20 @@ import com.unitrack.dto.LocationResponse;
 import com.unitrack.exception.ResourceNotFoundException;
 import com.unitrack.service.LocationService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/location")
-@RequiredArgsConstructor
 public class LocationController {
 
     private final LocationService locationService;
+
+    @Autowired
+    public LocationController(LocationService locationService) {
+        this.locationService = locationService;
+    }
 
     @PostMapping
     public ResponseEntity<LocationResponse> updateLocation(@Valid @RequestBody LocationDTO locationDTO) {
@@ -35,5 +39,10 @@ public class LocationController {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No location data available",
                         "Driver has not started broadcasting"));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<java.util.List<LocationResponse>> getAllLocations() {
+        return ResponseEntity.ok(locationService.getAllLocations());
     }
 }

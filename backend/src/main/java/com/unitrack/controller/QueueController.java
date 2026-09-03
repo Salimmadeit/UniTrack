@@ -5,7 +5,7 @@ import com.unitrack.dto.QueueResponse;
 import com.unitrack.exception.ResourceNotFoundException;
 import com.unitrack.service.QueueService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +13,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/queue")
-@RequiredArgsConstructor
 public class QueueController {
 
     private final QueueService queueService;
+
+    @Autowired
+    public QueueController(QueueService queueService) {
+        this.queueService = queueService;
+    }
 
     /**
      * Records a crowd level from a dispatcher or a student.

@@ -1,167 +1,239 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="UniTrack driver console: broadcast this shuttle's live location to students on campus.">
-    <meta name="theme-color" content="#f6f8fb">
+    <meta name="description" content="UniTrack Driver Console: Broadcast electric campus shuttle location, battery, and receive stop demand alerts.">
+    <meta name="theme-color" content="#7B0000">
     <title>UniTrack — Driver Console</title>
 
-    <!-- Theme applied before first paint to prevent a light flash in dark mode -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7B0000",
+                        "primary-dark": "#520000",
+                        "surface": "#F8F9FA",
+                        "surface-border": "#E9ECEF",
+                        "on-surface": "#191C1D",
+                        "status-success": "#0F9D58",
+                        "status-warning": "#F4B400",
+                        "status-danger": "#DB4437"
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
     <script src="js/theme.js"></script>
-
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .app-shell {
+            max-width: 440px;
+            min-height: 100vh;
+            background-color: #ffffff;
+            position: relative;
+        }
+        @media (min-width: 768px) {
+            .app-shell {
+                min-height: 720px;
+                margin-top: 2rem;
+                margin-bottom: 2rem;
+                border-radius: 1.5rem;
+                border: 1px solid #E9ECEF;
+            }
+        }
+    </style>
 </head>
-<body>
-    <a class="skip-link" href="#main">Skip to content</a>
+<body class="bg-slate-100 dark:bg-slate-900 text-on-surface dark:text-slate-100 font-sans antialiased min-h-screen flex items-center justify-center p-0 md:p-4">
 
-    <header class="site-nav">
-        <div class="nav-inner">
-            <a class="brand" href="index.html">
-                <span class="brand-logo" aria-hidden="true">U</span>
-                <span>
-                    <span class="brand-name">UniTrack</span>
-                    <span class="brand-sub">Driver Console</span>
-                </span>
+    <div class="app-shell dark:bg-slate-950 dark:border-slate-800 w-full flex flex-col justify-between shadow-xl">
+        <!-- HEADER -->
+        <header class="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-surface-border dark:border-slate-800 px-4 h-14 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <a href="index.html" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">
+                    <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+                </a>
+                <div>
+                    <h1 class="text-sm font-bold text-primary dark:text-rose-400">Driver Console</h1>
+                    <span class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">UNILAG Fleet · <span id="active-shuttle-id">BUS-01</span></span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <button data-theme-toggle type="button" class="flex items-center justify-center w-8 h-8 rounded-full border border-surface-border dark:border-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors" title="Toggle dark mode" aria-label="Toggle dark mode">
+                    <span class="material-symbols-outlined text-[18px] theme-icon">dark_mode</span>
+                </button>
+                <span id="driver-state" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700">Standby</span>
+                <button id="driver-logout-btn" type="button" class="text-xs text-slate-500 hover:text-rose-600 font-semibold px-2 py-1" title="Driver logout">Sign out</button>
+            </div>
+        </header>
+
+        <!-- MAIN BODY -->
+        <main class="p-4 flex-grow space-y-4">
+            <!-- LIVE RELOCATION DEMAND ALERT BANNER (Feature 5) -->
+            <div id="driver-alert-banner" class="hidden bg-amber-500 text-white p-4 rounded-2xl shadow-lg border-2 border-amber-600 animate-bounce">
+                <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-[24px]">campaign</span>
+                    <div class="flex-grow">
+                        <h2 class="text-sm font-bold tracking-tight">Demand Alert from Campus!</h2>
+                        <p id="driver-alert-text" class="text-xs text-amber-100 mt-1 font-medium leading-relaxed">
+                            High passenger volume reported.
+                        </p>
+                        <button id="driver-alert-ack-btn" type="button" class="mt-3 px-3 py-1.5 bg-white text-amber-900 font-bold text-xs rounded-xl shadow hover:bg-amber-100 transition-colors">
+                            ✓ Acknowledge / On My Way
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BROADCAST CARD -->
+            <div class="bg-white rounded-2xl p-5 border border-surface-border shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900">Vehicle GPS Broadcast</h2>
+                        <p class="text-xs text-slate-500">Continuous 2.5s high-accuracy beacon</p>
+                    </div>
+                    <span class="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">⚡</span>
+                </div>
+
+                <!-- Giant broadcast toggle button -->
+                <button id="broadcast-toggle" type="button" class="w-full py-4 bg-primary hover:bg-primary-dark text-white font-extrabold text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[22px]">wifi_tethering</span>
+                    <span>Start Broadcasting</span>
+                </button>
+
+                <p id="driver-message" class="text-xs text-slate-600 text-center leading-relaxed">
+                    Tap to broadcast this shuttle's live location to students across campus. Keep screen awake while driving.
+                </p>
+
+                <!-- Error Notice -->
+                <div id="driver-error" class="hidden bg-rose-50 border border-rose-200 rounded-xl p-3 flex items-center gap-2.5">
+                    <span class="material-symbols-outlined text-status-danger text-[20px]">warning</span>
+                    <span id="driver-error-message" class="text-xs text-rose-800">Location permission required.</span>
+                </div>
+            </div>
+
+            <!-- TELEMETRY & DIAGNOSTICS -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white p-3.5 rounded-2xl border border-surface-border">
+                    <div class="flex items-center gap-1.5 text-slate-500 text-xs font-semibold mb-1">
+                        <span class="material-symbols-outlined text-[16px]">gps_fixed</span>
+                        <span>GPS Status</span>
+                    </div>
+                    <p id="gps-status" class="text-sm font-bold text-slate-800">Off</p>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-surface-border">
+                    <div class="flex items-center gap-1.5 text-slate-500 text-xs font-semibold mb-1">
+                        <span class="material-symbols-outlined text-[16px]">send</span>
+                        <span>Fixes Emitted</span>
+                    </div>
+                    <p id="broadcast-counter" class="text-sm font-bold text-slate-800">0</p>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-surface-border">
+                    <div class="flex items-center gap-1.5 text-slate-500 text-xs font-semibold mb-1">
+                        <span class="material-symbols-outlined text-[16px]">pin_drop</span>
+                        <span>Last Fix</span>
+                    </div>
+                    <p id="last-signal" class="text-xs font-mono font-medium text-slate-800 truncate">No fix yet</p>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-surface-border">
+                    <div class="flex items-center gap-1.5 text-slate-500 text-xs font-semibold mb-1">
+                        <span class="material-symbols-outlined text-[16px]">schedule</span>
+                        <span>Heartbeat</span>
+                    </div>
+                    <p id="last-sent" class="text-xs font-semibold text-slate-800">Idle</p>
+                </div>
+            </div>
+
+            <!-- UNILAG ROUTE INSTRUCTIONS -->
+            <div class="bg-white p-4 rounded-2xl border border-surface-border">
+                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Campus Shuttle Operations</h3>
+                <ul class="text-xs text-slate-600 space-y-1.5">
+                    <li class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                        <span>Route 1: Main Gate ⇄ Faculty of Science via Senate</span>
+                    </li>
+                    <li class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                        <span>Route 2: Main Gate ⇄ DLI via New Hall</span>
+                    </li>
+                    <li class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        <span>Stationary wait at stops is automatically maintained live.</span>
+                    </li>
+                </ul>
+            </div>
+        </main>
+
+        <!-- FOOTER NAV -->
+        <footer class="p-4 border-t border-surface-border bg-white text-center">
+            <a href="index.html" class="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+                <span>← Return to Student Live Map</span>
             </a>
+        </footer>
 
-            <div class="nav-actions">
-                <nav aria-label="Views">
-                    <ul class="nav-links" id="nav-menu">
-                        <li><a href="index.html">Student</a></li>
-                        <li><a href="driver.html" aria-current="page">Driver</a></li>
-                        <li><a href="dispatcher.html">Dispatcher</a></li>
-                    </ul>
-                </nav>
+        <!-- ==============================================================
+             DRIVER AUTHENTICATION MODAL (Issue 6)
+             ============================================================== -->
+        <div id="driver-auth-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-surface-border space-y-4">
+                <div class="text-center">
+                    <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary mx-auto flex items-center justify-center font-bold text-xl mb-2">
+                        🚗
+                    </div>
+                    <h2 class="text-lg font-bold text-slate-900">Driver Sign-In</h2>
+                    <p class="text-xs text-slate-500">Enter your Shuttle ID and campus PIN</p>
+                </div>
 
-                <button type="button" class="theme-toggle" data-theme-toggle
-                        aria-pressed="false" aria-label="Switch to dark theme">
-                    <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-                         stroke-linejoin="round" aria-hidden="true">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-                         stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="4"></circle>
-                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
-                    </svg>
-                </button>
+                <form id="driver-auth-form" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Shuttle ID</label>
+                        <input id="auth-shuttle-id" type="text" value="BUS-01" required
+                               class="w-full text-sm border-slate-300 rounded-xl px-3 py-2 font-mono uppercase focus:ring-primary focus:border-primary">
+                    </div>
 
-                <button type="button" class="nav-toggle" data-nav-toggle
-                        aria-expanded="false" aria-controls="nav-menu"
-                        aria-label="Open navigation menu">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-                         aria-hidden="true">
-                        <path d="M3 6h18M3 12h18M3 18h18"></path>
-                    </svg>
-                </button>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Driver PIN / Password</label>
+                        <input id="auth-pin" type="password" placeholder="Default PIN: 1234 or unilag2026" required
+                               class="w-full text-sm border-slate-300 rounded-xl px-3 py-2 focus:ring-primary focus:border-primary">
+                    </div>
+
+                    <div id="auth-error" class="hidden text-xs text-rose-600 bg-rose-50 p-2.5 rounded-xl border border-rose-200">
+                        Invalid PIN. Try: 1234
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-primary hover:bg-primary-dark text-white font-bold text-sm rounded-xl shadow transition-colors">
+                        Sign In as Driver
+                    </button>
+                </form>
+
+                <div class="text-center pt-2 border-t border-slate-100">
+                    <a href="index.html" class="text-xs text-slate-500 hover:text-primary">Cancel and return to student view</a>
+                </div>
             </div>
         </div>
-    </header>
+    </div>
 
-    <main class="page-card" id="main">
-        <section class="panel" aria-labelledby="broadcast-heading">
-            <div class="panel-head">
-                <h1 class="panel-title" id="broadcast-heading">Broadcast</h1>
-                <span class="status-chip" id="driver-state" role="status">Ready</span>
-            </div>
-
-            <!-- One giant primary action: the driver operates this at a bus stop -->
-            <button type="button" class="btn btn-primary btn-lg btn-block" id="broadcast-toggle"
-                    aria-describedby="driver-message">
-                Start Broadcasting
-            </button>
-
-            <p class="helper-text" id="driver-message" role="status">
-                Tap to share this shuttle's location with students. Keep this screen open while driving —
-                the browser stops sending updates if the tab is closed.
-            </p>
-
-            <p class="notice error-banner hidden" id="driver-error" role="alert">
-                <span class="notice-icon" aria-hidden="true">⚠️</span>
-                <span id="driver-error-message">Location Access Required. Please enable GPS.</span>
-            </p>
-        </section>
-
-        <section class="info-grid" aria-label="Broadcast diagnostics">
-            <article class="info-card">
-                <h2>GPS status</h2>
-                <p id="gps-status">Waiting for permission</p>
-            </article>
-            <article class="info-card">
-                <h2>Last position</h2>
-                <p id="last-signal">No updates yet</p>
-            </article>
-            <article class="info-card">
-                <h2>Updates sent</h2>
-                <p id="broadcast-counter">0</p>
-            </article>
-            <article class="info-card">
-                <h2>Last sent</h2>
-                <p id="last-sent">—</p>
-            </article>
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="shell">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <a class="brand" href="index.html">
-                        <span class="brand-logo" aria-hidden="true">U</span>
-                        <span>
-                            <span class="brand-name">UniTrack</span>
-                            <span class="brand-sub">UNILAG Shuttle</span>
-                        </span>
-                    </a>
-                    <p class="footer-tagline">
-                        Real-time shuttle tracking for the University of Lagos. Built as a
-                        COS202 project, designed for the people actually standing at the stop.
-                    </p>
-                </div>
-
-                <div class="footer-col">
-                    <h3>Views</h3>
-                    <ul>
-                        <li><a href="index.html">Student</a></li>
-                        <li><a href="driver.html">Driver</a></li>
-                        <li><a href="dispatcher.html">Dispatcher</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-col">
-                    <h3>Learn</h3>
-                    <ul>
-                        <li><a href="index.html#how-it-works">How it works</a></li>
-                        <li><a href="index.html#stops-heading">Route stops</a></li>
-                        <li><a href="index.html">Live map</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-col">
-                    <h3>Project</h3>
-                    <ul>
-                        <li><a href="https://github.com/Salimmadeit/UniTrack" rel="noopener">Source code</a></li>
-                        <li><a href="https://github.com/Salimmadeit/UniTrack/issues" rel="noopener">Report an issue</a></li>
-                        <li><a href="https://www.unilag.edu.ng" rel="noopener">University of Lagos</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p class="footer-note">© 2026 UniTrack · University of Lagos shuttle tracking</p>
-                <span class="footer-status">Live tracking active</span>
-            </div>
-        </div>
-    </footer>
-
+    <!-- Scripts -->
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/api.js"></script>
-    <script src="js/nav.js"></script>
     <script src="js/driver.js"></script>
 </body>
 </html>

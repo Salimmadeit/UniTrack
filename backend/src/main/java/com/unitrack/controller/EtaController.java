@@ -2,16 +2,18 @@ package com.unitrack.controller;
 
 import com.unitrack.dto.EtaResponse;
 import com.unitrack.service.EtaService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/eta")
-@RequiredArgsConstructor
 public class EtaController {
 
     private final EtaService etaService;
+
+    public EtaController(EtaService etaService) {
+        this.etaService = etaService;
+    }
 
     /**
      * No try/catch here on purpose: {@code EtaService} throws

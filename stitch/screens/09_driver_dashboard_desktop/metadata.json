@@ -1,0 +1,14 @@
+{
+  "num": 9,
+  "title": "Uni-Track: Driver Dashboard (Desktop)",
+  "id": "9b0b2f7e2832417b96fae349cf78d88d",
+  "slug": "09_driver_dashboard_desktop",
+  "deviceType": "DESKTOP",
+  "width": "2560",
+  "height": "2048",
+  "files": {
+    "screenshot": "screen.png",
+    "code": "code.html"
+  },
+  "hasScreenshot": true
+}

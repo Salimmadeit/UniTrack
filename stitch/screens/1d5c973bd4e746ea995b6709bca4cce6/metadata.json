@@ -1,0 +1,14 @@
+{
+  "num": 1,
+  "title": "Uni-Track: Student Dashboard Redesign (Desktop)",
+  "id": "1d5c973bd4e746ea995b6709bca4cce6",
+  "slug": "01_student_dashboard_redesign_desktop",
+  "deviceType": "DESKTOP",
+  "width": "2560",
+  "height": "2144",
+  "files": {
+    "screenshot": "screen.png",
+    "code": "code.html"
+  },
+  "hasScreenshot": true
+}

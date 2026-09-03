@@ -1,386 +1,469 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- viewport-fit=cover supports notched devices; zoom is NOT disabled (a11y) -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="Track UNILAG campus shuttles in real time: live location, arrival estimate, queue level and whether walking is faster.">
-    <meta name="theme-color" content="#f6f8fb">
-    <title>UniTrack — Where is my shuttle?</title>
+    <meta name="description" content="UniTrack — Real-time UNILAG electric campus shuttle tracking, queue estimation, and dynamic dispatch for SDG 11 & SDG 13.">
+    <meta name="theme-color" content="#7B0000">
+    <title>UniTrack — Real-Time UNILAG Campus Shuttle Tracking</title>
 
-    <!-- Theme applied before first paint to prevent a light flash in dark mode -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet fallback stylesheet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+    
+    <!-- Tailwind via CDN with Stitch & SDG Color Extensions -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7B0000",
+                        "primary-dark": "#520000",
+                        "primary-container": "#7B0000",
+                        "on-primary": "#ffffff",
+                        "secondary": "#7C5800",
+                        "secondary-container": "#FEB700",
+                        "on-secondary-container": "#4A3500",
+                        "surface": "#F8F9FA",
+                        "surface-lowest": "#FFFFFF",
+                        "surface-border": "#E9ECEF",
+                        "on-surface": "#191C1D",
+                        "on-surface-variant": "#59413D",
+                        "status-success": "#0F9D58",
+                        "status-warning": "#F4B400",
+                        "status-danger": "#DB4437",
+                        "interactive-blue": "#1A73E8",
+                        "sdg-11": "#FD9D24",
+                        "sdg-13": "#3F7E44"
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
     <script src="js/theme.js"></script>
+    
+    <!-- Google Identity Services (OAuth) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            min-height: 380px;
+            z-index: 1;
+        }
+        /* Fluid shuttle marker pulse */
+        .shuttle-marker {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            background: #7B0000;
+            border: 2.5px solid #FFFFFF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(123, 0, 0, 0.45);
+            font-size: 17px;
+            transition: transform 0.2s ease;
+        }
+        .shuttle-pulse {
+            position: absolute;
+            top: -7px;
+            left: -7px;
+            right: -7px;
+            bottom: -7px;
+            border: 2.5px solid #7B0000;
+            border-radius: 50%;
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            pointer-events: none;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.85); opacity: 0.9; }
+            70% { transform: scale(1.4); opacity: 0; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .shuttle-marker.is-stale {
+            opacity: 0.45;
+            filter: grayscale(0.7);
+        }
+        .sheet-backdrop {
+            background-color: rgba(25, 28, 29, 0.45);
+            backdrop-filter: blur(4px);
+        }
+    </style>
 </head>
-<body>
-    <a class="skip-link" href="#main">Skip to content</a>
+<body class="bg-slate-100 dark:bg-slate-900 text-on-surface dark:text-slate-100 antialiased font-sans lg:h-screen lg:overflow-hidden">
 
-    <!-- ======================================================================
-         NAVBAR — sticky glass
-         ====================================================================== -->
-    <header class="site-nav">
-        <div class="nav-inner">
-            <a class="brand" href="index.html">
-                <span class="brand-logo" aria-hidden="true">U</span>
-                <span>
-                    <span class="brand-name">UniTrack</span>
-                    <span class="brand-sub">UNILAG Shuttle</span>
-                </span>
-            </a>
+    <!-- RESPONSIVE ROOT: Desktop 2-column layout, Mobile single column -->
+    <div class="min-h-screen lg:h-screen lg:flex lg:flex-row flex flex-col pb-[68px] lg:pb-0">
 
-            <div class="nav-actions">
-                <nav aria-label="Views">
-                    <ul class="nav-links" id="nav-menu">
-                        <li><a href="index.html" aria-current="page">Student</a></li>
-                        <li><a href="driver.html">Driver</a></li>
-                        <li><a href="dispatcher.html">Dispatcher</a></li>
-                        <li><a href="#how-it-works">How it works</a></li>
-                    </ul>
-                </nav>
-
-                <button type="button" class="theme-toggle" data-theme-toggle
-                        aria-pressed="false" aria-label="Switch to dark theme">
-                    <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-                         stroke-linejoin="round" aria-hidden="true">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-                         stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="4"></circle>
-                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
-                    </svg>
-                </button>
-
-                <button type="button" class="nav-toggle" data-nav-toggle
-                        aria-expanded="false" aria-controls="nav-menu"
-                        aria-label="Open navigation menu">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-                         aria-hidden="true">
-                        <path d="M3 6h18M3 12h18M3 18h18"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main id="main">
-        <!-- ==================================================================
-             HERO — the map is the backdrop, glass panels float on top.
-             ANSWER-FIRST: the decision the student needs is the largest thing
-             on screen, before any supporting detail.
-             ================================================================== -->
-        <section class="map-hero" aria-labelledby="answer-heading">
-            <div id="map" role="application"
-                 aria-label="Map of UNILAG campus showing shuttle location, routes and stops"></div>
-
-            <!-- Gradient scrim: keeps panel text legible over bright map tiles -->
-            <div class="map-scrim" aria-hidden="true"></div>
-
-            <div class="hero-overlay">
-                <div class="hero-top">
-                    <div class="glass-panel answer-panel">
-                        <h1 id="answer-heading" class="visually-hidden">Nearest shuttle arrival</h1>
-
-                        <div>
-                            <span class="kicker">Next shuttle arrives in</span>
-                            <!-- aria-live: announce updates without moving focus -->
-                            <p class="eta-value" id="eta-time" aria-live="polite" aria-atomic="true">-- min</p>
-                            <p class="eta-caption" id="eta-caption">Waiting for live shuttle data…</p>
-                        </div>
-
-                        <div class="details">
-                            <span class="detail-pill">Stop
-                                <strong class="detail-value" id="nearest-stop">Locating…</strong>
-                            </span>
-                            <span class="detail-pill">Queue
-                                <strong class="detail-value queue-low" id="queue-status">—</strong>
-                            </span>
-                            <span class="detail-pill">Distance
-                                <strong class="detail-value" id="distance-value">—</strong>
-                            </span>
-                        </div>
-
-                        <p class="notice walking-banner hidden" id="walking-suggestion" role="status">
-                            <span class="notice-icon" aria-hidden="true">🚶</span>
-                            <span>Walking is faster — about <strong id="walk-time">--</strong> min on foot.</span>
-                        </p>
-
-                        <p class="notice offline-banner hidden" id="offline-banner" role="status">
-                            <span class="notice-icon" aria-hidden="true">🚌</span>
-                            <span>No active shuttle right now. We'll update automatically when one starts moving.</span>
-                        </p>
-
-                        <p class="notice error-banner hidden" id="error-banner" role="alert">
-                            <span class="notice-icon" aria-hidden="true">⚠️</span>
-                            <span id="error-message">We can't reach the server. Retrying…</span>
-                        </p>
+        <!-- ==============================================================
+             LEFT SIDEBAR / CONTROL PANEL (Desktop: Fixed 440px / Mobile: Top Flow)
+             ============================================================== -->
+        <aside class="w-full lg:w-[460px] xl:w-[490px] bg-white dark:bg-slate-900 border-b lg:border-b-0 lg:border-r border-surface-border dark:border-slate-700 flex flex-col shrink-0 lg:h-screen lg:overflow-y-auto z-30 shadow-sm">
+            <!-- TOP APP BAR -->
+            <header class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-surface-border dark:border-slate-700 px-4 py-3 z-20 flex items-center justify-between">
+                <a href="index.html" class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-base shadow-sm">
+                        ⚡
                     </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-base font-extrabold text-primary tracking-tight leading-tight">UniTrack</span>
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 uppercase tracking-wide">SDG 11 & 13</span>
+                        </div>
+                        <span class="text-[11px] text-on-surface-variant dark:text-slate-300 font-medium leading-none">University of Lagos · Group 20</span>
+                    </div>
+                </a>
 
-                    <span class="badge" id="freshness-badge" role="status">Connecting</span>
+                <div class="flex items-center gap-1.5">
+                    <button data-theme-toggle type="button" class="flex items-center justify-center w-8 h-8 rounded-full border border-surface-border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors" title="Toggle dark mode" aria-label="Toggle dark mode">
+                        <span class="material-symbols-outlined text-[18px] theme-icon">dark_mode</span>
+                    </button>
+                    <button id="google-auth-btn" type="button" class="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-full border border-surface-border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white transition-colors">
+                        <span class="material-symbols-outlined text-[16px] text-primary">account_circle</span>
+                        <span id="auth-label">Sign in</span>
+                    </button>
+                    <a href="driver.html" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-primary transition-colors" title="Driver Console">
+                        <span class="material-symbols-outlined text-[20px]">local_shipping</span>
+                    </a>
+                    <a href="dispatcher.html" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-amber-700 dark:text-amber-400 transition-colors" title="Dispatcher Console">
+                        <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- SIDEBAR BODY: ANSWER-FIRST DECISION HERO CARD & STATS -->
+            <div class="p-4 space-y-4 flex-grow">
+                <!-- MISSION CALLOUT: "Should I wait or should I walk?" -->
+                <div class="bg-gradient-to-r from-primary/5 via-amber-50 to-emerald-50/50 p-3 rounded-2xl border border-amber-200/60 flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-primary">Core Differentiator</span>
+                        <p class="text-xs font-bold text-slate-800 dark:text-slate-200">“Should I wait or should I walk?”</p>
+                    </div>
+                    <span class="text-[11px] font-semibold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span>🌱</span> Clean Electric Fleet
+                    </span>
                 </div>
 
-                <div class="hero-bottom">
-                    <aside class="glass-panel status-panel" aria-label="Live status and controls">
-                        <div class="status-row">
-                            <span class="status-title">Live status</span>
-                            <span class="status-meta" id="freshness-time">—</span>
-                        </div>
-                        <p class="helper-text" id="confidence-text">
-                            ETA updates automatically every few seconds.
-                        </p>
-                        <div class="status-actions">
-                            <button type="button" class="btn btn-primary" id="refresh-btn">Refresh</button>
-                            <button type="button" class="btn btn-secondary" id="locate-btn">My location</button>
-                        </div>
-                    </aside>
+                <!-- HERO ANSWER CARD -->
+                <div class="bg-surface-lowest dark:bg-slate-900 rounded-2xl border border-surface-border dark:border-slate-700 p-4 shadow-sm relative overflow-hidden space-y-3">
+                    <div id="status-bar" class="absolute top-0 left-0 w-full h-1.5 bg-status-success transition-colors duration-300"></div>
 
-                    <button type="button" class="fab" id="report-queue-btn"
-                            aria-label="Report how busy the queue is"
-                            aria-haspopup="dialog" aria-controls="report-sheet">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
+                    <div class="flex items-center justify-between pt-1">
+                        <span class="text-xs font-bold text-on-surface-variant dark:text-slate-300 uppercase tracking-wider">Next Shuttle Arrives In</span>
+                        <span id="freshness-badge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-status-success border border-emerald-200">Live (0s)</span>
+                    </div>
+
+                    <!-- Large Answer ETA -->
+                    <div class="flex items-baseline gap-2">
+                        <h1 id="eta-time" class="text-5xl font-black text-on-surface dark:text-slate-100 tracking-tight" aria-live="polite">-- min</h1>
+                        <span id="eta-caption" class="text-xs font-medium text-on-surface-variant dark:text-slate-300">Connecting to electric campus fleet…</span>
+                    </div>
+
+                    <!-- Details Chips -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <!-- Stop Selector Chip -->
+                        <button id="stop-selector-btn" type="button" class="inline-flex items-center bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:bg-slate-950 px-3 py-1.5 rounded-full border border-surface-border dark:border-slate-700 transition-colors group">
+                            <span class="material-symbols-outlined text-[16px] mr-1 text-primary">location_on</span>
+                            <span id="nearest-stop" class="text-xs font-bold text-on-surface dark:text-slate-100">Main Gate</span>
+                            <span class="material-symbols-outlined text-[14px] ml-1 text-slate-400 group-hover:text-primary transition-colors">arrow_drop_down</span>
+                        </button>
+
+                        <!-- Distance Chip (Road Path) -->
+                        <div class="inline-flex items-center bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-full border border-surface-border dark:border-slate-700">
+                            <span class="material-symbols-outlined text-[15px] mr-1 text-on-surface-variant dark:text-slate-300">straighten</span>
+                            <span class="text-xs text-on-surface-variant dark:text-slate-300">Road Distance:</span>
+                            <strong id="distance-value" class="text-xs font-bold text-on-surface dark:text-slate-100 ml-1">—</strong>
+                        </div>
+
+                        <!-- Queue Status Chip -->
+                        <div class="inline-flex items-center bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">
+                            <span class="w-2 h-2 rounded-full bg-status-warning mr-1.5"></span>
+                            <span id="queue-status" class="text-xs font-bold text-amber-900">Queue: Low</span>
+                        </div>
+                    </div>
+
+                    <!-- ACTION BUTTONS -->
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <button id="heading-here-btn" type="button" class="inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold rounded-xl transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">departure_board</span>
+                            <span>Buses Heading Here</span>
+                        </button>
+                        <button id="quick-request-bus-btn" type="button" class="inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-secondary-container hover:bg-amber-400 text-on-secondary-container text-xs font-bold rounded-xl shadow-xs transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">hail</span>
+                            <span>Request a Bus</span>
+                        </button>
+                    </div>
+
+                    <!-- Walking Suggestion Banner -->
+                    <div id="walking-suggestion" class="hidden bg-sky-50 rounded-xl p-3 flex items-start gap-2.5 border border-sky-200">
+                        <span class="material-symbols-outlined text-interactive-blue mt-0.5 fill text-[20px]">directions_walk</span>
+                        <div class="text-xs">
+                            <p class="font-bold text-interactive-blue">Walking is faster</p>
+                            <p class="text-slate-600 dark:text-slate-400">Save time! Takes about <strong id="walk-time">--</strong> min on foot to your stop.</p>
+                        </div>
+                    </div>
+
+                    <!-- Offline Notice -->
+                    <div id="offline-banner" class="hidden bg-slate-100 dark:bg-slate-900 rounded-xl p-3 flex items-center gap-2.5 border border-slate-200 dark:border-slate-700">
+                        <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-[20px]">bus_alert</span>
+                        <span class="text-xs text-slate-600 dark:text-slate-400">No shuttle broadcasting. Updates resume automatically when a driver starts.</span>
+                    </div>
+
+                    <!-- Error Notice -->
+                    <div id="error-banner" class="hidden bg-rose-50 rounded-xl p-3 flex items-center gap-2.5 border border-rose-200">
+                        <span class="material-symbols-outlined text-status-danger text-[20px]">error</span>
+                        <span id="error-message" class="text-xs text-rose-800">Reconnecting to server…</span>
+                    </div>
+                </div>
+
+                <!-- BIG VISUAL STATS (from Slide 6 of Presentation) -->
+                <div class="bg-slate-50 dark:bg-slate-800 border border-surface-border dark:border-slate-700 rounded-2xl p-3.5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">Built for UNILAG Commute</span>
+                    <div class="grid grid-cols-4 gap-2 text-center">
+                        <div class="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <span class="text-base font-black text-primary block leading-tight">3s</span>
+                            <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Updates</span>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <span class="text-base font-black text-primary block leading-tight">2</span>
+                            <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Routes</span>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <span class="text-base font-black text-primary block leading-tight">6+</span>
+                            <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Stops</span>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <span class="text-base font-black text-emerald-600 block leading-tight">0</span>
+                            <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Installs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DESKTOP STOP LIST (Visible on Desktop) -->
+                <div class="hidden lg:block bg-white dark:bg-slate-900 border border-surface-border dark:border-slate-700 rounded-2xl p-3.5 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-900 dark:text-white">Campus Stations</span>
+                        <span class="text-[10px] text-slate-400 font-medium">Click to focus</span>
+                    </div>
+                    <div class="space-y-1 max-h-48 overflow-y-auto pr-1" id="desktop-stops-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIDEBAR FOOTER (Desktop) -->
+            <footer class="p-3 border-t border-surface-border dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <span>COS202 Group 20 · 2026</span>
+                <div class="flex items-center gap-3">
+                    <a href="driver.html" class="font-semibold text-primary hover:underline">Driver</a>
+                    <a href="dispatcher.html" class="font-semibold text-slate-600 dark:text-slate-400 hover:underline">Dispatcher</a>
+                </div>
+            </footer>
+        </aside>
+
+        <!-- ==============================================================
+             RIGHT / MAIN: FULL RESPONSIVE MAP CANVAS
+             ============================================================== -->
+        <main class="flex-1 relative bg-slate-200 dark:bg-slate-950 h-[calc(100vh-280px)] lg:h-screen">
+            <div id="map" role="application" aria-label="UNILAG Campus Bus Map"></div>
+
+            <!-- TOP FLOATING ROUTE & FLEET BADGES (Desktop & Mobile) -->
+            <div class="absolute top-3 left-3 z-20 flex flex-wrap items-center gap-2 pointer-events-none">
+                <div class="bg-white/95 backdrop-blur-md rounded-full px-3 py-1 shadow-md border border-surface-border dark:border-slate-700 text-xs font-bold flex items-center gap-1.5 pointer-events-auto">
+                    <span class="w-2.5 h-2.5 rounded-full bg-status-success animate-pulse"></span>
+                    <span class="text-slate-800 dark:text-slate-200">Electric Loop Active</span>
+                </div>
+                <div class="hidden sm:flex items-center gap-1.5 bg-white/90 backdrop-blur-md rounded-full px-3 py-1 shadow-md border border-surface-border dark:border-slate-700 text-xs pointer-events-auto">
+                    <span class="w-3 h-1 bg-primary rounded-full"></span>
+                    <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Route 1 (Science)</span>
+                    <span class="w-3 h-1 bg-amber-500 rounded-full ml-1.5"></span>
+                    <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Route 2 (DLI)</span>
+                </div>
+            </div>
+
+            <!-- FLOATING MAP CONTROLS -->
+            <div class="absolute top-3 right-3 z-20 flex flex-col gap-2">
+                <button id="locate-btn" type="button" class="w-10 h-10 bg-white dark:bg-slate-900 rounded-full shadow-md flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800 hover:text-primary transition-all border border-slate-200 dark:border-slate-700" title="Center My Position (Client Private)">
+                    <span class="material-symbols-outlined text-[20px]">my_location</span>
+                </button>
+                <button id="refresh-btn" type="button" class="w-10 h-10 bg-white dark:bg-slate-900 rounded-full shadow-md flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800 hover:text-primary transition-all border border-slate-200 dark:border-slate-700" title="Refresh Live Data">
+                    <span class="material-symbols-outlined text-[20px]">refresh</span>
+                </button>
+            </div>
+
+            <!-- MAP BOTTOM STATUS PILL -->
+            <div class="absolute bottom-4 left-4 right-4 z-20 pointer-events-none flex justify-center">
+                <div class="bg-white/95 backdrop-blur-md rounded-full px-4 py-1.5 shadow-lg border border-surface-border dark:border-slate-700 flex items-center gap-3 text-xs pointer-events-auto">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-status-success animate-ping"></span>
+                        <span id="confidence-text" class="font-bold text-slate-800 dark:text-slate-200">Tracking UNILAG electric loop</span>
+                    </div>
+                    <span class="text-slate-300">|</span>
+                    <span id="freshness-time" class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">Just now</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- ==============================================================
+             BOTTOM NAVIGATION BAR (Mobile Only: lg:hidden)
+             ============================================================== -->
+        <nav class="lg:hidden fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t border-surface-border dark:border-slate-700 z-40 px-2 py-1 flex items-center justify-around shadow-2xl">
+            <a href="index.html" class="flex flex-col items-center justify-center py-1 px-3 text-primary font-bold">
+                <span class="material-symbols-outlined text-[22px] fill">explore</span>
+                <span class="text-[10px] tracking-tight mt-0.5">Live Map</span>
+            </a>
+            <button id="open-stops-drawer-btn" type="button" class="flex flex-col items-center justify-center py-1 px-3 text-slate-500 dark:text-slate-400 hover:text-primary">
+                <span class="material-symbols-outlined text-[22px]">signpost</span>
+                <span class="text-[10px] tracking-tight mt-0.5">Stops</span>
+            </button>
+            <button id="nav-request-bus-btn" type="button" class="flex flex-col items-center justify-center py-1 px-3 text-slate-500 dark:text-slate-400 hover:text-primary">
+                <span class="material-symbols-outlined text-[22px]">hail</span>
+                <span class="text-[10px] tracking-tight mt-0.5">Request Bus</span>
+            </button>
+            <button id="report-queue-btn" type="button" class="flex flex-col items-center justify-center py-1 px-3 text-slate-500 dark:text-slate-400 hover:text-primary">
+                <span class="material-symbols-outlined text-[22px]">groups</span>
+                <span class="text-[10px] tracking-tight mt-0.5">Crowd Level</span>
+            </button>
+        </nav>
+
+        <!-- ==============================================================
+             MODAL / BOTTOM DRAWER: STOP SELECTOR & BUSES HEADING HERE
+             ============================================================== -->
+        <div id="stops-drawer" class="fixed inset-0 z-50 sheet-backdrop hidden flex items-end lg:items-center justify-center p-0 lg:p-4">
+            <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-t-3xl lg:rounded-3xl p-5 shadow-2xl border-t lg:border border-surface-border dark:border-slate-700 max-h-[85vh] flex flex-col">
+                <div class="flex items-center justify-between pb-3 border-b border-surface-border dark:border-slate-700">
+                    <div>
+                        <h2 class="text-base font-bold text-on-surface dark:text-slate-100">Campus Bus Stations</h2>
+                        <p class="text-xs text-on-surface-variant dark:text-slate-300">Tap a stop to view incoming buses and path</p>
+                    </div>
+                    <button id="close-stops-drawer" type="button" class="w-8 h-8 rounded-full hover:bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-500 dark:text-slate-400">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="overflow-y-auto py-2 divide-y divide-slate-100" id="stops-list-container">
+                    <!-- Populated dynamically with verified UNILAG stops -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ==============================================================
+             MODAL / BOTTOM DRAWER: REQUEST BUS (High Demand Dispatch)
+             ============================================================== -->
+        <div id="request-bus-drawer" class="fixed inset-0 z-50 sheet-backdrop hidden flex items-end lg:items-center justify-center p-0 lg:p-4">
+            <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-t-3xl lg:rounded-3xl p-5 shadow-2xl border-t lg:border border-surface-border dark:border-slate-700 flex flex-col">
+                <div class="flex items-center justify-between pb-3 border-b border-surface-border dark:border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">⚡</span>
+                        <div>
+                            <h2 class="text-base font-bold text-on-surface dark:text-slate-100">Request a Campus Shuttle</h2>
+                            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">SDG 11 Dynamic Campus Dispatch</span>
+                        </div>
+                    </div>
+                    <button id="close-request-drawer" type="button" class="w-8 h-8 rounded-full hover:bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-500 dark:text-slate-400">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="py-3">
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-3">
+                        Long queue or no buses in sight? Alert live electric shuttles to prioritize your station.
+                    </p>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Pick your bus stop:</label>
+                    <select id="request-station-select" class="w-full text-sm border-slate-300 dark:border-slate-600 rounded-xl mb-3 focus:ring-primary focus:border-primary">
+                        <option value="Main Gate">Main Gate</option>
+                        <option value="Sports Centre">Sports Centre</option>
+                        <option value="Faculty of Science">Faculty of Science</option>
+                        <option value="New Hall">New Hall</option>
+                        <option value="DLI">DLI</option>
+                    </select>
+
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Estimated passengers waiting:</label>
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <button type="button" class="pax-btn py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 active" data-count="1">1–5 (Low)</button>
+                        <button type="button" class="pax-btn py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300" data-count="15">15–25 (Mod)</button>
+                        <button type="button" class="pax-btn py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300" data-count="35">30+ (High)</button>
+                    </div>
+
+                    <button id="submit-bus-request-btn" type="button" class="w-full py-3 bg-primary hover:bg-primary-dark text-white font-bold text-sm rounded-xl shadow-md transition-colors flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">send</span>
+                        <span>Send Shuttle Demand Alert</span>
                     </button>
                 </div>
             </div>
+        </div>
 
-            <!--
-                Student crowd reporting. Students are at the stop and can see the
-                queue, so they are a better real-time source than a dispatcher who
-                may be elsewhere on campus. Same one-tap, no-typing interaction as
-                the dispatcher console, and the same 10-second debounce - enforced
-                on the server too, since this endpoint is public.
-            -->
-            <div class="report-sheet hidden" id="report-sheet" role="dialog" aria-modal="true"
-                 aria-labelledby="report-heading">
-                <div class="report-panel glass-panel">
-                    <div class="report-head">
-                        <h2 class="panel-title" id="report-heading">How busy is your stop?</h2>
-                        <button type="button" class="report-close" id="report-close"
-                                aria-label="Close crowd report">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" aria-hidden="true">
-                                <path d="M18 6L6 18M6 6l12 12"></path>
-                            </svg>
-                        </button>
+        <!-- ==============================================================
+             MODAL / BOTTOM DRAWER: CROWD REPORTING
+             ============================================================== -->
+        <div id="report-sheet" class="fixed inset-0 z-50 sheet-backdrop hidden flex items-end lg:items-center justify-center p-0 lg:p-4">
+            <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-t-3xl lg:rounded-3xl p-5 shadow-2xl border-t lg:border border-surface-border dark:border-slate-700">
+                <div class="flex items-center justify-between pb-3 border-b border-surface-border dark:border-slate-700">
+                    <div>
+                        <h2 class="text-base font-bold text-on-surface dark:text-slate-100">Report Stop Crowd Level</h2>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Real-Time Community Crowdsourcing</span>
                     </div>
-
-                    <p class="helper-text" id="report-feedback" role="status">
-                        Tap the level that matches what you can see.
-                    </p>
-
-                    <div class="report-options" role="group" aria-labelledby="report-heading">
-                        <button type="button" class="report-option low" data-level="LOW">
-                            <span class="queue-dot" aria-hidden="true"></span>
-                            <span class="queue-label">
-                                <b>Low</b>
-                                <span>0–5 people waiting</span>
-                            </span>
-                        </button>
-
-                        <button type="button" class="report-option moderate" data-level="MODERATE">
-                            <span class="queue-dot" aria-hidden="true"></span>
-                            <span class="queue-label">
-                                <b>Moderate</b>
-                                <span>15–30 people waiting</span>
-                            </span>
-                        </button>
-
-                        <button type="button" class="report-option packed" data-level="PACKED">
-                            <span class="queue-dot" aria-hidden="true"></span>
-                            <span class="queue-label">
-                                <b>Packed</b>
-                                <span>50+ people waiting</span>
-                            </span>
-                        </button>
-                    </div>
+                    <button id="report-close" type="button" class="w-8 h-8 rounded-full hover:bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-500 dark:text-slate-400">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
                 </div>
-            </div>
-        </section>
-
-        <!-- ==================================================================
-             HOW IT WORKS
-             ================================================================== -->
-        <section class="section section-ambient" id="how-it-works" aria-labelledby="how-heading">
-            <div class="shell">
-                <div class="section-head">
-                    <span class="eyebrow">How it works</span>
-                    <h2 class="section-title" id="how-heading">Three seconds to a decision</h2>
-                    <p class="section-lede">
-                        UniTrack answers one question: leave now, or wait? Drivers broadcast their
-                        position, dispatchers report the queue, and you get a single number.
-                    </p>
+                <p id="report-feedback" class="text-xs text-slate-500 dark:text-slate-400 py-2">Help fellow UNILAG students by reporting current crowd size:</p>
+                <div class="space-y-2 mt-1">
+                    <button type="button" class="report-option w-full p-3 rounded-xl border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-100/50 flex items-center justify-between text-left transition-colors" data-level="LOW">
+                        <div>
+                            <span class="text-sm font-bold text-emerald-900 block">Low Queue</span>
+                            <span class="text-xs text-emerald-700">0–5 passengers waiting · Fast boarding</span>
+                        </div>
+                        <span class="w-3 h-3 rounded-full bg-status-success"></span>
+                    </button>
+                    <button type="button" class="report-option w-full p-3 rounded-xl border border-amber-200 bg-amber-50/50 hover:bg-amber-100/50 flex items-center justify-between text-left transition-colors" data-level="MODERATE">
+                        <div>
+                            <span class="text-sm font-bold text-amber-900 block">Moderate Queue</span>
+                            <span class="text-xs text-amber-700">15–30 passengers waiting · Short wait</span>
+                        </div>
+                        <span class="w-3 h-3 rounded-full bg-status-warning"></span>
+                    </button>
+                    <button type="button" class="report-option w-full p-3 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100/50 flex items-center justify-between text-left transition-colors" data-level="PACKED">
+                        <div>
+                            <span class="text-sm font-bold text-rose-900 block">Heavy Queue (Packed)</span>
+                            <span class="text-xs text-rose-700">35+ passengers waiting · Request more buses</span>
+                        </div>
+                        <span class="w-3 h-3 rounded-full bg-status-danger"></span>
+                    </button>
                 </div>
-
-                <div class="steps-grid">
-                    <article class="step-card">
-                        <span class="step-number" aria-hidden="true">1</span>
-                        <h3>Track live</h3>
-                        <p>
-                            Every shuttle on duty shares its GPS position. The map updates
-                            continuously, so you see where the bus actually is — not where a
-                            printed timetable claims it should be.
-                        </p>
-                    </article>
-
-                    <article class="step-card">
-                        <span class="step-number" aria-hidden="true">2</span>
-                        <h3>Check the queue</h3>
-                        <p>
-                            A shuttle two minutes away is little use if fifty people are waiting
-                            ahead of you. Dispatchers publish the queue level, and it feeds
-                            directly into your estimate.
-                        </p>
-                    </article>
-
-                    <article class="step-card">
-                        <span class="step-number" aria-hidden="true">3</span>
-                        <h3>Decide</h3>
-                        <p>
-                            We compare riding against walking. When your feet would get you there
-                            first, UniTrack says so plainly rather than letting you wait for a bus
-                            you don't need.
-                        </p>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================================================================
-             ROUTE STOPS
-             ================================================================== -->
-        <section class="section" aria-labelledby="stops-heading">
-            <div class="shell">
-                <div class="section-head">
-                    <span class="eyebrow">Route</span>
-                    <h2 class="section-title" id="stops-heading">Stops on the campus loop</h2>
-                    <p class="section-lede">
-                        The main loop serves these stops. Your nearest one is detected
-                        automatically when you share your location.
-                    </p>
-                </div>
-
-                <!--
-                    Populated from GET /api/v1/routes by UIManager.renderStopChips.
-                    Previously this list was hardcoded and had drifted out of sync
-                    with the backend, advertising stops (New Hall, Faculty of
-                    Engineering) that no route actually served. Rendering it from
-                    the same data the map uses means it cannot drift again.
-                -->
-                <div class="stops-strip" id="stops-strip">
-                    <span class="stop-chip" id="stops-placeholder">Loading stops…</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================================================================
-             AT A GLANCE
-             ================================================================== -->
-        <section class="section section-ambient" aria-labelledby="stats-heading">
-            <div class="shell">
-                <div class="section-head">
-                    <span class="eyebrow">At a glance</span>
-                    <h2 class="section-title" id="stats-heading">Built for the campus commute</h2>
-                </div>
-
-                <div class="stat-grid">
-                    <div class="stat">
-                        <span class="stat-value">~6s</span>
-                        <span class="stat-label">Update interval</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-value" id="stat-routes">—</span>
-                        <span class="stat-label">Active routes</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-value" id="stat-stops">—</span>
-                        <span class="stat-label">Campus stops</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-value">0</span>
-                        <span class="stat-label">Installs required</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- ======================================================================
-         FOOTER
-         ====================================================================== -->
-    <footer class="site-footer">
-        <div class="shell">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <a class="brand" href="index.html">
-                        <span class="brand-logo" aria-hidden="true">U</span>
-                        <span>
-                            <span class="brand-name">UniTrack</span>
-                            <span class="brand-sub">UNILAG Shuttle</span>
-                        </span>
-                    </a>
-                    <p class="footer-tagline">
-                        Real-time shuttle tracking for the University of Lagos. Built as a
-                        COS202 project, designed for the people actually standing at the stop.
-                    </p>
-                </div>
-
-                <div class="footer-col">
-                    <h3>Views</h3>
-                    <ul>
-                        <li><a href="index.html">Student</a></li>
-                        <li><a href="driver.html">Driver</a></li>
-                        <li><a href="dispatcher.html">Dispatcher</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-col">
-                    <h3>Learn</h3>
-                    <ul>
-                        <li><a href="#how-it-works">How it works</a></li>
-                        <li><a href="#stops-heading">Route stops</a></li>
-                        <li><a href="#main">Live map</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-col">
-                    <h3>Project</h3>
-                    <ul>
-                        <li><a href="https://github.com/Salimmadeit/UniTrack" rel="noopener">Source code</a></li>
-                        <li><a href="https://github.com/Salimmadeit/UniTrack/issues" rel="noopener">Report an issue</a></li>
-                        <li><a href="https://www.unilag.edu.ng" rel="noopener">University of Lagos</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p class="footer-note">© 2026 UniTrack · University of Lagos shuttle tracking</p>
-                <span class="footer-status">Live tracking active</span>
             </div>
         </div>
-    </footer>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    </div>
 
+    <!-- Scripts in logical dependency order -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/api.js"></script>
-    <script src="js/nav.js"></script>
     <script src="js/map.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/eta.js"></script>
     <script src="js/queue.js"></script>
     <script src="js/app.js"></script>
+
 </body>
 </html>

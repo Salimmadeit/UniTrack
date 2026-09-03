@@ -298,25 +298,21 @@ GET /api/v1/routes
   {
     "id": 1,
     "name": "Main Gate → Faculty of Science",
-    "description": "Shuttle route from the main entrance to the Faculty of Science complex",
+    "description": "Campus transit corridor from Main Gate Terminal to Faculty of Science via University Road",
     "stops": [
-      { "id": 1, "name": "Main Gate", "latitude": 6.5167, "longitude": 3.3850, "orderIndex": 1 },
-      { "id": 2, "name": "Sports Centre", "latitude": 6.5175, "longitude": 3.3870, "orderIndex": 2 },
-      { "id": 3, "name": "Senate Building", "latitude": 6.5185, "longitude": 3.3895, "orderIndex": 3 },
-      { "id": 4, "name": "Main Library", "latitude": 6.5195, "longitude": 3.3910, "orderIndex": 4 },
-      { "id": 5, "name": "Faculty of Science", "latitude": 6.5210, "longitude": 3.3930, "orderIndex": 5 }
+      { "id": 1, "name": "Main Gate", "latitude": 6.5178, "longitude": 3.3854, "orderIndex": 1 },
+      { "id": 2, "name": "Sports Centre", "latitude": 6.5165, "longitude": 3.3935, "orderIndex": 2 },
+      { "id": 3, "name": "Faculty of Science", "latitude": 6.5172, "longitude": 3.3985, "orderIndex": 3 }
     ]
   },
   {
     "id": 2,
     "name": "Main Gate → DLI",
-    "description": "Shuttle route from the main entrance to the Distance Learning Institute",
+    "description": "Residential corridor from Main Gate to Distance Learning Institute via New Hall",
     "stops": [
-      { "id": 6, "name": "Main Gate", "latitude": 6.5167, "longitude": 3.3850, "orderIndex": 1 },
-      { "id": 7, "name": "Chapel Junction", "latitude": 6.5180, "longitude": 3.3865, "orderIndex": 2 },
-      { "id": 8, "name": "Moremi Hall", "latitude": 6.5200, "longitude": 3.3880, "orderIndex": 3 },
-      { "id": 9, "name": "DLI Road Junction", "latitude": 6.5215, "longitude": 3.3900, "orderIndex": 4 },
-      { "id": 10, "name": "DLI", "latitude": 6.5230, "longitude": 3.3920, "orderIndex": 5 }
+      { "id": 4, "name": "Main Gate", "latitude": 6.5178, "longitude": 3.3854, "orderIndex": 1 },
+      { "id": 5, "name": "New Hall", "latitude": 6.5200, "longitude": 3.3926, "orderIndex": 2 },
+      { "id": 6, "name": "DLI", "latitude": 6.5119, "longitude": 3.3921, "orderIndex": 3 }
     ]
   }
 ]

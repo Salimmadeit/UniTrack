@@ -1,0 +1,14 @@
+{
+  "num": 3,
+  "title": "Uni-Track: Student Home Screen Redesign",
+  "id": "3f053e68fd2841b4ac55d47b582e54bf",
+  "slug": "03_student_home_screen_redesign",
+  "deviceType": "MOBILE",
+  "width": "780",
+  "height": "1768",
+  "files": {
+    "screenshot": "screen.png",
+    "code": "code.html"
+  },
+  "hasScreenshot": true
+}

@@ -33,6 +33,8 @@ function EtaController(mapManager, uiManager) {
   this.mapManager = mapManager;
   this.uiManager = uiManager;
   this.studentLocation = null;
+  this.selectedStop = null;
+  this.activeShuttles = [];
   this.timerId = null;
   this.isPolling = false;
   this.inFlight = false;
@@ -40,9 +42,6 @@ function EtaController(mapManager, uiManager) {
   this.hasFittedBounds = false;
   this.tickerId = null;
 
-  // Age of the newest reading, and the local time we received it. Together
-  // these let us age the reading forward between polls without ever comparing a
-  // server timestamp against the client clock.
   this.lastAgeSeconds = null;
   this.lastAgeReceivedAt = null;
 }
@@ -200,12 +199,14 @@ EtaController.prototype.poll = function () {
   return Promise.all([
     ApiService.fetchDriverLocation().catch(function (error) { return { __error: error }; }),
     ApiService.fetchEta(location.lat, location.lng).catch(function (error) { return { __error: error }; }),
-    ApiService.fetchQueueStatus().catch(function (error) { return { __error: error }; })
+    ApiService.fetchQueueStatus().catch(function (error) { return { __error: error }; }),
+    ApiService.fetchActiveShuttles().catch(function () { return []; })
   ])
     .then(function (results) {
       var driverLoc = results[0];
       var etaData = results[1];
       var queueData = results[2];
+      self.activeShuttles = results[3] || [];
 
       var transportError =
         (driverLoc && driverLoc.__error) ||
@@ -330,16 +331,44 @@ EtaController.prototype.refresh = function () {
   });
 };
 
-/** Re-acquires GPS and recentres the map on the student. */
+/** Re-requests the student's GPS position and pans the map to it. */
 EtaController.prototype.recentreOnStudent = function () {
   var self = this;
-  this.locateStudent(function (granted) {
-    if (granted && self.studentLocation) {
+  this.locateStudent(function (success) {
+    if (self.studentLocation) {
       self.mapManager.panTo(self.studentLocation.lat, self.studentLocation.lng);
-    } else {
-      self.uiManager.showError(
-        'Location access is off, so we are using the campus centre instead.'
-      );
+    }
+    if (!success) {
+      self.uiManager.showToast('📍 Could not get your location. Check GPS permissions.');
     }
   });
 };
+
+/** Selects a stop and focuses incoming buses heading there. */
+EtaController.prototype.selectStop = function (stopName, lat, lng) {
+  this.selectedStop = { name: stopName, lat: lat, lng: lng };
+  this.uiManager.setSelectedStop(stopName);
+
+  var incoming = this.activeShuttles.filter(function (s) {
+    return s.state === 'NORMAL' || s.state === 'WARNING';
+  });
+
+  this.mapManager.focusStopAndIncomingBuses(stopName, lat, lng, incoming);
+};
+
+/** Requests a shuttle at the currently selected stop. */
+EtaController.prototype.requestBusForSelectedStop = function (passengerCount) {
+  var self = this;
+  var stop = this.selectedStop;
+  var stopName = stop ? stop.name : (this.uiManager.getCurrentStopName ? this.uiManager.getCurrentStopName() : 'Main Gate');
+
+  return ApiService.requestBus(stopName, passengerCount || 1)
+    .then(function (res) {
+      self.uiManager.showToast('⚡ Bus requested for ' + stopName + '! Live drivers have been notified.');
+      return res;
+    })
+    .catch(function (err) {
+      self.uiManager.showError('Could not send request: ' + (err.message || 'Please try again.'));
+    });
+};
+

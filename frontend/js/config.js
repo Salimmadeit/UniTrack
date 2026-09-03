@@ -34,29 +34,33 @@ var CONFIG = (function () {
   return {
     API_BASE_URL: override || apiBase,
 
-    // Request timeout: campus Wi-Fi can hang open sockets, so every fetch is
-    // aborted rather than left pending forever.
+    // Request timeout
     REQUEST_TIMEOUT_MS: 8000,
 
-    // UNILAG campus centre.
-    MAP_CENTER_LAT: 6.5185,
-    MAP_CENTER_LNG: 3.3895,
-    MAP_DEFAULT_ZOOM: 15,
+    // UNILAG Akoka campus centre.
+    MAP_CENTER_LAT: 6.5168,
+    MAP_CENTER_LNG: 3.3910,
+    MAP_DEFAULT_ZOOM: 16,
     MAP_MAX_ZOOM: 19,
 
-    // Polling cadence (spec: 5-10s). 6s balances freshness against battery
-    // and mobile-data use for a field test with ~10 students.
-    POLL_INTERVAL_MS: 6000,
+    // Polling cadence: 3s gives fluid updates and snappy responsive status
+    POLL_INTERVAL_MS: 3000,
 
-    // Network state machine thresholds, in seconds since the last driver update.
-    STATUS_WARNING_THRESHOLD: 15,
-    STATUS_STALE_THRESHOLD: 30,
-    STATUS_DISCONNECTED_THRESHOLD: 60,
+    // Network state thresholds (seconds since last driver update)
+    STATUS_WARNING_THRESHOLD: 25,
+    STATUS_STALE_THRESHOLD: 50,
+    STATUS_DISCONNECTED_THRESHOLD: 90,
 
-    // Driver: minimum gap between POSTs so a chatty GPS cannot flood the API.
-    DRIVER_MIN_POST_INTERVAL_MS: 5000,
+    // Driver broadcast interval: 2.5s continuous heartbeat
+    DRIVER_MIN_POST_INTERVAL_MS: 2500,
 
-    // Dispatcher: anti-spam debounce required by the spec.
-    QUEUE_DEBOUNCE_MS: 10000
+    // Dispatcher: anti-spam debounce
+    QUEUE_DEBOUNCE_MS: 5000,
+
+    // Google Maps API Key: can be provided globally or falls back to OpenStreetMap Leaflet
+    GOOGLE_MAPS_API_KEY: window.GOOGLE_MAPS_API_KEY || '',
+
+    // Google OAuth Client ID for sign-in
+    GOOGLE_CLIENT_ID: window.GOOGLE_CLIENT_ID || '1047530665225-sample.apps.googleusercontent.com'
   };
 })();

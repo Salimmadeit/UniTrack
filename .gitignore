@@ -33,3 +33,5 @@ smoke.pid
 .vscode/
 .DS_Store
 Thumbs.db
+.claude/
+.mcp.json

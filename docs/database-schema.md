@@ -112,29 +112,25 @@ CREATE INDEX IF NOT EXISTS idx_stop_route_order ON stop(route_id, order_index);
 -- Route 1: Main Gate → Faculty of Science
 -- ==========================================
 INSERT INTO route (id, name, description) VALUES
-(1, 'Main Gate → Faculty of Science', 'Shuttle route from the main entrance to the Faculty of Science complex');
+(1, 'Main Gate → Faculty of Science', 'Campus transit corridor from Main Gate Terminal to Faculty of Science via University Road');
 
 -- Stops along Route 1 (ordered)
 INSERT INTO stop (route_id, name, latitude, longitude, order_index) VALUES
-(1, 'Main Gate',              6.5167, 3.3850, 1),
-(1, 'Sports Centre',          6.5175, 3.3870, 2),
-(1, 'Senate Building',        6.5185, 3.3895, 3),
-(1, 'Main Library',           6.5195, 3.3910, 4),
-(1, 'Faculty of Science',     6.5210, 3.3930, 5);
+(1, 'Main Gate',              6.5178, 3.3854, 1),
+(1, 'Sports Centre',          6.5165, 3.3935, 2),
+(1, 'Faculty of Science',     6.5172, 3.3985, 3);
 
 -- ==========================================
 -- Route 2: Main Gate → DLI
 -- ==========================================
 INSERT INTO route (id, name, description) VALUES
-(2, 'Main Gate → DLI', 'Shuttle route from the main entrance to the Distance Learning Institute');
+(2, 'Main Gate → DLI', 'Residential corridor from Main Gate to Distance Learning Institute via New Hall');
 
 -- Stops along Route 2 (ordered)
 INSERT INTO stop (route_id, name, latitude, longitude, order_index) VALUES
-(2, 'Main Gate',              6.5167, 3.3850, 1),
-(2, 'Chapel Junction',        6.5180, 3.3865, 2),
-(2, 'Moremi Hall',            6.5200, 3.3880, 3),
-(2, 'DLI Road Junction',      6.5215, 3.3900, 4),
-(2, 'DLI',                    6.5230, 3.3920, 5);
+(2, 'Main Gate',              6.5178, 3.3854, 1),
+(2, 'New Hall',               6.5200, 3.3926, 2),
+(2, 'DLI',                    6.5119, 3.3921, 3);
 
 -- Initialise singleton rows
 INSERT INTO location (id, latitude, longitude, speed, heading, updated_at) VALUES

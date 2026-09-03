@@ -173,13 +173,40 @@ UIManager.prototype.clearError = function () {
   this._toggle(this.errorBanner, 'error', false);
 };
 
-/** Momentary affordance so a manual refresh feels acknowledged. */
 UIManager.prototype.setRefreshing = function (isRefreshing) {
   var button = document.getElementById('refresh-btn');
   if (!button) return;
   button.disabled = isRefreshing;
   button.textContent = isRefreshing ? 'Refreshing…' : 'Refresh';
 };
+
+/** Momentary affordance so a manual refresh feels acknowledged. */
+UIManager.prototype.setSelectedStop = function (name) {
+  this._selectedStopName = name;
+  this._setText(this.nearestStop, 'stop', name);
+};
+
+UIManager.prototype.getCurrentStopName = function () {
+  return this._selectedStopName || (this.nearestStop ? this.nearestStop.textContent : 'Main Gate');
+};
+
+UIManager.prototype.showToast = function (message) {
+  var toast = document.getElementById('toast-notification');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast-notification';
+    toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-on-surface text-surface px-4 py-2.5 rounded-full shadow-lg text-sm z-50 transition-all duration-300 pointer-events-none flex items-center gap-2';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translate(-50%, 0)';
+  setTimeout(function () {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translate(-50%, 10px)';
+  }, 3500);
+};
+
 
 /**
  * Renders the "stops on the campus loop" strip, and the route/stop counts, from

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UniTrack Student View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#b02d1f",
+                        "primary": "#520000",
+                        "secondary-fixed": "#ffdea8",
+                        "on-secondary-fixed-variant": "#5e4200",
+                        "tertiary": "#001278",
+                        "on-surface": "#191c1d",
+                        "surface-container-highest": "#e1e3e4",
+                        "status-warning": "#F4B400",
+                        "surface-container-high": "#e7e8e9",
+                        "tertiary-fixed": "#dfe0ff",
+                        "surface": "#f8f9fa",
+                        "surface-border": "#E9ECEF",
+                        "secondary-container": "#feb700",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e1e3e4",
+                        "on-surface-variant": "#59413d",
+                        "outline-variant": "#e1bfb9",
+                        "background": "#f8f9fa",
+                        "on-tertiary-container": "#8f9cff",
+                        "on-tertiary-fixed": "#000d60",
+                        "surface-container": "#edeeef",
+                        "interactive-blue": "#1A73E8",
+                        "secondary": "#7c5800",
+                        "secondary-fixed-dim": "#ffba20",
+                        "error": "#ba1a1a",
+                        "outline": "#8d706c",
+                        "inverse-surface": "#2e3132",
+                        "status-danger": "#DB4437",
+                        "tertiary-container": "#0020b1",
+                        "on-secondary-container": "#6b4b00",
+                        "inverse-on-surface": "#f0f1f2",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "surface-bright": "#f8f9fa",
+                        "on-tertiary-fixed-variant": "#1b32be",
+                        "tertiary-fixed-dim": "#bcc3ff",
+                        "on-primary-container": "#ff7d6a",
+                        "status-success": "#0F9D58",
+                        "primary-container": "#7b0000",
+                        "surface-dim": "#d9dadb",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#271900",
+                        "inverse-primary": "#ffb4a8",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f3f4f5",
+                        "on-background": "#191c1d",
+                        "on-primary-fixed-variant": "#8e120a",
+                        "primary-fixed": "#ffdad4",
+                        "on-primary-fixed": "#410000",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "text-muted": "#9AA0A6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "12px",
+                        "touch-target": "48px",
+                        "stack-lg": "24px",
+                        "stack-sm": "4px",
+                        "base": "8px",
+                        "stack-md": "16px",
+                        "container-margin": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["system-ui"],
+                        "headline-lg": ["system-ui"],
+                        "hero-eta-mobile": ["system-ui"],
+                        "label-bold": ["system-ui"],
+                        "body-md": ["system-ui"],
+                        "label-sm": ["system-ui"],
+                        "body-lg": ["system-ui"],
+                        "hero-eta": ["system-ui"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "hero-eta-mobile": ["40px", { "lineHeight": "1.1", "fontWeight": "700" }],
+                        "label-bold": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "hero-eta": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Mobile fixed width layout container */
+        .mobile-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: #f8f9fa; /* surface color */
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased">
+<div class="mobile-container pb-[80px]"> <!-- Padding for BottomNav -->
+<!-- TopAppBar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 max-w-[480px] bg-surface border-b border-surface-border transition-colors duration-200">
+<div class="flex items-center justify-between px-container-margin h-touch-target w-full">
+<button aria-label="Menu" class="flex items-center justify-center text-primary w-touch-target h-touch-target hover:bg-surface-container rounded-full transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="directions_bus">directions_bus</span>
+</button>
+<div class="font-headline-md text-headline-md font-bold text-primary tracking-tight">
+                    Uni-Track
+                </div>
+<button aria-label="Profile" class="flex items-center justify-center text-primary w-touch-target h-touch-target hover:bg-surface-container rounded-full transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow pt-[48px] flex flex-col h-[calc(100vh-80px)]"> <!-- h-touch-target padding top -->
+<!-- Hero Answer Card (Top 30%) -->
+<section class="p-container-margin bg-surface shrink-0 z-10 relative">
+<div class="bg-surface-container-lowest rounded-xl border border-surface-border p-stack-md shadow-sm relative overflow-hidden">
+<!-- Status indicator top bar -->
+<div class="absolute top-0 left-0 w-full h-1 bg-status-warning"></div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-stack-sm">Next shuttle arrives in</p>
+<div class="flex items-baseline gap-2 mb-stack-sm">
+<h1 class="font-hero-eta-mobile text-hero-eta-mobile text-on-surface">3</h1>
+<span class="font-headline-md text-headline-md text-on-surface-variant">min</span>
+</div>
+<div class="flex flex-wrap gap-2 mb-stack-md">
+<div class="inline-flex items-center bg-surface-container px-2 py-1 rounded-full border border-surface-border">
+<span class="material-symbols-outlined text-[16px] mr-1 text-on-surface-variant">location_on</span>
+<span class="font-label-sm text-label-sm text-on-surface">Main Gate</span>
+</div>
+<div class="inline-flex items-center bg-secondary-container px-2 py-1 rounded-full">
+<span class="w-2 h-2 rounded-full bg-status-warning mr-1.5"></span>
+<span class="font-label-sm text-label-sm text-on-secondary-container font-medium">Moderate</span>
+</div>
+</div>
+<!-- Walking Suggestion Banner -->
+<div class="bg-surface-container-low rounded-lg p-3 flex items-start gap-3 border border-interactive-blue/20">
+<span class="material-symbols-outlined text-interactive-blue mt-0.5 fill">directions_walk</span>
+<div>
+<p class="font-label-bold text-label-bold text-interactive-blue">Walking is faster</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">about 11 min on foot to Senate.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Map Area (Bottom 70%) -->
+<section class="flex-grow relative bg-surface-container-highest">
+<!-- Mocked Map Background -->
+<div class="absolute inset-0 w-full h-full" data-alt="A clean, minimalist digital map of a university campus (University of Lagos). The map uses a light mode aesthetic with soft whites and light grays for roads and buildings. The primary route is highlighted with a clear, subtle line. The mood is modern, functional, and highly legible for navigation, with no distracting elements." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDN2oe_iI7Fbbl35l3do7ZVIAXMMVqJuyyTkF8Dx-gXS21U4BUkkQFeluEPfrvl0Tt6dyQ2ldahtDc8Xcm3Tg0EqFSoUDleGD5hNo5iq4Udlyk6NLRyXui6QMF8DrfKnOwqk7dfe-2X8aohYULyJ4SfGYBmhF2FVOpGXCukjKSpnW6egZY43JqI0TqdMw5VkviFtknM3ev0qY7llF4SriByw4afc_o-W4faXUJOi2Xkj_Ep8TWQ_jOo')">
+<!-- Polyline Mock -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M20,80 Q40,60 50,40 T80,20" fill="none" opacity="0.6" stroke="#520000" stroke-dasharray="4" stroke-width="2"></path>
+</svg>
+<!-- Stop Marker: Main Gate -->
+<div class="absolute top-[80%] left-[20%] transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+<div class="w-4 h-4 bg-surface-container-lowest border-2 border-primary rounded-full shadow-sm"></div>
+<span class="mt-1 font-label-sm text-label-sm text-on-surface bg-surface-container-lowest/80 px-1 rounded backdrop-blur-sm">Main Gate</span>
+</div>
+<!-- Stop Marker: Senate -->
+<div class="absolute top-[20%] left-[80%] transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+<div class="w-4 h-4 bg-surface-container-lowest border-2 border-primary rounded-full shadow-sm"></div>
+<span class="mt-1 font-label-sm text-label-sm text-on-surface bg-surface-container-lowest/80 px-1 rounded backdrop-blur-sm">Senate</span>
+</div>
+<!-- Moving Shuttle Icon -->
+<div class="absolute top-[40%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 animate-pulse">
+<div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-md border-2 border-surface-container-lowest">
+<span class="material-symbols-outlined text-on-primary text-[20px]">directions_bus</span>
+</div>
+</div>
+</div>
+<!-- Floating Map Controls -->
+<div class="absolute top-4 right-4 flex flex-col gap-2">
+<button aria-label="My location" class="w-touch-target h-touch-target bg-surface-container-lowest rounded-full shadow-md flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+<button aria-label="Refresh" class="w-touch-target h-touch-target bg-surface-container-lowest rounded-full shadow-md flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+</div>
+<!-- Status Overlay (Bottom of map) -->
+<div class="absolute bottom-4 left-4 right-4">
+<div class="bg-surface-container-lowest/90 backdrop-blur-md rounded-lg p-2 shadow-sm border border-surface-border flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-success opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-status-success"></span>
+</span>
+<span class="font-label-sm text-label-sm text-on-surface">Live tracking active</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">ETA updates 6s</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Shared Component) -->
+<nav class="fixed bottom-0 w-full max-w-[480px] z-50 bg-surface border-t border-surface-border shadow-md rounded-t-xl h-16 px-gutter pb-safe">
+<div class="flex justify-around items-center w-full h-full">
+<!-- Active Item: Student -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 hover:opacity-80 active:scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined fill" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm mt-0.5">Student</span>
+</a>
+<!-- Inactive Item: Driver -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container hover:opacity-80 active:scale-95 transition-transform duration-200 px-4 py-1 rounded-full" href="/driver">
+<span class="material-symbols-outlined" data-icon="local_taxi">local_taxi</span>
+<span class="font-label-sm text-label-sm mt-0.5">Driver</span>
+</a>
+<!-- Inactive Item: Dispatcher -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container hover:opacity-80 active:scale-95 transition-transform duration-200 px-4 py-1 rounded-full" href="/dispatcher">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm mt-0.5">Dispatcher</span>
+</a>
+</div>
+</nav>
+</div>
+</body></html>
