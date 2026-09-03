@@ -42,6 +42,20 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  var centerCampusBtn = document.getElementById('center-campus-btn');
+  if (centerCampusBtn) {
+    centerCampusBtn.addEventListener('click', function () {
+      etaController.centerOnCampus();
+    });
+  }
+
+  var returnCampusPill = document.getElementById('return-campus-pill');
+  if (returnCampusPill) {
+    returnCampusPill.addEventListener('click', function () {
+      etaController.centerOnCampus();
+    });
+  }
+
   // Populate Campus Stops in Drawer (Mobile) & Sidebar (Desktop)
   var stopsContainer = document.getElementById('stops-list-container');
   var desktopStopsContainer = document.getElementById('desktop-stops-list');
