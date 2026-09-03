@@ -95,7 +95,7 @@ MapManager.prototype.initLeaflet = function () {
 
   L.control.zoom({ position: 'topright' }).addTo(this.map);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: CONFIG.MAP_MAX_ZOOM,
     subdomains: 'abcd'
   }).addTo(this.map);
