@@ -302,7 +302,7 @@ MapManager.prototype.drawRoutes = function (routes) {
   if (this.routesDrawn) return;
 
   var self = this;
-  // Route 1 (Maroon): Main Gate -> Senate -> Faculty of Science
+  // Route 1 (Maroon): Main Gate -> Sports Centre -> Faculty of Science
   // Route 2 (Gold): Main Gate -> New Hall -> DLI
   var colors = ['#7B0000', '#D97706'];
 
