@@ -179,6 +179,12 @@
 
                     <!-- Details Chips -->
                     <div class="flex flex-wrap items-center gap-2">
+                        <!-- Locate Me Chip -->
+                        <button id="locate-btn" type="button" aria-label="Find my location" class="inline-flex items-center bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:bg-slate-950 px-3 py-1.5 rounded-full border border-surface-border dark:border-slate-700 transition-colors group disabled:opacity-50">
+                            <span class="material-symbols-outlined text-[16px] mr-1 text-primary dark:text-rose-400">my_location</span>
+                            <span class="text-xs font-bold text-on-surface dark:text-slate-100">Locate Me</span>
+                        </button>
+
                         <!-- Stop Selector Chip -->
                         <button id="stop-selector-btn" type="button" class="inline-flex items-center bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:bg-slate-950 px-3 py-1.5 rounded-full border border-surface-border dark:border-slate-700 transition-colors group">
                             <span class="material-symbols-outlined text-[16px] mr-1 text-primary dark:text-rose-400">location_on</span>
@@ -309,9 +315,7 @@
 
             <!-- FLOATING MAP CONTROLS -->
             <div class="absolute top-3 right-3 z-20 flex flex-col gap-2">
-                <button id="locate-btn" type="button" aria-label="Find my location" class="w-10 h-10 bg-white dark:bg-slate-900 rounded-full shadow-md flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800 hover:text-primary transition-all border border-slate-200 dark:border-slate-700" title="Center My Position (Client Private)">
-                    <span class="material-symbols-outlined text-[20px]">my_location</span>
-                </button>
+
                 <button id="center-campus-btn" type="button" aria-label="Center map on campus" class="w-10 h-10 bg-white dark:bg-slate-900 rounded-full shadow-md flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-800 hover:text-primary transition-all border border-slate-200 dark:border-slate-700" title="Center UNILAG Campus">
                     <span class="material-symbols-outlined text-[20px]">school</span>
                 </button>

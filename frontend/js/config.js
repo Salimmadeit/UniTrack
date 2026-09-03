@@ -38,9 +38,9 @@ var CONFIG = (function () {
     REQUEST_TIMEOUT_MS: 8000,
 
     // UNILAG campus centre (verified working coordinates).
-    MAP_CENTER_LAT: 6.5185,
-    MAP_CENTER_LNG: 3.3895,
-    MAP_DEFAULT_ZOOM: 15,
+    MAP_CENTER_LAT: 6.5179,
+    MAP_CENTER_LNG: 3.3860,
+    MAP_DEFAULT_ZOOM: 16, // Increase zoom slightly for better campus focus
     MAP_MAX_ZOOM: 19,
 
     // Polling cadence: 3s gives fluid updates and snappy responsive status

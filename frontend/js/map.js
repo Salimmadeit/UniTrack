@@ -98,8 +98,16 @@ MapManager.prototype.initLeaflet = function () {
     maxZoom: CONFIG.MAP_MAX_ZOOM,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(this.map);
-
   this.routeLayer = L.layerGroup().addTo(this.map);
+
+  // Fix Leaflet tile rendering on mobile/responsive designs
+  if (window.ResizeObserver) {
+    new ResizeObserver(function () {
+      if (self.map && self.map.invalidateSize) {
+        self.map.invalidateSize();
+      }
+    }).observe(this.container);
+  }
 
   this.shuttleIcon = L.divIcon({
     className: 'custom-shuttle-div-icon',
