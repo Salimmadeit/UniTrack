@@ -36,8 +36,16 @@ export default [
         Array: 'readonly',
         Error: 'readonly',
         isNaN: 'readonly',
+        sessionStorage: 'readonly',
+        confirm: 'readonly',
+        prompt: 'readonly',
+        cancelAnimationFrame: 'readonly',
+        requestAnimationFrame: 'readonly',
+        performance: 'readonly',
         // Leaflet, loaded from a CDN in the HTML.
         L: 'readonly',
+        // Google Maps
+        google: 'readonly',
         // Cross-file globals defined by this project's own modules.
         CONFIG: 'readonly',
         Utils: 'readonly',

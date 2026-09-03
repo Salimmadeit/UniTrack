@@ -19,8 +19,6 @@
   ];
 
   var stationStates = {};
-  var alertPollTimer = null;
-  var fleetPollTimer = null;
   var isUpdatingQueue = false;
 
   function init() {
@@ -30,8 +28,8 @@
     fetchFleetStatus();
 
     // Setup periodic polling
-    alertPollTimer = setInterval(fetchActiveAlerts, 3500);
-    fleetPollTimer = setInterval(fetchFleetStatus, 4000);
+    setInterval(fetchActiveAlerts, 3500);
+    setInterval(fetchFleetStatus, 4000);
 
     // Wire manual dispatch alert modal/form if present
     var manualBtn = document.getElementById('manual-dispatch-btn');

@@ -46,7 +46,6 @@ MapManager.prototype.init = function () {
 };
 
 MapManager.prototype.loadGoogleMapsScript = function () {
-  var self = this;
   return new Promise(function (resolve, reject) {
     if (window.google && window.google.maps) return resolve();
     var script = document.createElement('script');
