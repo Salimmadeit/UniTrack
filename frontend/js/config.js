@@ -37,10 +37,10 @@ var CONFIG = (function () {
     // Request timeout
     REQUEST_TIMEOUT_MS: 8000,
 
-    // UNILAG Akoka campus centre.
-    MAP_CENTER_LAT: 6.5168,
-    MAP_CENTER_LNG: 3.3910,
-    MAP_DEFAULT_ZOOM: 16,
+    // UNILAG campus centre (verified working coordinates).
+    MAP_CENTER_LAT: 6.5185,
+    MAP_CENTER_LNG: 3.3895,
+    MAP_DEFAULT_ZOOM: 15,
     MAP_MAX_ZOOM: 19,
 
     // Polling cadence: 3s gives fluid updates and snappy responsive status

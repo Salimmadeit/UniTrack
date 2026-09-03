@@ -88,15 +88,15 @@ MapManager.prototype.initLeaflet = function () {
 
   this.map = L.map(this.containerId, {
     zoomControl: false,
-    attributionControl: false,
+    attributionControl: true,
     tap: false
   }).setView([CONFIG.MAP_CENTER_LAT, CONFIG.MAP_CENTER_LNG], CONFIG.MAP_DEFAULT_ZOOM);
 
   L.control.zoom({ position: 'topright' }).addTo(this.map);
 
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: CONFIG.MAP_MAX_ZOOM,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(this.map);
 
   this.routeLayer = L.layerGroup().addTo(this.map);
