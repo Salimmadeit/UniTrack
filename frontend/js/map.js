@@ -114,9 +114,9 @@ MapManager.prototype.initLeaflet = function () {
     html:
       '<div class="shuttle-marker" id="shuttle-marker-inner">' +
       '<span class="shuttle-pulse" aria-hidden="true"></span>' +
-      '<span class="shuttle-bus-icon">⚡🚌</span></div>',
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
+      '<span class="shuttle-bus-icon">🚌</span></div>',
+    iconSize: [48, 48],
+    iconAnchor: [24, 24],
     popupAnchor: [0, -20]
   });
 
