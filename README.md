@@ -137,3 +137,7 @@ The repository includes a declarative [`render.yaml`](./render.yaml) blueprint:
 ## UN Sustainable Development Goals Alignment
 - **SDG 11 (Sustainable Cities and Communities):** Safe, accessible, and sustainable campus mobility connecting academic faculties with residential halls.
 - **SDG 13 (Climate Action):** Facilitating transition to zero-emission electric buses, cutting vehicle emissions, and providing data-driven fleet optimization.
+
+
+##Notice:
+- THe website is live at https://unitrack20.netlify.app/ . However, due to the backend being hosted by Render on their free plan, it takes a full minute to spin up the backend after 15 minutes of inactivity and up to 8 seconds for the frontend too, possibly.
