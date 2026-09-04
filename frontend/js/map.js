@@ -102,7 +102,8 @@ MapManager.prototype.initLeaflet = function () {
 
   // Fix Leaflet tile rendering on mobile/responsive designs
   if (window.ResizeObserver) {
-    new ResizeObserver(function () {
+    var self = this;
+    new window.ResizeObserver(function () {
       if (self.map && self.map.invalidateSize) {
         self.map.invalidateSize();
       }
