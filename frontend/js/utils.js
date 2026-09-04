@@ -121,6 +121,21 @@ var Utils = (function () {
     );
   }
 
+  /**
+   * Calculates Haversine distance in km from a given lat/lng to UNILAG campus centre.
+   */
+  function getDistanceToCampus(lat, lng) {
+    if (!isValidCoordinate(lat, lng)) return 0;
+    var R = 6371;
+    var dLat = (lat - CONFIG.MAP_CENTER_LAT) * Math.PI / 180;
+    var dLng = (lng - CONFIG.MAP_CENTER_LNG) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(CONFIG.MAP_CENTER_LAT * Math.PI / 180) * Math.cos(lat * Math.PI / 180) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
   return {
     timeAgo: timeAgo,
     timeAgoFromSeconds: timeAgoFromSeconds,
@@ -130,6 +145,7 @@ var Utils = (function () {
     throttle: throttle,
     parseDate: parseDate,
     clamp: clamp,
-    isValidCoordinate: isValidCoordinate
+    isValidCoordinate: isValidCoordinate,
+    getDistanceToCampus: getDistanceToCampus
   };
 })();

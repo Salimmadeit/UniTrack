@@ -88,7 +88,7 @@ MapManager.prototype.initLeaflet = function () {
 
   this.map = L.map(this.containerId, {
     zoomControl: false,
-    attributionControl: false,
+    attributionControl: true,
     tap: false
   }).setView([CONFIG.MAP_CENTER_LAT, CONFIG.MAP_CENTER_LNG], CONFIG.MAP_DEFAULT_ZOOM);
 
@@ -96,19 +96,28 @@ MapManager.prototype.initLeaflet = function () {
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: CONFIG.MAP_MAX_ZOOM,
-    subdomains: 'abcd'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(this.map);
-
   this.routeLayer = L.layerGroup().addTo(this.map);
+
+  // Fix Leaflet tile rendering on mobile/responsive designs
+  if (window.ResizeObserver) {
+    var self = this;
+    new window.ResizeObserver(function () {
+      if (self.map && self.map.invalidateSize) {
+        self.map.invalidateSize();
+      }
+    }).observe(this.container);
+  }
 
   this.shuttleIcon = L.divIcon({
     className: 'custom-shuttle-div-icon',
     html:
       '<div class="shuttle-marker" id="shuttle-marker-inner">' +
       '<span class="shuttle-pulse" aria-hidden="true"></span>' +
-      '<span class="shuttle-bus-icon">⚡🚌</span></div>',
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
+      '<span class="shuttle-bus-icon">🚌</span></div>',
+    iconSize: [48, 48],
+    iconAnchor: [24, 24],
     popupAnchor: [0, -20]
   });
 
@@ -219,8 +228,24 @@ MapManager.prototype.removeShuttle = function () {
   }
 };
 
-MapManager.prototype.updateStudentLocation = function (lat, lng) {
+MapManager.prototype.updateStudentLocation = function (lat, lng, accuracy) {
   if (!Utils.isValidCoordinate(lat, lng)) return;
+
+  var distKm = Utils.getDistanceToCampus ? Utils.getDistanceToCampus(lat, lng) : 0;
+  var isOffCampus = distKm > 3.0;
+  var isApprox = typeof accuracy === 'number' && accuracy > 1000;
+
+  var popupHtml = '<div style="font-family:system-ui,-apple-system,sans-serif;padding:2px;min-width:170px;">' +
+    '<strong style="color:#1e293b;font-size:13px;display:block;">📍 Your Location</strong>' +
+    '<span style="font-size:11px;color:' + (isApprox ? '#d97706' : '#16a34a') + ';font-weight:600;">' +
+    (typeof accuracy === 'number'
+      ? (isApprox ? '⚠️ Approximate: ±' + Math.round(accuracy / 1000) + ' km (Desktop/IP)' : 'GPS Accuracy: ±' + Math.round(accuracy) + ' m')
+      : 'Active Position') +
+    '</span>' +
+    (isOffCampus
+      ? '<div style="margin-top:6px;padding-top:6px;border-top:1px solid #e2e8f0;font-size:11px;color:#b45309;">📍 Outside UNILAG campus loop (' + distKm.toFixed(1) + ' km away)</div>'
+      : '') +
+    '</div>';
 
   if (this.isGoogle) {
     if (!this.studentMarker) {
@@ -251,9 +276,25 @@ MapManager.prototype.updateStudentLocation = function (lat, lng) {
         fillOpacity: 1
       })
         .addTo(this.map)
-        .bindPopup('<strong>You are here</strong>');
+        .bindPopup(popupHtml);
     } else {
       this.studentMarker.setLatLng([lat, lng]);
+      this.studentMarker.setPopupContent(popupHtml);
+    }
+
+    if (typeof accuracy === 'number' && accuracy > 0) {
+      if (!this.accuracyCircle) {
+        this.accuracyCircle = L.circle([lat, lng], {
+          radius: accuracy,
+          color: '#1a73e8',
+          fillColor: '#1a73e8',
+          fillOpacity: 0.1,
+          weight: 1
+        }).addTo(this.map);
+      } else {
+        this.accuracyCircle.setLatLng([lat, lng]);
+        this.accuracyCircle.setRadius(accuracy);
+      }
     }
   }
 };
@@ -435,14 +476,43 @@ MapManager.prototype.fitToMarkers = function () {
     var bounds = new google.maps.LatLngBounds();
     var count = 0;
     if (this.shuttleMarker) { bounds.extend(this.shuttleMarker.getPosition()); count++; }
-    if (this.studentMarker) { bounds.extend(this.studentMarker.getPosition()); count++; }
+    if (this.studentMarker) {
+      var studentPos = this.studentMarker.getPosition();
+      var distToCampus = Utils.getDistanceToCampus ? Utils.getDistanceToCampus(studentPos.lat(), studentPos.lng()) : 0;
+      if (distToCampus <= 3.5) {
+        bounds.extend(studentPos);
+        count++;
+      }
+    }
     if (count > 0) this.map.fitBounds(bounds);
   } else {
     var points = [];
     if (this.shuttleMarker) points.push(this.shuttleMarker.getLatLng());
-    if (this.studentMarker) points.push(this.studentMarker.getLatLng());
+    if (this.studentMarker) {
+      var sPos = this.studentMarker.getLatLng();
+      var dToCampus = Utils.getDistanceToCampus ? Utils.getDistanceToCampus(sPos.lat, sPos.lng) : 0;
+      if (dToCampus <= 3.5) {
+        points.push(sPos);
+      }
+    }
     if (points.length < 2) return;
     this.map.fitBounds(L.latLngBounds(points).pad(0.25), { maxZoom: 17 });
+  }
+};
+
+MapManager.prototype.centerCampus = function () {
+  if (this.isGoogle) {
+    if (this.map) {
+      this.map.panTo({ lat: CONFIG.MAP_CENTER_LAT, lng: CONFIG.MAP_CENTER_LNG });
+      this.map.setZoom(CONFIG.MAP_DEFAULT_ZOOM);
+    }
+  } else {
+    if (this.map) {
+      this.map.setView([CONFIG.MAP_CENTER_LAT, CONFIG.MAP_CENTER_LNG], CONFIG.MAP_DEFAULT_ZOOM, {
+        animate: true,
+        duration: 0.5
+      });
+    }
   }
 };
 

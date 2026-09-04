@@ -120,7 +120,7 @@ EtaController.prototype.stopAgeTicker = function () {
  * Requests the student's position. Failure is non-fatal: the campus centre is
  * a usable fallback, so the app still answers "where is the shuttle?".
  */
-EtaController.prototype.locateStudent = function (onDone) {
+EtaController.prototype.locateStudent = function (onDone, forceFresh) {
   var self = this;
 
   if (!navigator.geolocation) {
@@ -135,9 +135,14 @@ EtaController.prototype.locateStudent = function (onDone) {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       };
-      self.mapManager.updateStudentLocation(self.studentLocation.lat, self.studentLocation.lng);
+      self.studentAccuracy = position.coords.accuracy || null;
+      self.mapManager.updateStudentLocation(
+        self.studentLocation.lat,
+        self.studentLocation.lng,
+        self.studentAccuracy
+      );
       self.poll();
-      if (onDone) onDone(true);
+      if (onDone) onDone(true, position);
     },
     function () {
       // Denied or unavailable: fall back silently rather than blocking with an alert.
@@ -146,7 +151,7 @@ EtaController.prototype.locateStudent = function (onDone) {
       }
       if (onDone) onDone(false);
     },
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: forceFresh ? 0 : 30000 }
   );
 };
 
@@ -189,10 +194,22 @@ EtaController.prototype.poll = function () {
   if (this.inFlight) return Promise.resolve();
   this.inFlight = true;
 
-  var location = this.studentLocation || {
-    lat: CONFIG.MAP_CENTER_LAT,
-    lng: CONFIG.MAP_CENTER_LNG
-  };
+  var location = this.studentLocation;
+  // If student is off-campus (> 3.0km), anchor ETA query to campus center (or selected stop)
+  // rather than an off-campus location 8km away in Marina!
+  if (!location || (Utils.getDistanceToCampus && Utils.getDistanceToCampus(location.lat, location.lng) > 3.0)) {
+    location = this.selectedStop ? { lat: this.selectedStop.lat, lng: this.selectedStop.lng } : {
+      lat: CONFIG.MAP_CENTER_LAT,
+      lng: CONFIG.MAP_CENTER_LNG
+    };
+  }
+
+  var refreshBtn = document.getElementById('refresh-btn');
+  if (refreshBtn) {
+    refreshBtn.disabled = true;
+    var icon = refreshBtn.querySelector('.material-symbols-outlined');
+    if (icon) icon.classList.add('animate-spin');
+  }
 
   // Promise.all with per-request recovery: one failing endpoint must not blank
   // the whole screen.
@@ -234,10 +251,22 @@ EtaController.prototype.poll = function () {
     })
     .then(function () {
       self.inFlight = false;
+      var refreshBtn = document.getElementById('refresh-btn');
+      if (refreshBtn) {
+        refreshBtn.disabled = false;
+        var icon = refreshBtn.querySelector('.material-symbols-outlined');
+        if (icon) icon.classList.remove('animate-spin');
+      }
       self._scheduleNext();
     })
     .catch(function () {
       self.inFlight = false;
+      var refreshBtn = document.getElementById('refresh-btn');
+      if (refreshBtn) {
+        refreshBtn.disabled = false;
+        var icon = refreshBtn.querySelector('.material-symbols-outlined');
+        if (icon) icon.classList.remove('animate-spin');
+      }
       self._scheduleNext();
     });
 };
@@ -334,14 +363,56 @@ EtaController.prototype.refresh = function () {
 /** Re-requests the student's GPS position and pans the map to it. */
 EtaController.prototype.recentreOnStudent = function () {
   var self = this;
-  this.locateStudent(function (success) {
-    if (self.studentLocation) {
-      self.mapManager.panTo(self.studentLocation.lat, self.studentLocation.lng);
+  
+  var locateBtn = document.getElementById('locate-btn');
+  if (locateBtn) {
+    locateBtn.disabled = true;
+    var icon = locateBtn.querySelector('.material-symbols-outlined');
+    if (icon) icon.classList.add('animate-spin');
+  }
+
+  this.locateStudent(function (success, position) {
+    if (locateBtn) {
+      locateBtn.disabled = false;
+      var icon = locateBtn.querySelector('.material-symbols-outlined');
+      if (icon) icon.classList.remove('animate-spin');
     }
-    if (!success) {
+
+    if (success && self.studentLocation) {
+      var distKm = Utils.getDistanceToCampus ? Utils.getDistanceToCampus(self.studentLocation.lat, self.studentLocation.lng) : 0;
+      var accuracy = position && position.coords ? position.coords.accuracy : self.studentAccuracy;
+      var returnPill = document.getElementById('return-campus-pill');
+      var returnText = document.getElementById('return-campus-text');
+
+      self.mapManager.panTo(self.studentLocation.lat, self.studentLocation.lng);
+
+      if (distKm > 3.0) {
+        var isApprox = typeof accuracy === 'number' && accuracy > 1000;
+        var msg = '📍 Location detected: ~' + distKm.toFixed(1) + ' km from UNILAG' +
+          (isApprox ? ' (Desktop/IP estimate ±' + Math.round(accuracy / 1000) + ' km)' : '') +
+          '. Tap "Center Campus" to return to shuttle routes.';
+        self.uiManager.showToast(msg);
+
+        if (returnPill) {
+          if (returnText) returnText.textContent = 'Return to UNILAG Campus (' + distKm.toFixed(1) + ' km)';
+          returnPill.classList.remove('hidden');
+        }
+      } else {
+        self.uiManager.showToast('📍 Centered on your position on campus.');
+        if (returnPill) returnPill.classList.add('hidden');
+      }
+    } else {
       self.uiManager.showToast('📍 Could not get your location. Check GPS permissions.');
     }
-  });
+  }, true);
+};
+
+/** Centers map view back on UNILAG campus loop. */
+EtaController.prototype.centerOnCampus = function () {
+  this.mapManager.centerCampus();
+  var returnPill = document.getElementById('return-campus-pill');
+  if (returnPill) returnPill.classList.add('hidden');
+  this.uiManager.showToast('🏫 Centered on UNILAG campus shuttle loop.');
 };
 
 /** Selects a stop and focuses incoming buses heading there. */
